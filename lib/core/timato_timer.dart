@@ -15,7 +15,7 @@ class TimatoTimer{
   /// If it is changed, kill the current TimatoTimer and create a new one.
   final int timerLength;
   /// It processes the periodically listened data (the [_timerCount] of each second)
-  final void Function(dynamic) _onData;
+  final void Function(int) _onData;
 
   /// It checks whether the timer times out.
   /// Though it is private, you can still get it by using <TimatoTimer>.isRelax ([isRelax])
@@ -66,18 +66,12 @@ class TimatoTimer{
   /// Start a timer
   ///
   /// Start a timer with a minimum unit of one second.
-  /// If it is not in relax, count down the timer
-  /// if it is in relax, count up the timer
-  /// When the timer hits 0, change the relax status to be true
+  /// count down the timer
   void _startTimeout() async{
     _t = Timer.periodic(Duration(seconds: 1), (_) {
-      if(_isRelax){
-        _onData(++_timerCount);
-      } else{
-        if (_timerCount == 1){ // making sure when isRelax == true, timerCount == 0
-          _isRelax = true;
-        }
-        _onData(--_timerCount);
+      _onData(--_timerCount);
+      if (_timerCount <= 0){
+        _isRelax = true;
       }
     });
   }
