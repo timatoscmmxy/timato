@@ -23,7 +23,7 @@ class Event{
   ///The time duration reach [Event] is expected
   int duration = 0;
   ///A category that the [Event] belongs to
-  int tag;
+  String tag;
   ///Indicator for whether the [Event] repeats everyday
   bool repeat;
   ///The [Event]'s priority level
@@ -32,7 +32,7 @@ class Event{
   ///
   ///This list includes sample [Subevent]
   List subeventsList = <Subevent> [
-    new Subevent(subeventName: 'sub1')
+    new Subevent(subeventName: 'sub1',subeventPriority: Priority.MIDDLE)
   ];
   ///bool isExpanded = false;
   
@@ -58,10 +58,20 @@ class Event{
 }
 
 class Subevent {
+  ///Maps each [Subevent._priorityLevel] to a number
+  static final Map<Priority, int> _priorityLevel = {
+    Priority.HIGH: 3,
+    Priority.MIDDLE: 2,
+    Priority.LOW: 1,
+    Priority.NONE: 0,
+  };
+
   int id;
   String subeventName;
   DateTime subeventDdl;
   int subeventLen = 0;
+  ///The [Subevent]'s priority level
+  Priority subeventPriority = Priority.NONE;
 
-  Subevent({this.id, this.subeventName, this.subeventDdl});
+  Subevent({this.id, this.subeventName, this.subeventDdl, this.subeventPriority});
 }
