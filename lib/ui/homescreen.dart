@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/material/colors.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
 import 'dart:developer' as developer;
@@ -28,8 +29,13 @@ class HomePage extends State<ToDoList> {
   ///
   ///Adds test case1 [testTask] and case2 [testTask2] into [eventList]
   List eventsList = <Event>[
-    new Event(id: 0, taskName: 'test123456789', eventPriority: Priority.HIGH,tag: 'English'),
-    new Event(id: 1, taskName: 'test2', eventPriority: Priority.LOW, tag: 'Chinese'),
+    new Event(
+        id: 0,
+        taskName: 'test123456789',
+        eventPriority: Priority.HIGH,
+        tag: 'English'),
+    new Event(
+        id: 1, taskName: 'test2', eventPriority: Priority.LOW, tag: 'Chinese'),
   ];
 
   ///Turns [eventsList] into [eventsMap]
@@ -68,7 +74,18 @@ class HomePage extends State<ToDoList> {
   Widget _list() {
     return ReorderableListView(
       children: eventsList.map((task) {
-        return ListExpan(key: Key(task.id.toString()), task: task);
+        return Slidable(
+            key: Key(task.id.toString()),
+            actionPane: SlidableDrawerActionPane(),
+            actionExtentRatio: 0.25,
+            secondaryActions: <Widget>[
+              IconSlideAction(color: Colors.black87, icon: Icons.add
+
+                  ///Needs onTop in the future
+                  ),
+              IconSlideAction(color: Colors.black87, icon: Icons.delete)
+            ],
+            child: ListExpan(task: task));
       }).toList(),
       onReorder: _onReorder,
     );
@@ -110,7 +127,6 @@ class ListExpan extends StatelessWidget {
 
   Widget _buildTiles(Event task) {
     if (task.subeventsList.isEmpty) return _event(task);
-
     return Container(
         color: Colors.red[300],
         child: ExpansionTile(
@@ -137,98 +153,96 @@ class ListExpan extends StatelessWidget {
   ///Builds each [Event] on the list
   Widget _event(Event task) {
     return Container(
-        key: Key(task.id.toString()),
-        margin: EdgeInsets.all(5.0),
-        height: 50,
-        width: 40,
-        color: Colors.red[300],
-        child: new Row(children: <Widget>[
-            Icon(Icons.brightness_1, color: _priorityColor(task)),
-            new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-              new Row(
-                children: <Widget>[
-                  ///Contains [taskName]
-                  Container(
+      key: Key(task.id.toString()),
+      margin: EdgeInsets.all(5.0),
+      height: 50,
+      width: 40,
+      color: Colors.red[300],
+      child: new Row(children: <Widget>[
+        Icon(Icons.brightness_1, color: _priorityColor(task)),
+        new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Row(children: <Widget>[
+                ///Contains [taskName]
+                Container(
                     margin: EdgeInsets.all(5.0),
                     child: Text(task.taskName,
                         textAlign: TextAlign.left,
-                        style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)))
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold)))
               ]),
 
               ///Contains [tag] and [ddl]
+
               new Row(
                 children: <Widget>[
                   SizedBox(width: 10),
                   Container(
-                      //alignment: Alignment.centerLeft,
-                      child: Text(task.tag, style: TextStyle(fontSize: 12)),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                      ),
-                      padding: EdgeInsets.all(2),
-                      ),
+                    //alignment: Alignment.centerLeft,
+                    child: Text(task.tag, style: TextStyle(fontSize: 12)),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.all(2),
+                  ),
                   SizedBox(width: 5),
                   Container(
-                      //alignment: Alignment.centerLeft,
-                      child: Text('2029', style: TextStyle(fontSize: 12)),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                      ),
-                      padding: EdgeInsets.all(2),
+                    //alignment: Alignment.centerLeft,
+                    child: Text('2029', style: TextStyle(fontSize: 12)),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.all(2),
                   )
                 ],
               )
             ]),
-          ]),
-        // )
-        );
+      ]),
+    );
   }
 
-  ///Build each [Subevent] on subevent's list 
+  ///Build each [Subevent] on subevent's list
   Widget _subevent(Subevent subtask) {
     return Container(
-
-        ///key: Key(subtask.id.toString()),
-        height: 45,
-        color: Colors.white70,
-        child: new Row(
-          children: <Widget>[
-            SizedBox(width: 25),
-            Icon(Icons.brightness_1, color: _subpriorityColor(subtask)),
-            //new Column(
-              //children: <Widget>[
-              //new Row(
-                //children: <Widget>[
-                  ///Contains [subtaskName]
-                  Container(
-                    margin: EdgeInsets.all(5.0),
-                    child: Text(subtask.subeventName,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(fontSize: 15, color: Colors.black87)))
-              ]),
-            //]
-            //),
-          //]
-          //),
-        
-        );
+      ///key: Key(subtask.id.toString()),
+      height: 45,
+      color: Colors.white70,
+      child: new Row(children: <Widget>[
+        SizedBox(width: 25),
+        Icon(Icons.brightness_1, color: _subpriorityColor(subtask)),
+        //new Column(
+        //children: <Widget>[
+        //new Row(
+        //children: <Widget>[
+        ///Contains [subtaskName]
+        Container(
+            margin: EdgeInsets.all(5.0),
+            child: Text(subtask.subeventName,
+                textAlign: TextAlign.left,
+                style: TextStyle(fontSize: 15, color: Colors.black87)))
+      ]),
+      //]
+      //),
+      //]
+      //),
+    );
   }
 
   ///Changes the color according to [eventPriority] of [Event]
   Color _priorityColor(Event task) {
     if (task.eventPriority == Priority.HIGH) {
       return Colors.red[700];
-    }else if(task.eventPriority == Priority.MIDDLE){
+    } else if (task.eventPriority == Priority.MIDDLE) {
       return Colors.orange;
-    }else if(task.eventPriority == Priority.LOW){
+    } else if (task.eventPriority == Priority.LOW) {
       return Colors.blue[300];
-    }else{
+    } else {
       return Colors.white;
     }
   }
@@ -236,14 +250,12 @@ class ListExpan extends StatelessWidget {
   Color _subpriorityColor(Subevent subtask) {
     if (subtask.subeventPriority == Priority.HIGH) {
       return Colors.red[700];
-    }else if(subtask.subeventPriority == Priority.MIDDLE){
+    } else if (subtask.subeventPriority == Priority.MIDDLE) {
       return Colors.orange;
-    }else if(subtask.subeventPriority == Priority.LOW){
+    } else if (subtask.subeventPriority == Priority.LOW) {
       return Colors.blue[300];
-    }else{
+    } else {
       return Colors.white;
     }
   }
-
-
 }
