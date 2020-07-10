@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -15,32 +12,34 @@ enum TimerStatus {normal, relax}
 
 // ignore: must_be_immutable
 class TimatoTimerWidget extends StatelessWidget{
-  static final _time = ValueNotifier("00:00:00");
-  static final _textColor = ValueNotifier(Colors.black);
-  static final _buttonColor = ValueNotifier(Colors.amber);
-  static final _buttonIcon = ValueNotifier(Icons.play_arrow);
-  static final _buttonStatus = ValueNotifier(ButtonStatus.normal);
+  static final ValueNotifier<String> _time = ValueNotifier("00:00:00");
+  static final ValueNotifier<MaterialColor> _textColor = ValueNotifier(Colors.black);
+  static final ValueNotifier<MaterialColor> _buttonColor = ValueNotifier(Colors.amber);
+  static final ValueNotifier<IconData> _buttonIcon = ValueNotifier(Icons.play_arrow);
+  static final ValueNotifier<ButtonStatus> _buttonStatus = ValueNotifier(ButtonStatus.normal);
 
   static int _timerNum;
   static ValueNotifier<int> usedTimerNum;
   static int _relaxTime;
 
-  static var status = TimerStatus.normal;
+  static TimerStatus _status = TimerStatus.normal;
+
+  TimatoTimer _timer;
 
   static void _onData(int count) async{
     _time.value = _secondToString(count);
     if (count <= 0){
       if (-count > _relaxTime){
-        if (status == TimerStatus.relax) {
+        if (_status == TimerStatus.relax) {
           await notifications.show (0, "TimatoEvent", "Relax End!", notificationDetails);
-          status = TimerStatus.normal;
+          _status = TimerStatus.normal;
         }
         _textColor.value = Colors.deepOrange;
         _buttonColor.value = Colors.deepOrange;
       } else{
-        if (status == TimerStatus.normal) {
+        if (_status == TimerStatus.normal) {
           await notifications.show (0, "TimatoEvent", "Relax Time!", notificationDetails);
-          status = TimerStatus.relax;
+          _status = TimerStatus.relax;
         }
         _textColor.value = Colors.lightGreen;
         _buttonColor.value = Colors.lightGreen;
@@ -56,8 +55,6 @@ class TimatoTimerWidget extends StatelessWidget{
       }
     }
   }
-
-  TimatoTimer _timer;
 
   TimatoTimerWidget(int timerLength, int relaxLength) {
     _textColor.value = Colors.black;

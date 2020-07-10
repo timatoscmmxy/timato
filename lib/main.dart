@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:timato/core/notifications.dart';
+import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 
 void main() async{
@@ -13,7 +14,8 @@ void main() async{
   await initPreferences();
 
   var timerData = await getTimerData();
-  runApp(MyApp(timerData[0], timerData[1]));
+  var pref = await SharedPreferences.getInstance();
+  runApp(MyApp(pref));
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -28,19 +30,24 @@ void main() async{
 }
 
 initPreferences() async{
-  SharedPreferences pref = await SharedPreferences.getInstance();
+  const DEFAULT_TIMER_LENGTH = 25*60;
+  const DEFAULT_RELAX_LENGTH = 5*60;
+
+  final SharedPreferences pref = await SharedPreferences.getInstance();
+
   if (pref.get("firstLaunch") == null){
     pref.setBool("firstLaunch", true);
-    pref.setInt("timerLength", 25*60);
-    pref.setInt("relaxLength", 5*60);
+    pref.setInt("timerLength", DEFAULT_TIMER_LENGTH);
+    pref.setInt("relaxLength", DEFAULT_RELAX_LENGTH);
   }
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-  final timerLength;
-  final relaxLength;
-  MyApp(this.timerLength, this.relaxLength);
+//  final timerLength;
+//  final relaxLength;
+  final _pref;
+  MyApp(this._pref);
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +58,8 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: TimatoTimerWidget(timerLength, relaxLength),
+//      home: TimatoTimerWidget(timerLength, relaxLength),
+      home: Settings(_pref)
     );
   }
 }
