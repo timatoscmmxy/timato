@@ -79,11 +79,11 @@ class HomePage extends State<ToDoList> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             secondaryActions: <Widget>[
-              IconSlideAction(color: Colors.black87, icon: Icons.add
+              IconSlideAction(color: Colors.red[200], icon: Icons.add
 
                   ///Needs onTop in the future
                   ),
-              IconSlideAction(color: Colors.black87, icon: Icons.delete)
+              IconSlideAction(color: Colors.red[200], icon: Icons.delete)
             ],
             child: ListExpan(task: task));
       }).toList(),
@@ -139,7 +139,20 @@ class ListExpan extends StatelessWidget {
                 height: (50.0 * task.subeventsList.length),
                 child: ListView(
                     children: task.subeventsList.map((subtask) {
-                  return _subevent(subtask);
+                      return Slidable(
+            key: Key(task.id.toString()),
+            actionPane: SlidableDrawerActionPane(),
+            actionExtentRatio: 0.25,
+            secondaryActions: <Widget>[
+              IconSlideAction(color: Colors.red[200], icon: Icons.add
+
+                  ///Needs onTop in the future
+                  ),
+              IconSlideAction(color: Colors.red[200], icon: Icons.delete)
+            ],
+            child:
+                  //return 
+                  _subevent(subtask));
                 }).toList()))
           ],
         ));
