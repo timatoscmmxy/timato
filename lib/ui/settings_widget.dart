@@ -2,18 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timato/ui/basics.dart';
 
 class Settings extends StatelessWidget{
+  final tomatoColor = Color.fromRGBO(255, 99, 71, 1);
+  final SharedPreferences _pref;
+
   int timerLength, relaxLength;
   String language;
 
-  final SharedPreferences _pref;
   Settings(this._pref){
     timerLength = _pref.getInt('timerLength') ?? 0;
     relaxLength = _pref.getInt('relaxLength') ?? 0;
     language = _pref.getString('language') ?? 'en_US';
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,24 +33,13 @@ class Settings extends StatelessWidget{
           TextSetting('Relax Time', relaxLength, (val) => relaxLength = val * 60),
         ],
       ),
-      floatingActionButton: RaisedButton(
-        child: Container(
-          child: Text(
-            'Done',
-            style: TextStyle(
-              color: Colors.blue,
-            ),
-          ),
-          padding: EdgeInsets.only(top: 15, bottom: 15, left: 35, right: 35),
-        ),
-        onPressed: (){
-          _pref.setInt('timerLength', timerLength);
-          _pref.setInt('relaxLength', relaxLength);
-          Navigator.pop(context);
-        },
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-
+      floatingActionButton: FloatingRaisedButton(
+        'Done',
+              (){
+            _pref.setInt('timerLength', timerLength);
+            _pref.setInt('relaxLength', relaxLength);
+            Navigator.pop(context);
+          }
       ),
     );
   }
