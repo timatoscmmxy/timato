@@ -52,7 +52,7 @@ class MainList extends State<ToDoList> {
       body: new Container(
         // height: 100,
         decoration: new BoxDecoration(
-          color: Colors.white70,
+          color: Colors.white,
         ),
         child: _list(), //new Column(
         //children: <Widget>[

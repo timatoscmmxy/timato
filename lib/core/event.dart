@@ -3,15 +3,31 @@ enum Priority{
     HIGH, MIDDLE, LOW, NONE
   }
 
+// final Map<Priority, int> _priorityLevel = {
+//     Priority.HIGH: 3,
+//     Priority.MIDDLE: 2,
+//     Priority.LOW: 1,
+//     Priority.NONE: 0,
+//   };
+
 ///A event that user adds onto the todo list
 class Event{
-  ///Maps each [Event._priorityLevel] to a number
+  ///Maps each [Event.eventPriority] to a number
   static final Map<Priority, int> _priorityLevel = {
     Priority.HIGH: 3,
     Priority.MIDDLE: 2,
     Priority.LOW: 1,
     Priority.NONE: 0,
   };
+
+  ///Maps each [Event.eventPriority] to a String
+  static final Map<Priority, int> _priorityString = {
+    Priority.HIGH: 3,
+    Priority.MIDDLE: 2,
+    Priority.LOW: 1,
+    Priority.NONE: 0,
+  };
+
   ///Each event has its [id] to be indentified
   int id;
   ///Event's name
@@ -28,6 +44,9 @@ class Event{
   bool repeat;
   ///The [Event]'s priority level
   Priority eventPriority = Priority.NONE;
+  ///Number of clocks needed
+  int numClock;
+
   ///List of all the [Subevent] this [Event] has
   ///
   ///This list includes sample [Subevent]
@@ -36,10 +55,10 @@ class Event{
   ];
   ///bool isExpanded = false;
   
-  Event({this.id,this.taskName,this.ddl,this.eventPriority, this.tag});
+  Event({this.id,this.taskName,this.ddl,this.eventPriority, this.tag, this.numClock});
 
   ///Number of clocks each event needs
-  int get clockNum => (duration/clockLen).ceil();
+  //int get numClock => (duration/clockLen).ceil();
 
   ///Returns the event that has higher priority
   Event higherPriority(Event other) {

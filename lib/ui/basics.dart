@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+//Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
+
 class FloatingRaisedButton extends StatelessWidget{
   static final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
 
