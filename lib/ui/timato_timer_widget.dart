@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:timato/core/notifications.dart';
 import 'package:timato/core/timato_timer.dart';
+import 'package:timato/core/event.dart';
+import 'package:timato/ui/basics.dart';
+import 'package:timato/ui/add_event.dart';
 
 enum ButtonStatus {normal, next, end}
 
@@ -13,8 +16,8 @@ enum TimerStatus {normal, relax}
 // ignore: must_be_immutable
 class TimatoTimerWidget extends StatelessWidget{
   static final ValueNotifier<String> _time = ValueNotifier("00:00:00");
-  static final ValueNotifier<MaterialColor> _textColor = ValueNotifier(Colors.black);
-  static final ValueNotifier<MaterialColor> _buttonColor = ValueNotifier(Colors.amber);
+  static final ValueNotifier<Color> _textColor = ValueNotifier(Colors.black);
+  static final ValueNotifier<Color> _buttonColor = ValueNotifier(Colors.amber);
   static final ValueNotifier<IconData> _buttonIcon = ValueNotifier(Icons.play_arrow);
   static final ValueNotifier<ButtonStatus> _buttonStatus = ValueNotifier(ButtonStatus.normal);
 
@@ -25,6 +28,7 @@ class TimatoTimerWidget extends StatelessWidget{
   static TimerStatus _status = TimerStatus.normal;
 
   TimatoTimer _timer;
+  Event event;
 
   static void _onData(int count) async{
     _time.value = _secondToString(count);
@@ -48,7 +52,7 @@ class TimatoTimerWidget extends StatelessWidget{
       _buttonStatus.value = ButtonStatus.next;
     } else{
       _textColor.value = Colors.black;
-      _buttonColor.value = Colors.amber;
+      _buttonColor.value = Colors.white;
       _buttonStatus.value = ButtonStatus.normal;
       if (_buttonIcon.value != Icons.play_arrow && _buttonIcon.value != Icons.pause){
         _buttonIcon.value = Icons.play_arrow;
@@ -107,9 +111,9 @@ class TimatoTimerWidget extends StatelessWidget{
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               IconButton(
-                icon: Icon(Icons.error_outline, color: Colors.black38),
+                icon: Icon(Icons.lightbulb_outline, color: Colors.black38),
                 onPressed: () {
-                  print("yeah");
+                  AddEvent.showAddUnplannedEvent(context);
                 },
               ),
               Expanded(
@@ -222,6 +226,12 @@ class ButtonIcon extends StatelessWidget{
     return ValueListenableBuilder(
       valueListenable: icon,
       builder: (BuildContext context, IconData value, Widget child){
+        if (value == Icons.play_arrow || value == Icons.pause){
+          return Icon(
+            value,
+            color: tomatoColor,
+          );
+        }
         return Icon(value);
       },
     );

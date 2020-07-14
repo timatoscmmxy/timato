@@ -58,8 +58,8 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         scaffoldBackgroundColor: Colors.white,
       ),
-//      home: TimatoTimerWidget(timerLength, relaxLength),
-      home: Settings(_pref)
+      home: TimatoTimerWidget(10, 10),
+//      home: Settings(_pref)
     );
   }
 }
