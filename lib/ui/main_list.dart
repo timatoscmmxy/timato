@@ -5,6 +5,7 @@ import 'package:flutter/src/material/colors.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
+import 'package:timato/ui/basics.dart';
 import 'dart:developer' as developer;
 
 final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
@@ -54,21 +55,8 @@ class MainList extends State<ToDoList> {
         decoration: new BoxDecoration(
           color: Colors.white,
         ),
-        child: _list(), //new Column(
-        //children: <Widget>[
-        //new TextField(
-        //decoration: new InputDecoration(
-        //hintText: "What is your task?"
-        //),
-        //onChanged:(String str){
-        //setState((){
-        //name = str;
-        //Event task1 = new Event(name);
-        //});
-        //})
-        //],
+        child: _list(), 
       ),
-      //)
     );
   }
 
@@ -138,7 +126,7 @@ class ListExpan extends StatelessWidget {
           },
           children: <Widget>[
             Container(
-                height: (50.0 * task.subeventsList.length),
+                height:(50.0 * task.subeventsList.length),
                 child: ListView(
                     children: task.subeventsList.map((subtask) {
                       return Slidable(

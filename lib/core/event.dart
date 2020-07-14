@@ -3,30 +3,51 @@ enum Priority{
     HIGH, MIDDLE, LOW, NONE
   }
 
-// final Map<Priority, int> _priorityLevel = {
-//     Priority.HIGH: 3,
-//     Priority.MIDDLE: 2,
-//     Priority.LOW: 1,
-//     Priority.NONE: 0,
-//   };
+
+final Map<Priority, int> _priorityInt = {
+    Priority.HIGH: 3,
+    Priority.MIDDLE: 2,
+    Priority.LOW: 1,
+    Priority.NONE: 0
+  };
+
+final Map<int, String> _priorityString = {
+  3: 'High',
+  2: 'Middle',
+  1: 'Low',
+  0: 'None'
+};
+
+final Map<String, Priority> _priorityEnum = {
+    'High' : Priority.HIGH,
+    'Middle' : Priority.MIDDLE,
+    'Low' : Priority.LOW,
+    'None' : Priority.NONE
+  };
 
 ///A event that user adds onto the todo list
 class Event{
+  // final Map<String, Priority> _priorityEnum = {
+  //   'High' : Priority.HIGH,
+  //   'Middle' : Priority.MIDDLE,
+  //   'Low' : Priority.LOW,
+  //   'None' : Priority.NONE
+  // };
   ///Maps each [Event.eventPriority] to a number
-  static final Map<Priority, int> _priorityLevel = {
-    Priority.HIGH: 3,
-    Priority.MIDDLE: 2,
-    Priority.LOW: 1,
-    Priority.NONE: 0,
-  };
+  // static final Map<Priority, int> _priorityLevel = {
+  //   Priority.HIGH: 3,
+  //   Priority.MIDDLE: 2,
+  //   Priority.LOW: 1,
+  //   Priority.NONE: 0,
+  // };
 
   ///Maps each [Event.eventPriority] to a String
-  static final Map<Priority, int> _priorityString = {
-    Priority.HIGH: 3,
-    Priority.MIDDLE: 2,
-    Priority.LOW: 1,
-    Priority.NONE: 0,
-  };
+  // static final Map<Priority, String> _priorityString = {
+  //   Priority.HIGH: 'High',
+  //   Priority.MIDDLE: 'Middle',
+  //   Priority.LOW: 'Low',
+  //   Priority.NONE: 'None',
+  // };
 
   ///Each event has its [id] to be indentified
   int id;
@@ -37,7 +58,7 @@ class Event{
   ///Each clock is set to be 1500 seconds
   int clockLen = 1500;
   ///The time duration reach [Event] is expected
-  int duration = 0;
+  //int duration = 0;
   ///A category that the [Event] belongs to
   String tag;
   ///Indicator for whether the [Event] repeats everyday
@@ -46,6 +67,14 @@ class Event{
   Priority eventPriority = Priority.NONE;
   ///Number of clocks needed
   int numClock;
+  
+  // String get eventPriorityString => _priorityString[this.eventPriority];
+  // void set eventPriorityString(String priority)=> this.eventPriorityString=priority;
+
+  // Priority get eventPriority => _priorityLevel[this.eventPriority];
+  //void set eventPriority(String priority)=> this.eventPriority=priority;
+
+  //Priority get eventPriorityEnum => _priorityLevel[this.priority];
 
   ///List of all the [Subevent] this [Event] has
   ///
@@ -62,7 +91,7 @@ class Event{
 
   ///Returns the event that has higher priority
   Event higherPriority(Event other) {
-    if (_priorityLevel[this.eventPriority] >= _priorityLevel[other.eventPriority]) {
+    if (_priorityInt[this.eventPriority] >= _priorityInt[other.eventPriority]) {
       return this;
     } else {
       return other;
