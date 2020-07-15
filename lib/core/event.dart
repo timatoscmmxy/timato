@@ -1,9 +1,10 @@
 import 'package:flutter/widgets.dart';
 
 import 'package:meta/meta.dart';
-import 'package:timato/ui/basics.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:timato/ui/basics.dart';
 
 enum RepeatUnit { day, week, month, year }
 
@@ -144,9 +145,6 @@ class RepeatProperties {
 
 abstract class AbstractEvent implements Comparable {
 
-  ///Each event has its [id] to be indentified
-  // int id;
-
   ///Event's name
   String taskName;
 
@@ -159,7 +157,6 @@ abstract class AbstractEvent implements Comparable {
   String tag;
 
   ///The [Event]'s priority level
-
   Priority eventPriority = Priority.NONE;
 
   ///Indicates whether the event is done
@@ -179,15 +176,14 @@ abstract class AbstractEvent implements Comparable {
       String tag,
       Priority eventPriority = Priority.NONE,
       RepeatProperties repeatProperties,
-      int numClock = 3}) {
+      }) {
     this.taskName = taskName;
     this.ddl = ddl;
     this.duration = duration;
     this.tag = tag;
     this.eventPriority = eventPriority;
     this.repeatProperties = repeatProperties;
-    this.numClock = numClock;
-    this.key = key ?? UniqueKey();
+    this.key = UniqueKey();
   }
 
   ///List of all the [Subevent] this [Event] has
@@ -262,22 +258,19 @@ class Event extends AbstractEvent {
 
   Event(
       {@required String taskName,
-      Key key,
       DateTime ddl,
       int duration,
       String tag,
       Priority eventPriority = Priority.NONE,
       RepeatProperties repeatProperties,
-      int numClock = 3})
+      })
       : super(
             taskName: taskName,
-            key: key,
             ddl: ddl,
             duration: duration,
             tag: tag,
             eventPriority: eventPriority,
-            repeatProperties: repeatProperties,
-            numClock: numClock);
+            repeatProperties: repeatProperties);
 
   ///Adds new [Subevent] to the [subeventsList]
   void addSub(String subName) {
