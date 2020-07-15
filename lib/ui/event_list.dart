@@ -380,7 +380,7 @@ class _ClockNumberState extends State<ClockNumber> {
     return Container(
         child: Row(children: <Widget>[
       SizedBox(width: 12),
-      Icon(Icons.timer, color: tomatoColor),
+      Icon(Icons.timer, color: ConstantHelper.tomatoColor),
       SizedBox(width: 12),
       Container(
           width: 50,

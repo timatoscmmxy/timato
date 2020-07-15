@@ -229,7 +229,7 @@ class ButtonIcon extends StatelessWidget{
         if (value == Icons.play_arrow || value == Icons.pause){
           return Icon(
             value,
-            color: tomatoColor,
+            color: ConstantHelper.tomatoColor,
           );
         }
         return Icon(value);

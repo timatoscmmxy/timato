@@ -46,28 +46,28 @@ class AddEvent extends StatelessWidget{
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.calendar_today, color: tomatoColor,),
+                    icon: Icon(Icons.calendar_today, color: ConstantHelper.tomatoColor,),
                     onPressed: (){},
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.timer, color: tomatoColor,),
+                    icon: Icon(Icons.timer, color: ConstantHelper.tomatoColor,),
                     onPressed: (){},
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.info_outline, color: tomatoColor,),
+                    icon: Icon(Icons.info_outline, color: ConstantHelper.tomatoColor,),
                     onPressed: (){},
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.low_priority, color: tomatoColor,),
+                    icon: Icon(Icons.low_priority, color: ConstantHelper.tomatoColor,),
                     onPressed: (){},
                   ),
                 ),
