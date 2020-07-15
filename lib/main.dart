@@ -7,8 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timato/core/notifications.dart';
 import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
+import 'package:timato/ui/main_list.dart';
+import 'package:timato/ui/event_list.dart';
 
-void main() async{
+void main() => runApp(MyApp2());
+
+/*void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   notificationInit();
   await initPreferences();
@@ -62,4 +66,4 @@ class MyApp extends StatelessWidget {
 //      home: Settings(_pref)
     );
   }
-}
+}*/
