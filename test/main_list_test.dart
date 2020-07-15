@@ -14,21 +14,39 @@ import 'package:timato/ui/main_list.dart';
 void main() {
   testWidgets('Event Listview Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(MaterialApp(
+      home: ToDoList(),
+    ));
 
     // Verify that both events are on the list
-    expect(find.text('test123456789'), findsOneWidget);
-    expect(find.text('test2'), findsOneWidget);
+    //expect(find.byType(ReorderableListView), findsOneWidget);
+    expect(find.text('背单词'), findsOneWidget);
+    expect(find.text('写作文'), findsOneWidget);
     expect(find.text('test'), findsNothing);
     expect(find.text('English'), findsOneWidget);
     expect(find.text('Chinese'), findsOneWidget);
     expect(find.text('2029'), findsWidgets);
   });
 
+
   testWidgets('Event List Expansion Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(MaterialApp(
+      home: ToDoList(),
+    ));
 
-    await 
-  });
+    await tester.tap(find.text('背单词'));
+    await tester.pump();
+
+    expect(find.text('sub1'),findsOneWidget);
+    expect(find.text('sub2'),findsNothing);
+
+    await tester.tap(find.text('写作文'));
+    await tester.pump();
+
+    expect(find.text('sub1'),findsWidgets);
+    expect(find.text('sub2'),findsNothing);
+
+    }
+  );
 }
