@@ -223,21 +223,6 @@ abstract class AbstractEvent implements Comparable {
 
   int duration;
 
-  // String get eventPriorityString => _priorityString[this.eventPriority];
-  // void set eventPriorityString(String priority)=> this.eventPriorityString=priority;
-
-  // Priority get eventPriority => _priorityLevel[this.eventPriority];
-  //void set eventPriority(String priority)=> this.eventPriority=priority;
-
-  //Priority get eventPriorityEnum => _priorityLevel[this.priority];
-
-  ///bool isExpanded = false;
-
-  // Event({this.id,this.taskName,this.ddl,this.eventPriority, this.tag, this.numClock});
-
-  ///Number of clocks each event needs
-  //int get numClock => (duration/clockLen).ceil();
-
   ///Returns the event that has higher priority
   AbstractEvent higherPriority(AbstractEvent other) {
     if (ConstantHelper.priorityLevel[this.eventPriority] >=
@@ -288,12 +273,14 @@ class Event extends AbstractEvent {
 class Subevent extends AbstractEvent {
   Subevent({
     @required String taskName,
+    Key key,
     DateTime ddl,
     int duration,
     String tag,
     Priority eventPriority = Priority.NONE,
   }) : super(
             taskName: taskName,
+            key: key,
             ddl: ddl,
             duration: duration,
             tag: tag,

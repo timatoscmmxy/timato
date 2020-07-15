@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/main_list.dart';
+import 'dart:developer' as developer;
 
 //Fake data for [Event]
 Event task1 = new Event(
@@ -94,9 +96,9 @@ Widget _eventDetail(Event task) {
     // )
     // ),
     TaskPriority(task: task),
-    SizedBox(height:10),
-    ClockNumber(task: task)
-    //SubtaskList(task: task)
+    SizedBox(height: 10),
+    ClockNumber(task: task),
+    SubtaskList(task: task)
     //ClockNumber(task:task)
     //TaskPriority()
     // Container(
@@ -178,7 +180,10 @@ class _TaskTagState extends State<TaskTag> {
     return Container(
         child: Row(children: <Widget>[
       SizedBox(width: 12),
-      Icon(Icons.label_outline, color: ConstantHelper.tomatoColor,),
+      Icon(
+        Icons.label_outline,
+        color: ConstantHelper.tomatoColor,
+      ),
       SizedBox(width: 12),
       DropdownButton<String>(
         //hint: Text("Select a tag"),
@@ -260,7 +265,7 @@ class _TaskPriorityState extends State<TaskPriority> {
         child: Row(
       children: <Widget>[
         SizedBox(width: 12),
-        Icon(Icons.brightness_1, color: _priorityColor(task)),
+        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
         SizedBox(width: 12),
         DropdownButton<String>(
           //hint: Text("Select priority level"),
@@ -285,30 +290,6 @@ class _TaskPriorityState extends State<TaskPriority> {
       ],
     ));
   }
-
-  Color _priorityColor(Event task) {
-    if (task.eventPriority == Priority.HIGH) {
-      return Color.fromRGBO(202, 45, 45, 1);
-    } else if (task.eventPriority == Priority.MIDDLE) {
-      return Color.fromRGBO(236, 121, 121, 1);
-    } else if (task.eventPriority == Priority.LOW) {
-      return Color.fromRGBO(255, 191, 191, 1);
-    } else {
-      return Colors.white;
-    }
-  }
-
-  // Color _subpriorityColor(Subevent subtask) {
-  //   if (subtask.subeventPriority == Priority.HIGH) {
-  //      return Color.fromRGBO(202, 45, 45, 1);
-  //   } else if (subtask.subeventPriority == Priority.MIDDLE) {
-  //     return Color.fromRGBO(236, 121, 121, 1);
-  //   } else if (subtask.subeventPriority == Priority.LOW) {
-  //     return Color.fromRGBO(255, 191, 191, 1);
-  //   } else {
-  //     return Colors.white;
-  //   }
-  // }
 }
 
 // class TimeHour extends StatefulWidget {
@@ -383,18 +364,23 @@ class _ClockNumberState extends State<ClockNumber> {
       Icon(Icons.timer, color: ConstantHelper.tomatoColor),
       SizedBox(width: 12),
       Container(
-          width: 50,
-          height: 20,
+          //padding:EdgeInsets.only(top:5),
+          width: 166,
+          //height: 20,
           child: TextFormField(
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 3,
-            decoration: const InputDecoration(counterText: '',border: InputBorder.none),
-            initialValue: this.task.numClock.toString(),
+            decoration: const InputDecoration(
+                hintText: 'It might take ...',
+                suffixText: 'minute',
+                counterText: '',
+                border: InputBorder.none),
+            //initialValue: this.task.duration.toString(),
             onChanged: (text) {
-              this.task.numClock = int.parse(text);
-              print('$this.task.numClock');
+              this.task.duration = int.parse(text);
+              print('$this.task.duration');
             },
             // decoration: const InputDecoration(
             //   prefix: Text('   '),
@@ -405,7 +391,6 @@ class _ClockNumberState extends State<ClockNumber> {
   }
 }
 
-/*
 class SubtaskList extends StatefulWidget {
   SubtaskList({Key key, this.task}) : super(key: key);
   final Event task;
@@ -419,75 +404,124 @@ class _SubtaskListState extends State<SubtaskList> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
-        height: 45.5 * (task.subeventsList.length + 1),
+        height: 35.0 * (task.subeventsList.length + 1) + 20,
         child: Row(
-          children: <Widget>[Icon(Icons.subject), _sublist(task)],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(width: 12),
+            Container(
+                padding: EdgeInsets.only(top: 15),
+                width: 25,
+                child: Icon(Icons.subject, color: ConstantHelper.tomatoColor)),
+            SizedBox(width: 12),
+            Container(
+                padding: EdgeInsets.all(10),
+                width: size.width - 49,
+                height: 35.0 * (task.subeventsList.length + 1) + 20,
+                child: _sublist(task)),
+            //_sublist(task)
+          ],
         ));
   }
 
   Widget _sublist(Event task) {
-    return ListView(children: <Widget>[
-      ListView(
-        children: this.task.subeventsList.map((subtask) {
-          return Slidable(
-              key: Key(subtask.id.toString()),
-              actionPane: SlidableDrawerActionPane(),
-              actionExtentRatio: 0.25,
-              secondaryActions: <Widget>[
-                IconSlideAction(color: tomatoColor, icon: Icons.add
+    String inputText;
+    //final TextEditingController _controller = new TextEditingController();
+    return Column(children: <Widget>[
+      Container(
+          height: 35.0 * (task.subeventsList.length),
+          width: 326,
+          child: ListView(
+            physics: NeverScrollableScrollPhysics(),
+            children: this.task.subeventsList.map((subtask) {
+              return Slidable(
+                  key: subtask.key,
+                  actionPane: SlidableDrawerActionPane(),
+                  actionExtentRatio: 0.25,
+                  secondaryActions: <Widget>[
+                    IconSlideAction(
+                        color: ConstantHelper.tomatoColor, icon: Icons.add
 
-                    ///Needs onTop in the future
-                    ),
-                IconSlideAction(color: tomatoColor, icon: Icons.delete)
-              ],
-              child: SublistDetail(subtask: subtask));
-        }).toList(),
-      ),
-      TextFormField(
-        onChanged: (text) {
-          Subevent sub = new Subevent(subeventName: text);
-          this.task.subeventsList.add(sub);
-          SubtaskList(task: task);
-        },
-        textInputAction: TextInputAction.done,
-        maxLength: 15,
-        decoration: InputDecoration(hintText: 'add a subtask...'),
+                        ///Needs onTap in the future
+                        ),
+                    IconSlideAction(
+                        color: ConstantHelper.tomatoColor, icon: Icons.delete)
+                  ],
+                  child: SublistDetail(subtask: subtask));
+            }).toList(),
+          )),
+      Container(
+        height: 35,
+        width: 326,
+        child: TextField(
+            onChanged: (text) {
+              inputText = text;
+              //print('');
+              // Subevent sub = new Subevent(taskName: text);
+              // this.task.subeventsList.add(sub);
+              // SubtaskList(task: task);
+            },
+            onSubmitted: (text) {
+                  Subevent sub = new Subevent(taskName: inputText);
+                  this.task.subeventsList.add(sub);
+                  setState(() {
+                    
+                  });
+                  // SubtaskList(task: task);
+                },
+            textInputAction: TextInputAction.done,
+            maxLength: 15,
+            //TODO: fix initial value of textfield
+            decoration: const InputDecoration(
+                counterText: '',
+                border: InputBorder.none,
+                prefix: Text('   '),
+                hintText: 'add a subtask...')),
       )
     ]);
+    //]);
+    // );
   }
-  */
+}
 
 // Widget _sublistDetail(Subevent subtask) {
 //   var _checkValue = false;
-//   return Row(
-//     children: <Widget>[
-//       Checkbox(
-//           value: _checkValue,
-//           onChanged: (value) {
-//             setState(() {
-//               _checkValue = value;
-//             });
-//           }),
-//       Container(
-//       child: TextFormField(
-//         onChanged: (text) {
-//         this.subtask.subeventName = text;
-//       print('$this.task.taskName');
-//     },
-//     textInputAction: TextInputAction.done,
-//     maxLength: 25,
-//     initialValue: this.task.taskName,
-//     decoration: const InputDecoration(
-//       prefix: Text('   '),
-//     ),
-//   ))
-//     ],
-//   );
-// }
+//   return Container(
+//       height: 35,
+//       width: 326,
+//       child: Row(
+//         children: <Widget>[
+//           Checkbox(
+//               value: _checkValue,
+//               onChanged: (value) {
+//                 //setState(() {
+
+//                 _checkValue = value;
+//                 //});
+//               }),
+//           Container(
+//               width: 200,
+//               height: 35,
+//               child: TextFormField(
+//                 onChanged: (text) {
+//                   subtask.taskName = text;
+//                   print('$subtask.taskName');
+//                 },
+//                 textInputAction: TextInputAction.done,
+//                 maxLength: 25,
+//                 initialValue: subtask.taskName,
+//                 decoration: const InputDecoration(
+//                   counterText: '',
+//                   border: InputBorder.none,
+//                   prefix: Text('   '),
+//                 ),
+//               ))
+//         ],
+//       ));
 // }
 
-/*
 class SublistDetail extends StatefulWidget {
   SublistDetail({Key key, this.subtask}) : super(key: key);
   final Subevent subtask;
@@ -498,34 +532,40 @@ class SublistDetail extends StatefulWidget {
 class _SublistDetailState extends State<SublistDetail> {
   _SublistDetailState(this.subtask);
   final Subevent subtask;
+    var _checkValue = false;
 
   @override
   Widget build(BuildContext context) {
-    var _checkValue = false;
     return Container(
+        height: 35,
+        width: 326,
         child: Row(
-      children: <Widget>[
-        Checkbox(
-            value: _checkValue,
-            onChanged: (value) {
-              setState(() {
-                _checkValue = value;
-              });
-            }),
-        Container(
-            child: TextFormField(
-          onChanged: (text) {
-            this.subtask.subeventName = text;
-            print('$this.task.taskName');
-          },
-          textInputAction: TextInputAction.done,
-          maxLength: 25,
-          initialValue: this.subtask.subeventName,
-          decoration: const InputDecoration(
-            prefix: Text('   '),
-          ),
-        ))
-      ],
-    ));
+          children: <Widget>[
+            Checkbox(
+                value: _checkValue,
+                onChanged: (value) {
+                  setState(() {
+                    _checkValue = value;
+                  });
+                }),
+            Container(
+                width: 200,
+                height: 35,
+                child: TextFormField(
+                  onChanged: (text) {
+                    subtask.taskName = text;
+                    print('$subtask.taskName');
+                  },
+                  textInputAction: TextInputAction.done,
+                  maxLength: 25,
+                  initialValue: subtask.taskName,
+                  decoration: const InputDecoration(
+                    counterText: '',
+                    border: InputBorder.none,
+                    prefix: Text('   '),
+                  ),
+                ))
+          ],
+        ));
   }
-}*/
+}
