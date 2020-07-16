@@ -57,7 +57,7 @@ class MainList extends State<ToDoList> {
     return ReorderableListView(
       children: eventsList.map((task) {
         return Slidable(
-            key: Key(task.id.toString()),
+            key: task.key,
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             secondaryActions: <Widget>[
@@ -158,7 +158,7 @@ class ListExpan extends StatelessWidget {
       width: 40,
       color: Colors.white,
       child: new Row(children: <Widget>[
-        Icon(Icons.brightness_1, color: _priorityColor(task)),
+        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
         new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -218,7 +218,7 @@ class ListExpan extends StatelessWidget {
       color: Colors.white70,
       child: new Row(children: <Widget>[
         SizedBox(width: 25),
-        Icon(Icons.brightness_1, color: _priorityColor(subtask)),
+        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(subtask)),
         //new Column(
         //children: <Widget>[
         //new Row(
@@ -236,18 +236,5 @@ class ListExpan extends StatelessWidget {
       //]
       //),
     );
-  }
-
-  ///Changes the color according to [eventPriority] of [Event]
-  Color _priorityColor(AbstractEvent task) {
-    if (task.eventPriority == Priority.HIGH) {
-      return Color.fromRGBO(202, 45, 45, 1);
-    } else if (task.eventPriority == Priority.MIDDLE) {
-      return Color.fromRGBO(236, 121, 121, 1);
-    } else if (task.eventPriority == Priority.LOW) {
-      return Color.fromRGBO(255, 191, 191, 1);
-    } else {
-      return Colors.white;
-    }
   }
 }
