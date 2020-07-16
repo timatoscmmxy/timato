@@ -12,8 +12,7 @@ Event task1 = new Event(
     taskName: '背单词',
     ddl: DateTime.now(),
     eventPriority: Priority.NONE,
-    tag: 'English',
-    numClock: 3);
+    tag: 'English');
 
 class MyApp2 extends StatelessWidget {
 
