@@ -5,6 +5,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
+import 'package:timato/core/db.dart';
+import 'dart:developer' as developer;
+
+List eventsList = <Event>[
+    new Event(taskName: '背单词', eventPriority: Priority.HIGH, tag: 'English'),
+    new Event(taskName: '写作文', eventPriority: Priority.LOW, tag: 'Chinese'),
+  ];
 
 class MyApp1 extends StatelessWidget {
   ///newly added
@@ -24,15 +31,34 @@ class ToDoList extends StatefulWidget {
 }
 
 class MainList extends State<ToDoList> {
+  ///For database
+  DatabaseHelper databaseHelper = DatabaseHelper();
+
   ///A list which contains all the [Event]
   ///
   ///Adds test case1 [testTask] and case2 [testTask2] into [eventList]
-  List eventsList = <Event>[
-    new Event(taskName: '背单词', eventPriority: Priority.HIGH, tag: 'English'),
-    new Event(taskName: '写作文', eventPriority: Priority.LOW, tag: 'Chinese'),
-  ];
+  // List eventsList = <Event>[
+  //   new Event(taskName: '背单词', eventPriority: Priority.HIGH, tag: 'English'),
+  //   new Event(taskName: '写作文', eventPriority: Priority.LOW, tag: 'Chinese'),
+  // ];
 
   ///Turns [eventsList] into [eventsMap]
+
+  @override
+  void initState() {
+    developer.log('got here');
+    // databaseHelper.insertEvent(Event(taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English')).then((id){    developer.log(id.toString());});
+    // databaseHelper.insertEvent(Event(taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese')).then((id){    developer.log(id.toString());});
+    // databaseHelper.insertEvent(Event(taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English')).then((id){    developer.log(id.toString());});
+    databaseHelper.getNoteList().then((data) {
+      // data.forEach((element) {
+      //   databaseHelper.deleteNote(element.id);
+      // });
+      setState(() {
+        eventsList = data;
+      });
+    });
+  }
 
   String name = "";
   @override
@@ -61,12 +87,24 @@ class MainList extends State<ToDoList> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             secondaryActions: <Widget>[
-              IconSlideAction(color: ConstantHelper.tomatoColor, icon: Icons.add
+              IconSlideAction(color: ConstantHelper.tomatoColor, iconWidget: IconButton(
+                    icon: Icon(Icons.add, color: Colors.white),)
 
                   ///Needs onTop in the future
                   ),
               IconSlideAction(
-                  color: ConstantHelper.tomatoColor, icon: Icons.delete)
+                  color: ConstantHelper.tomatoColor,
+                  iconWidget: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.white),
+                    onPressed: () => {
+                      databaseHelper.deleteEvent(task.id),
+                      databaseHelper.getNoteList().then((data) {
+                        setState(() {
+                          eventsList = data;
+                        });
+                      })
+                    },
+                  ))
             ],
             child: ListExpan(task: task));
       }).toList(),
@@ -104,6 +142,8 @@ class ListExpan extends StatelessWidget {
 
   final Event task;
 
+  DatabaseHelper databaseHelper = DatabaseHelper();
+
   //const ListExpan(this.task);
 
   //final Event task;
@@ -134,7 +174,19 @@ class ListExpan extends StatelessWidget {
                             ),
                         IconSlideAction(
                             color: ConstantHelper.tomatoColor,
-                            icon: Icons.delete)
+                            iconWidget: IconButton(
+                              icon: Icon(Icons.delete, color: Colors.white),
+                              // onPressed: () => {
+                              //   databaseHelper.deleteEvent(task.id),
+                              //   databaseHelper.getNoteList().then((data) {
+                              //     eventsList = data;
+                              //     // setState(() {
+                              //     //   eventsList = data;
+                              //     // }
+                              //     // );
+                              //   })
+                              // },
+                            ))
                       ],
                       child:
                           //return

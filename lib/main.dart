@@ -10,7 +10,7 @@ import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_list.dart';
 
-void main() => runApp(MyApp2());
+void main() => runApp(MyApp1());
 
 /*void main() async{
   WidgetsFlutterBinding.ensureInitialized();

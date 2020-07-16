@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
+import 'package:timato/core/db.dart';
 import 'package:timato/ui/main_list.dart';
 
 //Fake data for [Event]

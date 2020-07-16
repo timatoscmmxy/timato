@@ -1,10 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import 'package:meta/meta.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:path/path.dart';
+
+import 'package:sqflite/sqflite.dart';
+
 import 'package:timato/ui/basics.dart';
+import 'package:timato/core/db.dart';
 
 enum RepeatUnit { day, week, month, year }
 
@@ -142,9 +149,7 @@ class RepeatProperties {
   }
 }
 
-
 abstract class AbstractEvent implements Comparable {
-
   ///Event's name
   String taskName;
 
@@ -159,6 +164,10 @@ abstract class AbstractEvent implements Comparable {
   ///The [Event]'s priority level
   Priority eventPriority = Priority.NONE;
 
+  // get eventPriorityInt {
+  //   return ConstantHelper.priorityLevel(eventPriority);
+  // }
+
   ///Indicates whether the event is done
   bool isDone = false;
 
@@ -168,15 +177,15 @@ abstract class AbstractEvent implements Comparable {
   ///The key used to identify individual events
   Key key;
 
-  AbstractEvent(
-      {@required String taskName,
-      Key key,
-      DateTime ddl,
-      int duration,
-      String tag,
-      Priority eventPriority = Priority.NONE,
-      RepeatProperties repeatProperties,
-      }) {
+  AbstractEvent({
+    @required String taskName,
+    Key key,
+    DateTime ddl,
+    int duration,
+    String tag,
+    Priority eventPriority = Priority.NONE,
+    RepeatProperties repeatProperties,
+  }) {
     this.taskName = taskName;
     this.ddl = ddl;
     this.duration = duration;
@@ -233,6 +242,8 @@ abstract class AbstractEvent implements Comparable {
 
 ///A event that user adds onto the todo list
 class Event extends AbstractEvent {
+  int id;
+
   // final List subeventsList = <Subevent> [];
   ///List of all the [Subevent] this [Event] has
   ///
@@ -241,21 +252,51 @@ class Event extends AbstractEvent {
     new Subevent(taskName: 'sub1', eventPriority: Priority.MIDDLE)
   ];
 
-  Event(
-      {@required String taskName,
-      DateTime ddl,
-      int duration,
-      String tag,
-      Priority eventPriority = Priority.NONE,
-      RepeatProperties repeatProperties,
-      })
-      : super(
+  Event({
+    @required String taskName,
+    DateTime ddl,
+    int duration,
+    String tag,
+    Priority eventPriority = Priority.NONE,
+    RepeatProperties repeatProperties,
+    key,
+  }) : super(
             taskName: taskName,
             ddl: ddl,
             duration: duration,
             tag: tag,
             eventPriority: eventPriority,
             repeatProperties: repeatProperties);
+
+  Event.fromMapObject(Map<String, dynamic> map) {
+    this.id = map["id"];
+    this.key = Key(map["key"]);
+    this.taskName = map["task_name"];
+    this.ddl = map["deadline"];
+    this.tag = map["tag"];
+    this.eventPriority = ConstantHelper.priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
+  }
+
+  ///Database implementation
+  ///
+  ///Converts an [Event] into a Map
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'key': key.toString(),
+      'task_name': taskName,
+      'deadline': ddl,
+      // 'duration': duration,
+      'tag': tag,
+      'priority': ConstantHelper.priorityLevel[eventPriority],
+      // 'subeventsList': subeventsList
+    };
+  }
+
+  // ///Defines a function that inserts events into the database
+  // Future<void> insertEvent(Event task) async {
+  //   final Database db = await database;
+  // }
 
   ///Adds new [Subevent] to the [subeventsList]
   void addSub(String subName) {
