@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
+import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
 List eventsList = <Event>[
@@ -103,6 +104,16 @@ class MainList extends State<ToDoList> {
                           eventsList = data;
                         });
                       })
+                    },
+                  )),
+                  IconSlideAction(
+                  color: ConstantHelper.tomatoColor,
+                  iconWidget: IconButton(
+                    icon: Icon(Icons.receipt, color: Colors.white),
+                    onPressed: () => {
+                      Navigator.push(context, MaterialPageRoute(builder:(_) {
+                        return EventList(task:task);
+                      }))
                     },
                   ))
             ],

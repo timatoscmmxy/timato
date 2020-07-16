@@ -9,31 +9,34 @@ import 'package:timato/core/db.dart';
 import 'package:timato/ui/main_list.dart';
 
 //Fake data for [Event]
-Event task1 = new Event(
-    taskName: '背单词',
-    ddl: DateTime.now(),
-    eventPriority: Priority.NONE,
-    tag: 'English');
+// Event task1 = new Event(
+//     taskName: '背单词',
+//     ddl: DateTime.now(),
+//     eventPriority: Priority.NONE,
+//     tag: 'English');
 
-class MyApp2 extends StatelessWidget {
+// class MyApp2 extends StatelessWidget {
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: EventList(task: task1),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: EventList(task: task1),
+//     );
+//   }
+// }
 
 class EventList extends StatefulWidget {
   EventList({Key key, this.task}) : super(key: key);
   final Event task;
 
   @override
-  _EventListState createState() => _EventListState();
+  _EventListState createState() => _EventListState(task);
 }
 
 class _EventListState extends State<EventList> {
+  DatabaseHelper databaseHelper = DatabaseHelper();
+  _EventListState(this.task);
+  final Event task;
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +50,18 @@ class _EventListState extends State<EventList> {
               }),
           actions: <Widget>[
             IconButton(
-                icon: Icon(
-                  Icons.delete,
-                  color: ConstantHelper.tomatoColor,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                }),
+              icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
+              // onPressed: () => {
+
+              //   Navigator.pop(context),
+              //   databaseHelper.deleteEvent(task.id),
+              //   MainList()
+              //   // databaseHelper.getNoteList().then((data) {
+              //   //   eventsList = data;
+              //   //   MainList();
+              //   // })
+              // },
+            ),
             IconButton(
                 icon: Icon(
                   Icons.check,
@@ -63,7 +71,7 @@ class _EventListState extends State<EventList> {
                   Navigator.pop(context);
                 }),
           ]),
-      body: _eventDetail(task1),
+      body: _eventDetail(task),
       floatingActionButton: FloatingRaisedButton('Start clock', () {
         Navigator.pop(context);
       }),
@@ -342,8 +350,7 @@ class _SubtaskListState extends State<SubtaskList> {
                   actionExtentRatio: 0.25,
                   secondaryActions: <Widget>[
                     IconSlideAction(
-                        color: ConstantHelper.tomatoColor, icon: Icons.add
-                        ),
+                        color: ConstantHelper.tomatoColor, icon: Icons.add),
                     IconSlideAction(
                         color: ConstantHelper.tomatoColor, icon: Icons.delete)
                   ],

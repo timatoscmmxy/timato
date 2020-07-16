@@ -154,12 +154,12 @@ abstract class AbstractEvent implements Comparable {
   String taskName;
 
   ///The date that the [Event] is due
-  DateTime ddl;
+  DateTime ddl = DateTime.now();
 
   ///The time duration reach [Event] is expected
   //int duration = 0;
   ///A category that the [Event] belongs to
-  String tag;
+  String tag ;
 
   ///The [Event]'s priority level
   Priority eventPriority = Priority.NONE;
