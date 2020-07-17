@@ -9,6 +9,7 @@ import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_list.dart';
+import 'package:timato/core/event.dart';
 
 void main() => runApp(MyApp1());
 
@@ -62,7 +63,11 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: TimatoTimerWidget(10, 10),
+      home: TimatoTimerWidget(
+        event: Event(taskName: 'test'),
+        timerLength: 10,
+        relaxLength: 10,
+      ),
 //      home: Settings(_pref)
     );
   }
