@@ -276,7 +276,7 @@ class Event extends AbstractEvent {
     this.id = map["id"];
     this.key = Key(map["key"]);
     this.taskName = map["task_name"];
-    this.ddl = map[DateTime.parse("deadline")];
+    this.ddl = DateTime.parse(map["deadline"]);
     this.tag = map["tag"];
     this.duration = map["duration"];
     this.eventPriority = ConstantHelper.priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
