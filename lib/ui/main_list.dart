@@ -9,10 +9,7 @@ import 'package:timato/core/db.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
-List eventsList = <Event>[
-    new Event(taskName: '背单词', eventPriority: Priority.HIGH, tag: 'English'),
-    new Event(taskName: '写作文', eventPriority: Priority.LOW, tag: 'Chinese'),
-  ];
+List<Event> eventsList = [];
 
 class MyApp1 extends StatelessWidget {
   ///newly added
@@ -51,10 +48,34 @@ class MainList extends State<ToDoList> {
     // databaseHelper.insertEvent(Event(taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English')).then((id){    developer.log(id.toString());});
     // databaseHelper.insertEvent(Event(taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese')).then((id){    developer.log(id.toString());});
     // databaseHelper.insertEvent(Event(taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English')).then((id){    developer.log(id.toString());});
-    databaseHelper.getNoteList().then((data) {
-      // data.forEach((element) {
-      //   databaseHelper.deleteNote(element.id);
-      // });
+    // databaseHelper.getNoteList().then((data) {
+    //   data.forEach((element) {
+    //     databaseHelper.deleteEvent(element.id);
+    //   });
+    //   // setState(() {
+    //   //   eventsList = data;
+    //   // });
+    // });
+    databaseHelper
+        .insertEvent(Event(
+            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
+      //   .then((id) {
+      // developer.log(id.toString());
+    // }
+    // );
+    databaseHelper
+        .insertEvent(Event(
+            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
+    //     .then((id) {
+    //   developer.log(id.toString());
+    // });
+    databaseHelper
+        .insertEvent(Event(
+            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
+    //     .then((id) {
+    //   developer.log(id.toString());
+    // });
+    databaseHelper.getEventList().then((data) {
       setState(() {
         eventsList = data;
       });
@@ -88,8 +109,11 @@ class MainList extends State<ToDoList> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             secondaryActions: <Widget>[
-              IconSlideAction(color: ConstantHelper.tomatoColor, iconWidget: IconButton(
-                    icon: Icon(Icons.add, color: Colors.white),)
+              IconSlideAction(
+                  color: ConstantHelper.tomatoColor,
+                  iconWidget: IconButton(
+                    icon: Icon(Icons.add, color: Colors.white),
+                  )
 
                   ///Needs onTop in the future
                   ),
@@ -99,20 +123,20 @@ class MainList extends State<ToDoList> {
                     icon: Icon(Icons.delete, color: Colors.white),
                     onPressed: () => {
                       databaseHelper.deleteEvent(task.id),
-                      databaseHelper.getNoteList().then((data) {
+                      databaseHelper.getEventList().then((data) {
                         setState(() {
                           eventsList = data;
                         });
                       })
                     },
                   )),
-                  IconSlideAction(
+              IconSlideAction(
                   color: ConstantHelper.tomatoColor,
                   iconWidget: IconButton(
                     icon: Icon(Icons.receipt, color: Colors.white),
                     onPressed: () => {
-                      Navigator.push(context, MaterialPageRoute(builder:(_) {
-                        return EventList(task:task);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return EventList(task: task);
                       }))
                     },
                   ))

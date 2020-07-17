@@ -154,10 +154,14 @@ abstract class AbstractEvent implements Comparable {
   String taskName;
 
   ///The date that the [Event] is due
-  DateTime ddl = DateTime.now();
+  DateTime ddl;
 
   ///The time duration reach [Event] is expected
-  //int duration = 0;
+  int duration = 0;
+  
+  ///Number of clocks needed
+  int numClock;
+
   ///A category that the [Event] belongs to
   String tag ;
 
@@ -187,7 +191,7 @@ abstract class AbstractEvent implements Comparable {
     RepeatProperties repeatProperties,
   }) {
     this.taskName = taskName;
-    this.ddl = ddl;
+    this.ddl = DateTime.now();
     this.duration = duration;
     this.tag = tag;
     this.eventPriority = eventPriority;
@@ -224,10 +228,10 @@ abstract class AbstractEvent implements Comparable {
     }
   }
 
-  ///Number of clocks needed
-  int numClock;
+  // ///Number of clocks needed
+  // int numClock;
 
-  int duration;
+  // int duration = 0;
 
   ///Returns the event that has higher priority
   AbstractEvent higherPriority(AbstractEvent other) {
@@ -272,8 +276,9 @@ class Event extends AbstractEvent {
     this.id = map["id"];
     this.key = Key(map["key"]);
     this.taskName = map["task_name"];
-    this.ddl = map["deadline"];
+    this.ddl = map[DateTime.parse("deadline")];
     this.tag = map["tag"];
+    this.duration = map["duration"];
     this.eventPriority = ConstantHelper.priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
   }
 
@@ -285,8 +290,8 @@ class Event extends AbstractEvent {
       'id': id,
       'key': key.toString(),
       'task_name': taskName,
-      'deadline': ddl,
-      // 'duration': duration,
+      'deadline': ddl.toString(),
+      'duration': duration,
       'tag': tag,
       'priority': ConstantHelper.priorityLevel[eventPriority],
       // 'subeventsList': subeventsList

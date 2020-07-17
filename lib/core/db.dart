@@ -17,6 +17,7 @@ class DatabaseHelper {
 	String colTag = 'tag';
 	String colPriority = 'priority';
 	String colDDL = 'deadline';
+  String colDuration = 'duration';
 
 	DatabaseHelper._createInstance(); // Named constructor to create instance of DatabaseHelper
 
@@ -43,33 +44,39 @@ class DatabaseHelper {
 
     developer.log(path);
 		// Open/create the database at a given path
-		var database = await openDatabase(path, version: 1, onCreate: _createDb);
+		var database = await openDatabase(path, version: 2, onCreate: _createDb);
+    //_dropDb(database);
 		return database;
 	}
 
 	void _createDb(Database db, int newVersion) async {
 
-		await db.execute('CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, $colTaskName TEXT, '
-				'$colTag TEXT, $colPriority INTEGER, $colDDL DATE)');
+		await db.execute('CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, '
+  + '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER)');
 	}
 
-	// Fetch Operation: Get all note objects from database
+  void _dropDb(Database db) async {
+
+		await db.execute('DROP TABLE $eventTable');
+	}
+
+	// Fetch Operation: Get all event objects from database
 	Future<List<Map<String, dynamic>>> getEventMapList() async {
 		Database db = await this.database;
 
-//		var result = await db.rawQuery('SELECT * FROM $noteTable order by $colPriority ASC');
+//		var result = await db.rawQuery('SELECT * FROM $eventTable order by $colPriority ASC');
 		var result = await db.query(eventTable, orderBy: '$colPriority DESC');
 		return result;
 	}
 
-	// Insert Operation: Insert a Note object to database
+	// Insert Operation: Insert a Event object to database
 	Future<int> insertEvent(Event event) async {
 		Database db = await this.database;
 		var result = await db.insert(eventTable, event.toMap());
 		return result;
 	}
 
-	// Update Operation: Update a Note object and save it to database
+	// Update Operation: Update a Event object and save it to database
 	Future<int> updateEvent(Event event) async {
 		var db = await this.database;
 		var result = await db.update(eventTable, event.toMap(), where: '$colId = ?', whereArgs: [event.id]);
@@ -92,18 +99,18 @@ class DatabaseHelper {
 	}
 
 	// Get the 'Map List' [ List<Map> ] and convert it to 'Event List' [ List<Event> ]
-	Future<List<Event>> getNoteList() async {
+	Future<List<Event>> getEventList() async {
 
-		var noteMapList = await getEventMapList(); // Get 'Map List' from database
-		int count = noteMapList.length;         // Count the number of map entries in db table
+		var eventMapList = await getEventMapList(); // Get 'Map List' from database
+		int count = eventMapList.length;         // Count the number of map entries in db table
 
-		List<Event> noteList = List<Event>();
+		List<Event> eventList = List<Event>();
 		// For loop to create a 'Event List' from a 'Map List'
 		for (int i = 0; i < count; i++) {
-			noteList.add(Event.fromMapObject(noteMapList[i]));
+			eventList.add(Event.fromMapObject(eventMapList[i]));
 		}
 
-		return noteList;
+		return eventList;
 	}
 
 }

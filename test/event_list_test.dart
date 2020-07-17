@@ -8,7 +8,7 @@ void main() {
   testWidgets('Event List Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(MaterialApp(
-      home: MyApp2(),
+      home: EventList(),
     ));
 
     // Verify that both events are on the list
