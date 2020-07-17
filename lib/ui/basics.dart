@@ -64,3 +64,56 @@ class FloatingRaisedButton extends StatelessWidget {
     );
   }
 }
+
+class WarningDialog extends StatelessWidget {
+  final String title, text;
+  final void Function(BuildContext) action;
+  final BuildContext parentContext;
+
+  WarningDialog(this.title, this.text, this.parentContext, this.action);
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 20, color: ConstantHelper.tomatoColor),
+        softWrap: true,
+        textAlign: TextAlign.left,
+      ),
+      titlePadding: EdgeInsets.all(20),
+      content: Text(text),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Colors.black38),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        FlatButton(
+          child: Text(
+            'Confirm',
+            style: TextStyle(color: ConstantHelper.tomatoColor),
+          ),
+          onPressed: () {
+            action(parentContext);
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
+  }
+
+  static show(
+      {@required String title,
+      @required String text,
+      @required BuildContext context,
+      @required void Function(BuildContext) action}) {
+    showDialog(
+        context: context,
+        builder: (_) => WarningDialog(title, text, context, action),
+        barrierDismissible: true);
+  }
+}
