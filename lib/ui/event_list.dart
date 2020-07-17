@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
@@ -18,8 +19,6 @@ Event task1 = new Event(
 //for (int i = 0, i <= 99, i++)=>hours.add(i);
 
 class MyApp2 extends StatelessWidget {
-  ///newly added
-  //const MyApp1({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,6 @@ class EventList extends StatefulWidget {
 }
 
 class _EventListState extends State<EventList> {
-  // static final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -76,62 +74,25 @@ class _EventListState extends State<EventList> {
   }
 }
 
-///Builds the page for all the infomations of an [Event]
+///Builds the whole event page
+///
+///Event page contains all the details that delong to the [Event]
+///Including: [taskName], [tag], [ddl], [eventPriority], [subeventsList]
 Widget _eventDetail(Event task) {
   return ListView(children: <Widget>[
     TextName(task: task),
     TaskTag(task: task),
     TaskDate(task: task),
-    // Container(
-    //   child: Row(
-    //     children:<Widget>[
-    //       SizedBox(width:13),
-    //       Icon(Icons.timer),
-    //Container(
-    // ClockNumber(task:task)
-    //),
-
-    // )
-    // ),
     TaskPriority(task: task),
-    SizedBox(height:10),
-    ClockNumber(task: task)
-    //SubtaskList(task: task)
-    //ClockNumber(task:task)
-    //TaskPriority()
-    // Container(
-    //     child: Row(children: <Widget>[
-    //   SizedBox(width: 12),
-    //   Icon(Icons.timer),
-    //   SizedBox(width: 12),
-    //   //ClockNumber(number:'3'),
-    // ])
-    //     // SubTasks(task.subeventsList)
-    //     )
+    SizedBox(height: 10),
+    TaskDuration(task: task),
+    SubtaskList(task: task)
   ]);
 }
 
-///Shows the name of the [Event]
+///Builds the part for [taskName]
 ///
-///Users can change the name of the [Event]
-// class TextName extends StatelessWidget {
-//   final String _name;
-
-//   TextName(this._name);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return TextFormField(
-//       textInputAction: TextInputAction.done,
-//       maxLength: 25,
-//       initialValue: _name,
-//       decoration: const InputDecoration(
-//         prefix: Text('   '),
-//       ),
-//     );
-//   }
-// }
-
+///Users can modify [taskName] on this page
 class TextName extends StatefulWidget {
   TextName({Key key, this.task}) : super(key: key);
   final Event task;
@@ -162,7 +123,9 @@ class _TextNameState extends State<TextName> {
   }
 }
 
-///Selects a tag for each [Event]
+///Builds the part for [tag]
+///
+///Users select a tag for this [Event] from the list of tags
 class TaskTag extends StatefulWidget {
   TaskTag({Key key, this.task}) : super(key: key);
   final Event task;
@@ -178,10 +141,12 @@ class _TaskTagState extends State<TaskTag> {
     return Container(
         child: Row(children: <Widget>[
       SizedBox(width: 12),
-      Icon(Icons.label_outline, color: ConstantHelper.tomatoColor,),
+      Icon(
+        Icons.label_outline,
+        color: ConstantHelper.tomatoColor,
+      ),
       SizedBox(width: 12),
       DropdownButton<String>(
-        //hint: Text("Select a tag"),
         value: this.task.tag,
         onChanged: (String value) {
           setState(() {
@@ -203,7 +168,7 @@ class _TaskTagState extends State<TaskTag> {
   }
 }
 
-///Sets the due day for the [Event]
+///Builds the part for [ddl]
 class TaskDate extends StatefulWidget {
   TaskDate({Key key, this.task}) : super(key: key);
   final Event task;
@@ -223,10 +188,7 @@ class _TaskDateState extends State<TaskDate> {
         lastDate: DateTime(2200));
     if (picked != null && picked != this.task.ddl)
       setState(() {
-        // developer.log(picked.toString());
-        // developer.log(task1.ddl.toString());
         this.task.ddl = picked;
-        //TODO save data in database
       });
   }
 
@@ -242,7 +204,9 @@ class _TaskDateState extends State<TaskDate> {
   }
 }
 
-///Set priority for each [Event]
+///Builds the part for [eventPriority]
+///
+///Users select a priority level for this [Event]
 class TaskPriority extends StatefulWidget {
   TaskPriority({Key key, this.task}) : super(key: key);
   final Event task;
@@ -260,10 +224,9 @@ class _TaskPriorityState extends State<TaskPriority> {
         child: Row(
       children: <Widget>[
         SizedBox(width: 12),
-        Icon(Icons.brightness_1, color: _priorityColor(task)),
+        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
         SizedBox(width: 12),
         DropdownButton<String>(
-          //hint: Text("Select priority level"),
           value: ConstantHelper.priorityString[this.task.eventPriority],
           onChanged: (String priority) {
             setState(() {
@@ -285,94 +248,21 @@ class _TaskPriorityState extends State<TaskPriority> {
       ],
     ));
   }
-
-  Color _priorityColor(Event task) {
-    if (task.eventPriority == Priority.HIGH) {
-      return Color.fromRGBO(202, 45, 45, 1);
-    } else if (task.eventPriority == Priority.MIDDLE) {
-      return Color.fromRGBO(236, 121, 121, 1);
-    } else if (task.eventPriority == Priority.LOW) {
-      return Color.fromRGBO(255, 191, 191, 1);
-    } else {
-      return Colors.white;
-    }
-  }
-
-  // Color _subpriorityColor(Subevent subtask) {
-  //   if (subtask.subeventPriority == Priority.HIGH) {
-  //      return Color.fromRGBO(202, 45, 45, 1);
-  //   } else if (subtask.subeventPriority == Priority.MIDDLE) {
-  //     return Color.fromRGBO(236, 121, 121, 1);
-  //   } else if (subtask.subeventPriority == Priority.LOW) {
-  //     return Color.fromRGBO(255, 191, 191, 1);
-  //   } else {
-  //     return Colors.white;
-  //   }
-  // }
 }
 
-// class TimeHour extends StatefulWidget {
-//   @override
-//   _TimeHourState createState() => _TimeHourState();
-// }
-
-// class _TimeHourState extends State<TimeHour> {
-//   int _hour = 0;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: Row(
-//         children: <Widget>[
-//           Icon(Icons.timer),
-//           SetHour(hour, (val) => hour = val, 'hour(s)'),
-//           SetMinute(minute, (val) => minute = val, 'minute')
-//         ],)
-//     );
-//   }
-// }
-
-// class SetHour extends StatelessWidget {
-//   final String _text;
-//   final int _hour;
-//   final void Function(int) _onChange;
-
-//   SetHour(this._hours, this.onChange, this._text);
-// }
-
-// class TaskLength extends StatelessWidget {
-//   final String _number;
-
-//   TaskLength(this._number);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//         child: Row(children: <Widget>[
-//           Icon(Icons.timer),
-//           TextFormField(
-//             keyboardType: TextInputType.number,
-//             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
-//             maxLength: 3,
-//             initialValue: _number,
-//             decoration: const InputDecoration(
-//               prefix: Text('   '),
-//             ),
-//           ),
-//           //Text('')
-//     ]));
-//   }
-// }
-
-class ClockNumber extends StatefulWidget {
-  ClockNumber({Key key, this.task}) : super(key: key);
+///Builds the part for [duration]
+///
+///Users input the duration for this [task]
+class TaskDuration extends StatefulWidget {
+  TaskDuration({Key key, this.task}) : super(key: key);
   final Event task;
 
   @override
-  _ClockNumberState createState() => _ClockNumberState(task);
+  _TaskDurationState createState() => _TaskDurationState(task);
 }
 
-class _ClockNumberState extends State<ClockNumber> {
-  _ClockNumberState(this.task);
+class _TaskDurationState extends State<TaskDuration> {
+  _TaskDurationState(this.task);
   final Event task;
 
   @override
@@ -383,29 +273,30 @@ class _ClockNumberState extends State<ClockNumber> {
       Icon(Icons.timer, color: ConstantHelper.tomatoColor),
       SizedBox(width: 12),
       Container(
-          width: 50,
-          height: 20,
+          width: 166,
           child: TextFormField(
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 3,
-            decoration: const InputDecoration(counterText: '',border: InputBorder.none),
-            initialValue: this.task.numClock.toString(),
+            decoration: const InputDecoration(
+                hintText: 'It might take ...',
+                suffixText: 'minute',
+                counterText: '',
+                border: InputBorder.none),
             onChanged: (text) {
-              this.task.numClock = int.parse(text);
-              print('$this.task.numClock');
+              this.task.duration = int.parse(text);
+              print('$this.task.duration');
             },
-            // decoration: const InputDecoration(
-            //   prefix: Text('   '),
-            // ),
           ))
     ]));
-    //Text('');
   }
 }
 
-/*
+///Builds [Subevent] list for this [Event]
+///
+///Users can add [Subevents] to this list
+///Checkbox can be checked when a [Subevent] is completed
 class SubtaskList extends StatefulWidget {
   SubtaskList({Key key, this.task}) : super(key: key);
   final Event task;
@@ -419,75 +310,76 @@ class _SubtaskListState extends State<SubtaskList> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
-        height: 45.5 * (task.subeventsList.length + 1),
+        height: 35.0 * (task.subeventsList.length + 1) + 20,
         child: Row(
-          children: <Widget>[Icon(Icons.subject), _sublist(task)],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(width: 12),
+            Container(
+                padding: EdgeInsets.only(top: 15),
+                width: 25,
+                child: Icon(Icons.subject, color: ConstantHelper.tomatoColor)),
+            SizedBox(width: 12),
+            Container(
+                padding: EdgeInsets.all(10),
+                width: size.width - 49,
+                height: 35.0 * (task.subeventsList.length + 1) + 20,
+                child: _sublist(task)),
+          ],
         ));
   }
 
   Widget _sublist(Event task) {
-    return ListView(children: <Widget>[
-      ListView(
-        children: this.task.subeventsList.map((subtask) {
-          return Slidable(
-              key: Key(subtask.id.toString()),
-              actionPane: SlidableDrawerActionPane(),
-              actionExtentRatio: 0.25,
-              secondaryActions: <Widget>[
-                IconSlideAction(color: tomatoColor, icon: Icons.add
-
-                    ///Needs onTop in the future
-                    ),
-                IconSlideAction(color: tomatoColor, icon: Icons.delete)
-              ],
-              child: SublistDetail(subtask: subtask));
-        }).toList(),
-      ),
-      TextFormField(
-        onChanged: (text) {
-          Subevent sub = new Subevent(subeventName: text);
-          this.task.subeventsList.add(sub);
-          SubtaskList(task: task);
-        },
-        textInputAction: TextInputAction.done,
-        maxLength: 15,
-        decoration: InputDecoration(hintText: 'add a subtask...'),
+    return Column(children: <Widget>[
+      Container(
+          height: 35.0 * (task.subeventsList.length),
+          width: 326,
+          child: ListView(
+            physics: NeverScrollableScrollPhysics(),
+            children: this.task.subeventsList.map((subtask) {
+              return Slidable(
+                  key: subtask.key,
+                  actionPane: SlidableDrawerActionPane(),
+                  actionExtentRatio: 0.25,
+                  secondaryActions: <Widget>[
+                    IconSlideAction(
+                        color: ConstantHelper.tomatoColor, icon: Icons.add
+                        ),
+                    IconSlideAction(
+                        color: ConstantHelper.tomatoColor, icon: Icons.delete)
+                  ],
+                  child: SublistDetail(subtask: subtask));
+            }).toList(),
+          )),
+      Container(
+        height: 35,
+        width: 326,
+        child: TextField(
+            controller: TextEditingController()..text = '',
+            onChanged: (text) => {},
+            onSubmitted: (text) {
+              Subevent sub = new Subevent(taskName: text);
+              this.task.subeventsList.add(sub);
+              setState(() {});
+            },
+            textInputAction: TextInputAction.done,
+            maxLength: 15,
+            decoration: const InputDecoration(
+                counterText: '',
+                border: InputBorder.none,
+                prefix: Text('   '),
+                hintText: 'add a subtask...')),
       )
     ]);
   }
-  */
+}
 
-// Widget _sublistDetail(Subevent subtask) {
-//   var _checkValue = false;
-//   return Row(
-//     children: <Widget>[
-//       Checkbox(
-//           value: _checkValue,
-//           onChanged: (value) {
-//             setState(() {
-//               _checkValue = value;
-//             });
-//           }),
-//       Container(
-//       child: TextFormField(
-//         onChanged: (text) {
-//         this.subtask.subeventName = text;
-//       print('$this.task.taskName');
-//     },
-//     textInputAction: TextInputAction.done,
-//     maxLength: 25,
-//     initialValue: this.task.taskName,
-//     decoration: const InputDecoration(
-//       prefix: Text('   '),
-//     ),
-//   ))
-//     ],
-//   );
-// }
-// }
-
-/*
+///Builds details for a [Subevent] on the list
+///
+///Adds a checkbox in front of each [Subevent]
+///Displays the name of the [Subevent]
 class SublistDetail extends StatefulWidget {
   SublistDetail({Key key, this.subtask}) : super(key: key);
   final Subevent subtask;
@@ -498,34 +390,40 @@ class SublistDetail extends StatefulWidget {
 class _SublistDetailState extends State<SublistDetail> {
   _SublistDetailState(this.subtask);
   final Subevent subtask;
+  var _checkValue = false;
 
   @override
   Widget build(BuildContext context) {
-    var _checkValue = false;
     return Container(
+        height: 35,
+        width: 326,
         child: Row(
-      children: <Widget>[
-        Checkbox(
-            value: _checkValue,
-            onChanged: (value) {
-              setState(() {
-                _checkValue = value;
-              });
-            }),
-        Container(
-            child: TextFormField(
-          onChanged: (text) {
-            this.subtask.subeventName = text;
-            print('$this.task.taskName');
-          },
-          textInputAction: TextInputAction.done,
-          maxLength: 25,
-          initialValue: this.subtask.subeventName,
-          decoration: const InputDecoration(
-            prefix: Text('   '),
-          ),
-        ))
-      ],
-    ));
+          children: <Widget>[
+            Checkbox(
+                value: _checkValue,
+                onChanged: (value) {
+                  setState(() {
+                    _checkValue = value;
+                  });
+                }),
+            Container(
+                width: 200,
+                height: 35,
+                child: TextFormField(
+                  onChanged: (text) {
+                    subtask.taskName = text;
+                    print('$subtask.taskName');
+                  },
+                  textInputAction: TextInputAction.done,
+                  maxLength: 25,
+                  initialValue: subtask.taskName,
+                  decoration: const InputDecoration(
+                    counterText: '',
+                    border: InputBorder.none,
+                    prefix: Text('   '),
+                  ),
+                ))
+          ],
+        ));
   }
-}*/
+}
