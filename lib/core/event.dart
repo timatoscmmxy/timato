@@ -157,7 +157,7 @@ abstract class AbstractEvent implements Comparable {
   DateTime ddl;
 
   ///The time duration reach [Event] is expected
-  int duration = 0;
+  int duration;
   
   ///Number of clocks needed
   int numClock;
@@ -205,6 +205,9 @@ abstract class AbstractEvent implements Comparable {
 
   ///Number of clocks each event needs
   get clockNum async {
+    if(duration == null){
+      return null;
+    }
     SharedPreferences pref = await SharedPreferences.getInstance();
     int clockLen = pref.getInt('timerLength') ?? 25 * 60;
     return (duration * 60 / clockLen).ceil();

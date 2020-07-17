@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
+import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
 
 //Fake data for [Event]
@@ -72,8 +73,14 @@ class _EventListState extends State<EventList> {
                 }),
           ]),
       body: _eventDetail(task),
-      floatingActionButton: FloatingRaisedButton('Start clock', () {
-        Navigator.pop(context);
+      floatingActionButton: FloatingRaisedButton('Start clock', () async {
+        List<int> timerData = await getTimerData();
+        int timerLength = timerData[0];
+        int relaxLength = timerData[1];
+        int currentClockNum = await task.clockNum;
+        Navigator.push(context, MaterialPageRoute(builder:(_) {
+          return TimatoTimerWidget(timerLength: timerLength, relaxLength: relaxLength, event: task, clockNum: currentClockNum);
+        }));
       }),
     );
   }
