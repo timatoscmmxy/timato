@@ -63,14 +63,14 @@ class _EventListState extends State<EventList> {
               //   // })
               // },
             ),
-            IconButton(
-                icon: Icon(
-                  Icons.check,
-                  color: ConstantHelper.tomatoColor,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                }),
+            // IconButton(
+            //     icon: Icon(
+            //       Icons.check,
+            //       color: ConstantHelper.tomatoColor,
+            //     ),
+            //     onPressed: () {
+            //       Navigator.pop(context);
+            //     }),
           ]),
       body: _eventDetail(task),
       floatingActionButton: FloatingRaisedButton('Start clock', () async {
@@ -324,7 +324,7 @@ class _SubtaskListState extends State<SubtaskList> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-        height: 35.0 * (task.subeventsList.length + 1) + 20,
+        height: 35.0 * (task.subeventsList.length + 1) + 20+22,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -337,7 +337,7 @@ class _SubtaskListState extends State<SubtaskList> {
             Container(
                 padding: EdgeInsets.all(10),
                 width: size.width - 49,
-                height: 35.0 * (task.subeventsList.length + 1) + 20,
+                height: 35.0 * (task.subeventsList.length + 1) + 20+22,
                 child: _sublist(task)),
           ],
         ));
@@ -345,7 +345,9 @@ class _SubtaskListState extends State<SubtaskList> {
 
   Widget _sublist(Event task) {
     return Column(children: <Widget>[
+      SizedBox(height: 22),
       Container(
+          //color: Colors.white70,
           height: 35.0 * (task.subeventsList.length),
           width: 326,
           child: ListView(
@@ -356,8 +358,10 @@ class _SubtaskListState extends State<SubtaskList> {
                   actionPane: SlidableDrawerActionPane(),
                   actionExtentRatio: 0.25,
                   secondaryActions: <Widget>[
-                    IconSlideAction(
-                        color: ConstantHelper.tomatoColor, icon: Icons.add),
+                    // IconSlideAction(
+                    //     color: ConstantHelper.tomatoColor, 
+                    //     icon: Icons.add
+                    //     ),
                     IconSlideAction(
                         color: ConstantHelper.tomatoColor, icon: Icons.delete)
                   ],

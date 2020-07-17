@@ -165,6 +165,9 @@ abstract class AbstractEvent implements Comparable {
   ///A category that the [Event] belongs to
   String tag ;
 
+  ///The date that the event is completed
+  DateTime completedDate;
+
   ///The [Event]'s priority level
   Priority eventPriority = Priority.NONE;
 
@@ -189,6 +192,7 @@ abstract class AbstractEvent implements Comparable {
     String tag,
     Priority eventPriority = Priority.NONE,
     RepeatProperties repeatProperties,
+    DateTime completedDate
   }) {
     this.taskName = taskName;
     this.ddl = DateTime.now();
@@ -197,6 +201,7 @@ abstract class AbstractEvent implements Comparable {
     this.eventPriority = eventPriority;
     this.repeatProperties = repeatProperties;
     this.key = UniqueKey();
+    this.completedDate = completedDate;
   }
 
   ///List of all the [Subevent] this [Event] has
@@ -266,6 +271,7 @@ class Event extends AbstractEvent {
     String tag,
     Priority eventPriority = Priority.NONE,
     RepeatProperties repeatProperties,
+    DateTime completedDate,
     key,
   }) : super(
             taskName: taskName,
@@ -273,7 +279,8 @@ class Event extends AbstractEvent {
             duration: duration,
             tag: tag,
             eventPriority: eventPriority,
-            repeatProperties: repeatProperties);
+            repeatProperties: repeatProperties,
+            completedDate: completedDate);
 
   Event.fromMapObject(Map<String, dynamic> map) {
     this.id = map["id"];
@@ -290,6 +297,7 @@ class Event extends AbstractEvent {
   ///Converts an [Event] into a Map
   Map<String, dynamic> toMap() {
     return {
+      //TODO: add completedDate into the table
       'id': id,
       'key': key.toString(),
       'task_name': taskName,

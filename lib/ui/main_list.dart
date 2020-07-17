@@ -202,11 +202,11 @@ class ListExpan extends StatelessWidget {
                       actionPane: SlidableDrawerActionPane(),
                       actionExtentRatio: 0.25,
                       secondaryActions: <Widget>[
-                        IconSlideAction(
-                            color: ConstantHelper.tomatoColor, icon: Icons.add
+                        // IconSlideAction(
+                        //     color: ConstantHelper.tomatoColor, icon: Icons.add
 
-                            ///Needs onTop in the future
-                            ),
+                        //     ///Needs onTop in the future
+                        //     ),
                         IconSlideAction(
                             color: ConstantHelper.tomatoColor,
                             iconWidget: IconButton(
@@ -245,7 +245,10 @@ class ListExpan extends StatelessWidget {
       width: 40,
       color: Colors.white,
       child: new Row(children: <Widget>[
-        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
+        Container(
+          padding:EdgeInsets.only(top: 0),
+          child:
+        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task))),
         new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -256,8 +259,10 @@ class ListExpan extends StatelessWidget {
                     child: Text(task.taskName,
                         textAlign: TextAlign.left,
                         style: TextStyle(
-                            color: ConstantHelper.tomatoColor,
-                            fontWeight: FontWeight.bold)))
+                          fontSize: 15,
+                            color: Colors.black87,
+                            //fontWeight: FontWeight.bold
+                            )))
               ]),
 
               ///Contains [tag] and [ddl]
@@ -269,7 +274,7 @@ class ListExpan extends StatelessWidget {
                     //alignment: Alignment.centerLeft,
                     child: Text(task.tag,
                         style: TextStyle(
-                            color: ConstantHelper.tomatoColor, fontSize: 12)),
+                            color: Colors.black87, fontSize: 12)),
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(10),
@@ -282,7 +287,7 @@ class ListExpan extends StatelessWidget {
                     //alignment: Alignment.centerLeft,
                     child: Text('2029',
                         style: TextStyle(
-                            color: ConstantHelper.tomatoColor, fontSize: 12)),
+                            color: Colors.black87, fontSize: 12)),
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(10),
@@ -304,8 +309,8 @@ class ListExpan extends StatelessWidget {
       height: 45,
       color: Colors.white70,
       child: new Row(children: <Widget>[
-        SizedBox(width: 25),
-        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(subtask)),
+        SizedBox(width: 40),
+        //Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(subtask)),
         //new Column(
         //children: <Widget>[
         //new Row(
@@ -316,7 +321,7 @@ class ListExpan extends StatelessWidget {
             child: Text(subtask.taskName,
                 textAlign: TextAlign.left,
                 style:
-                    TextStyle(fontSize: 15, color: ConstantHelper.tomatoColor)))
+                    TextStyle(fontSize: 15, color: Colors.black87)))
       ]),
       //]
       //),
