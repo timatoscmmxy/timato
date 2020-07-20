@@ -158,12 +158,12 @@ abstract class AbstractEvent implements Comparable {
 
   ///The time duration reach [Event] is expected
   int duration;
-  
+
   ///Number of clocks needed
   int numClock;
 
   ///A category that the [Event] belongs to
-  String tag ;
+  String tag;
 
   ///The date that the event is completed
   DateTime completedDate;
@@ -176,7 +176,13 @@ abstract class AbstractEvent implements Comparable {
   // }
 
   ///Indicates whether the event is done
-  bool isDone = false;
+  int isCompleted = 0;
+
+  ///Indicates whether this [Event] is on today's list
+  int isTodayList = 0;
+
+  ///Indicates whether this [Event] is unplanned
+  int isUnplanned = 0;
 
   ///Repeat Properties
   RepeatProperties repeatProperties;
@@ -184,16 +190,17 @@ abstract class AbstractEvent implements Comparable {
   ///The key used to identify individual events
   Key key;
 
-  AbstractEvent({
-    @required String taskName,
-    Key key,
-    DateTime ddl,
-    int duration,
-    String tag,
-    Priority eventPriority = Priority.NONE,
-    RepeatProperties repeatProperties,
-    DateTime completedDate
-  }) {
+  AbstractEvent(
+      {@required String taskName,
+      Key key,
+      DateTime ddl,
+      int duration,
+      String tag,
+      Priority eventPriority = Priority.NONE,
+      RepeatProperties repeatProperties,
+      DateTime completedDate,
+      int isTodayList,
+      int isUnplanned}) {
     this.taskName = taskName;
     this.ddl = DateTime.now();
     this.duration = duration;
@@ -202,6 +209,8 @@ abstract class AbstractEvent implements Comparable {
     this.repeatProperties = repeatProperties;
     this.key = UniqueKey();
     this.completedDate = completedDate;
+    this.isTodayList = isTodayList;
+    this.isUnplanned = isUnplanned;
   }
 
   ///List of all the [Subevent] this [Event] has
@@ -210,7 +219,7 @@ abstract class AbstractEvent implements Comparable {
 
   ///Number of clocks each event needs
   get clockNum async {
-    if(duration == null){
+    if (duration == null) {
       return null;
     }
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -264,23 +273,28 @@ class Event extends AbstractEvent {
     new Subevent(taskName: 'sub1', eventPriority: Priority.MIDDLE)
   ];
 
-  Event({
-    @required String taskName,
-    DateTime ddl,
-    int duration,
-    String tag,
-    Priority eventPriority = Priority.NONE,
-    RepeatProperties repeatProperties,
-    DateTime completedDate,
-    key,
-  }) : super(
-            taskName: taskName,
-            ddl: ddl,
-            duration: duration,
-            tag: tag,
-            eventPriority: eventPriority,
-            repeatProperties: repeatProperties,
-            completedDate: completedDate);
+  Event(
+      {@required String taskName,
+      DateTime ddl,
+      int duration,
+      String tag,
+      Priority eventPriority = Priority.NONE,
+      RepeatProperties repeatProperties,
+      DateTime completedDate,
+      key,
+      int isTodayList,
+      int isUnplanned})
+      : super(
+          taskName: taskName,
+          ddl: ddl,
+          duration: duration,
+          tag: tag,
+          eventPriority: eventPriority,
+          repeatProperties: repeatProperties,
+          completedDate: completedDate,
+          isTodayList: isTodayList,
+          isUnplanned: isUnplanned,
+        );
 
   Event.fromMapObject(Map<String, dynamic> map) {
     this.id = map["id"];
@@ -289,7 +303,11 @@ class Event extends AbstractEvent {
     this.ddl = DateTime.parse(map["deadline"]);
     this.tag = map["tag"];
     this.duration = map["duration"];
-    this.eventPriority = ConstantHelper.priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
+    this.eventPriority = ConstantHelper
+        .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
+    this.isTodayList = map["isTodayList"];
+    this.isCompleted = map["isCompleted"];
+    this.isUnplanned = map["isUnplanned"];
   }
 
   ///Database implementation
@@ -305,6 +323,9 @@ class Event extends AbstractEvent {
       'duration': duration,
       'tag': tag,
       'priority': ConstantHelper.priorityLevel[eventPriority],
+      'isTodayList':isTodayList,
+      'isCompleted': isCompleted,
+      'isUnplanned': isUnplanned
       // 'subeventsList': subeventsList
     };
   }
@@ -336,4 +357,37 @@ class Subevent extends AbstractEvent {
             duration: duration,
             tag: tag,
             eventPriority: eventPriority);
+}
+
+class EventEntity {
+  static final String eventTable = 'event_table';
+  static final String colId = 'id';
+  static final String colKey = 'key';
+  static final String colTaskName = 'task_name';
+  static final String colTag = 'tag';
+  static final String colPriority = 'priority';
+  static final String colDDL = 'deadline';
+  static final String colDuration = 'duration';
+  static final String colUnplanned = 'isUnplanned';
+  static final String colToday = 'isTodayList';
+  static final String colCompleted = 'isCompleted';
+
+  static void createDb(Database db, int newVersion) async {
+    await db.execute(
+          'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
+              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');
+  }
+
+  static upgradeDb(Database db, int oldVersion, int newVersion) async {
+    if (newVersion == 4) {
+      await db.execute('DROP TABLE $eventTable');
+      await db.execute(
+          'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
+              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');
+    }
+  }
+
+  // static void dropDb(Database db) async {
+  //   await db.execute('DROP TABLE $eventTable');
+  // }
 }

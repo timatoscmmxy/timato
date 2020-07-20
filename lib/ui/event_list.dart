@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
+import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
@@ -35,7 +36,7 @@ class EventList extends StatefulWidget {
 }
 
 class _EventListState extends State<EventList> {
-  DatabaseHelper databaseHelper = DatabaseHelper();
+  EventRepository databaseHelper = EventRepository();
   _EventListState(this.task);
   final Event task;
 

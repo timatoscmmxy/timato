@@ -133,7 +133,7 @@ class TimatoTimerWidget extends StatelessWidget {
                       text: 'Are you sure to mark this task as completed?',
                       context: context,
                       action: (context){
-                          event.isDone = true;
+                          event.isCompleted = 1;
                           Navigator.pop(context);
                       }
                     );

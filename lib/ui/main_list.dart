@@ -4,6 +4,7 @@ import 'package:flutter/src/material/colors.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
+import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
 import 'package:timato/ui/event_list.dart';
@@ -30,7 +31,7 @@ class ToDoList extends StatefulWidget {
 
 class MainList extends State<ToDoList> {
   ///For database
-  DatabaseHelper databaseHelper = DatabaseHelper();
+  EventRepository databaseHelper = EventRepository();
 
   ///A list which contains all the [Event]
   ///
@@ -177,7 +178,7 @@ class ListExpan extends StatelessWidget {
 
   final Event task;
 
-  DatabaseHelper databaseHelper = DatabaseHelper();
+  EventRepository databaseHelper = EventRepository();
 
   //const ListExpan(this.task);
 
