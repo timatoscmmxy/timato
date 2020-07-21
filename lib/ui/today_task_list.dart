@@ -7,7 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/basics.dart';
-import 'package:timato/core/db.dart';
+import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
@@ -15,7 +15,7 @@ List<Event> todayEventList = [];
 
 List<Event> unplanned = [new Event(taskName: '回邮件')];
 
-class MyApp3 extends StatelessWidget {
+class TodayListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,8 +34,8 @@ class _TodayListState extends State<TodayList> {
 
   @override
   void initState() {
-    databaseHelper.insertEvent(new Event(taskName: '写代码1', isTodayList: 1));
-    databaseHelper.insertEvent(new Event(taskName: '写代码3', isTodayList: 0));
+    // databaseHelper.insertEvent(new Event(taskName: '回邮件', isTodayList: 1, isUnplanned: 1));
+    // databaseHelper.insertEvent(new Event(taskName: '打电话', isTodayList: 1, isUnplanned: 1));
     databaseHelper.getTodayEventList().then((data) {
       setState(() {
         todayEventList = data;
@@ -48,9 +48,10 @@ class _TodayListState extends State<TodayList> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: new AppBar(
-            leading: IconButton(
-                icon: Icon(Icons.view_list, color: ConstantHelper.tomatoColor),
-                onPressed: null),
+          iconTheme: new IconThemeData(color:ConstantHelper.tomatoColor),
+            // leading: IconButton(
+            //     icon: Icon(Icons.view_list, color: ConstantHelper.tomatoColor),
+            //     onPressed: null),
             title: new Text("Today's Tasks",
                 style: TextStyle(color: ConstantHelper.tomatoColor)),
             actions: <Widget>[
@@ -68,19 +69,51 @@ class _TodayListState extends State<TodayList> {
             color: Colors.white,
           ),
           child:
-              // new ListView(
-              //   children: <Widget> [
-
-              _todayList(),
-          //_unplannedThings()
-          // ]
-          // )
-        ));
+                _todayList(),
+              ),
+        
+          drawer: Drawer(
+            child: ListView(
+              children: <Widget>[
+              DrawerHeader(
+                child: Text('Timato, be productive with you'),
+                decoration: BoxDecoration(
+                  color: ConstantHelper.tomatoColor
+                )
+                ),
+              ListTile(
+                title: Text('My Tasks'),
+                onTap:(){
+                  Navigator.push(context,MaterialPageRoute(builder:(_){
+                    return MyTaskPage();
+                  }));
+                }
+              ),
+              ListTile(
+                title: Text("Today's Task"),
+                onTap:(){
+                  Navigator.push(context,MaterialPageRoute(builder:(_){
+                    return TodayListPage();
+                  }));
+                }
+              ),
+              ListTile(
+                title: Text("Completed Task"),
+                onTap:(){
+                  // Navigator.push(context,MaterialPageRoute(builder:(_){
+                  //   return CompletedTaskPage();
+                  // }));
+                }
+              ),
+              ]
+            )
+          )
+        );
   }
 
   Widget _todayList() {
     EventRepository databaseHelper = EventRepository();
-    // return ListView(
+    //return ListView(
     // children: <Widget> [
     //return Container(
     //height: double.infinity,
@@ -88,10 +121,62 @@ class _TodayListState extends State<TodayList> {
     // return ListView(
     //   shrinkWrap: true,
     //   physics: NeverScrollableScrollPhysics(),
-    // children: <Widget>[
-    return ReorderableListView(
+    //  return Scaffold(
+     return ReorderableListView(
       // children:<Widget>[
-      children: todayEventList.map((task) {
+      // children: <Widget>[
+      // _buildTiles(task);
+      children:todayEventList.map((task) {
+        if(task.isUnplanned==1){
+          return Slidable(
+            key: task.key,
+            actionPane: SlidableDrawerActionPane(),
+            actionExtentRatio: 0.25,
+            secondaryActions: <Widget>[
+              IconSlideAction(
+                color: ConstantHelper.tomatoColor,
+                  iconWidget: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.white),
+                      onPressed: () => {
+                      databaseHelper.deleteEvent(task.id),
+                      databaseHelper.getTodayEventList().then((data) {
+                        setState(() {
+                          todayEventList = data;
+                        });
+                      })
+                    },)
+              ),
+              IconSlideAction(
+                color: ConstantHelper.tomatoColor,
+                  iconWidget: IconButton(
+                      icon: Icon(Icons.play_circle_outline, color: Colors.white),
+                      onPressed: () => {
+                      databaseHelper.deleteEvent(task.id),
+                      databaseHelper.getTodayEventList().then((data) {
+                        setState(() {
+                          todayEventList = data;
+                        });
+                      })
+                    },)
+              )
+            ],
+            child:Container(
+              // height: constrains.maxHeight,
+              margin: EdgeInsets.all(5.0),
+              // height: 50,
+              child: new Row(
+                children: <Widget>[
+                SizedBox(width: 15),
+                  Icon(Icons.warning, color:ConstantHelper.tomatoColor),
+                  SizedBox(width: 5),
+                  Text(task.taskName, style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black87,
+                          //fontWeight: FontWeight.bold
+                        ))
+                ],)
+            ));
+        }
         return Slidable(
             key: task.key,
             actionPane: SlidableDrawerActionPane(),
@@ -142,12 +227,18 @@ class _TodayListState extends State<TodayList> {
                   ))
             ],
             child: ListExpan(task: task));
-      }).toList(),
+      },
+      // UnplannedExpan()
+      ).toList(),
+     
+      // UnplannedExpan(),
       onReorder: _onReorder,
-      // )
       // ]
-      //)
-    );
+      // )
+     );
+    //  ]
+    //   //)
+    // );
   }
 
   ///[onreorder] uses in [ReorderableListView]
@@ -160,6 +251,8 @@ class _TodayListState extends State<TodayList> {
       todayEventList.insert(newIndex, x);
     });
   }
+
+  
 }
 
 class ListExpan extends StatelessWidget {
@@ -322,56 +415,55 @@ class ListExpan extends StatelessWidget {
 // class UnplannedExpan extends StatelessWidget {
 //   @override
 //   Widget build(BuildContext context) {
-//     return _buildTiles(task);
+//     return _buildTiles();
 //   }
 
 //   }
 
-//    Widget _buildTiles(Event task) {
-//     if (task.subeventsList.isEmpty) return _event(task);
-//     return Container(
-//         color: Colors.white,
-//         child: ExpansionTile(
-//           title: _event(task),
-//           onExpansionChanged: (value) {
-//             // developer.log("onExpansionChanged");
-//           },
-//           children: <Widget>[
-//             Container(
-//                 height: (50.0 * task.subeventsList.length),
-//                 child: ListView(
-//                     children: task.subeventsList.map((subtask) {
-//                   return Slidable(
-//                       key: task.key,
-//                       actionPane: SlidableDrawerActionPane(),
-//                       actionExtentRatio: 0.25,
-//                       secondaryActions: <Widget>[
-//                         // IconSlideAction(
-//                         //     color: ConstantHelper.tomatoColor, icon: Icons.add
+  //  Widget _buildTiles() {
+  //   return Container(
+  //       color: Colors.white,
+  //       child: ExpansionTile(
+  //         title: Text('Unplanned Things'),
+  //         onExpansionChanged: (value) {
+  //           // developer.log("onExpansionChanged");
+  //         },
+  //         children: <Widget>[
+  //           Container(
+  //               height: (50.0 * task.subeventsList.length),
+  //               child: ListView(
+  //                   children: task.subeventsList.map((subtask) {
+  //                 return Slidable(
+  //                     key: task.key,
+  //                     actionPane: SlidableDrawerActionPane(),
+  //                     actionExtentRatio: 0.25,
+  //                     secondaryActions: <Widget>[
+  //                       // IconSlideAction(
+  //                       //     color: ConstantHelper.tomatoColor, icon: Icons.add
 
-//                         //     ///Needs onTop in the future
-//                         //     ),
-//                         IconSlideAction(
-//                             color: ConstantHelper.tomatoColor,
-//                             iconWidget: IconButton(
-//                               icon: Icon(Icons.delete, color: Colors.white),
-//                               // onPressed: () => {
-//                               //   databaseHelper.deleteEvent(task.id),
-//                               //   databaseHelper.getNoteList().then((data) {
-//                               //     eventsList = data;
-//                               //     // setState(() {
-//                               //     //   eventsList = data;
-//                               //     // }
-//                               //     // );
-//                               //   })
-//                               // },
-//                             ))
-//                       ],
-//                       child:
-//                           //return
-//                           _subevent(subtask));
-//                 }).toList()))
-//           ],
-//         ));
-//   }
+  //                       //     ///Needs onTop in the future
+  //                       //     ),
+  //                       IconSlideAction(
+  //                           color: ConstantHelper.tomatoColor,
+  //                           iconWidget: IconButton(
+  //                             icon: Icon(Icons.delete, color: Colors.white),
+  //                             // onPressed: () => {
+  //                             //   databaseHelper.deleteEvent(task.id),
+  //                             //   databaseHelper.getNoteList().then((data) {
+  //                             //     eventsList = data;
+  //                             //     // setState(() {
+  //                             //     //   eventsList = data;
+  //                             //     // }
+  //                             //     // );
+  //                             //   })
+  //                             // },
+  //                           ))
+  //                     ],
+  //                     child:
+  //                         //return
+  //                         _subevent(subtask));
+  //               }).toList()))
+  //         ],
+  //       ));
+  // }
 // }

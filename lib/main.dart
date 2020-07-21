@@ -12,7 +12,9 @@ import 'package:timato/ui/event_list.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/today_task_list.dart';
 
-void main() => runApp(MyApp3());
+void main() {
+  
+  runApp((MyTaskPage()));}
 
 /*void main() async{
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,23 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/material/colors.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/basics.dart';
-import 'package:timato/core/db.dart';
+import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
 List<Event> eventsList = [];
 
-class MyApp1 extends StatelessWidget {
+
+class MyTaskPage extends StatelessWidget {
   ///newly added
   //const MyApp1({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // final size = MediaQuery.of(context).size;
     return MaterialApp(
       home: ToDoList(),
     );
@@ -49,30 +50,30 @@ class MainList extends State<ToDoList> {
     // databaseHelper.insertEvent(Event(taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English')).then((id){    developer.log(id.toString());});
     // databaseHelper.insertEvent(Event(taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese')).then((id){    developer.log(id.toString());});
     // databaseHelper.insertEvent(Event(taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English')).then((id){    developer.log(id.toString());});
-    // databaseHelper.getNoteList().then((data) {
+    // databaseHelper.getEventList().then((data) {
     //   data.forEach((element) {
     //     databaseHelper.deleteEvent(element.id);
     //   });
-    //   // setState(() {
-    //   //   eventsList = data;
-    //   // });
+    //   setState(() {
+    //     eventsList = data;
+    //   });
     // });
-    databaseHelper
-        .insertEvent(Event(
-            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
+    // databaseHelper
+    //     .insertEvent(Event(
+    //         taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
       //   .then((id) {
       // developer.log(id.toString());
     // }
     // );
-    databaseHelper
-        .insertEvent(Event(
-            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
+    // databaseHelper
+    //     .insertEvent(Event(
+    //         taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
     //     .then((id) {
     //   developer.log(id.toString());
     // });
-    databaseHelper
-        .insertEvent(Event(
-            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
+    // databaseHelper
+    //     .insertEvent(Event(
+    //         taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
     //     .then((id) {
     //   developer.log(id.toString());
     // });
@@ -86,24 +87,73 @@ class MainList extends State<ToDoList> {
   String name = "";
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return new Scaffold(
       appBar: new AppBar(
+        iconTheme: new IconThemeData(color:ConstantHelper.tomatoColor),
           title: new Text("My Tasks",
               style: TextStyle(color: ConstantHelper.tomatoColor)),
           backgroundColor: Colors.white),
-      body: new Container(
+      body: Container(
+        // constraints: BoxConstraints(maxHeight: 1000),
+        // width: size.width,
+        // height:size.height,
+        // constraints: BoxConstraints(
+          // this.maxHeight = 
+        // ),
         // height: 100,
         decoration: new BoxDecoration(
           color: Colors.white,
         ),
-        child: _list(),
+        child: 
+        // new Row(
+        //   children:<Widget>[
+            _list()
+            // ],),
       ),
+      drawer: Drawer(
+            child: ListView(
+              children: <Widget>[
+              DrawerHeader(
+                child: Text('Timato, be productive with you'),
+                decoration: BoxDecoration(
+                  color: ConstantHelper.tomatoColor
+                )
+                ),
+              ListTile(
+                title: Text('My Tasks'),
+                onTap:(){
+                  Navigator.push(context,MaterialPageRoute(builder:(_){
+                    return MyTaskPage();
+                  }));
+                }
+              ),
+              ListTile(
+                title: Text("Today's Task"),
+                onTap:(){
+                  Navigator.push(context,MaterialPageRoute(builder:(_){
+                    return TodayListPage();
+                  }));
+                }
+              ),
+              ListTile(
+                title: Text("Completed Task"),
+                onTap:(){
+                  // Navigator.push(context,MaterialPageRoute(builder:(_){
+                  //   return CompletedTaskPage();
+                  // }));
+                }
+              ),
+              ]
+            )
+          )
     );
   }
 
   ///Builds a list of events that is reorderable
   Widget _list() {
     return ReorderableListView(
+      // scrollController: ScrollController(),
       children: eventsList.map((task) {
         return Slidable(
             key: task.key,
@@ -187,6 +237,10 @@ class ListExpan extends StatelessWidget {
   Widget _buildTiles(Event task) {
     if (task.subeventsList.isEmpty) return _event(task);
     return Container(
+      // constraints: BoxConstraints(maxHeight: 1000),
+// width: size.width,
+//         height:size.height,
+        // height:50,
         color: Colors.white,
         child: ExpansionTile(
           title: _event(task),
@@ -245,8 +299,11 @@ class ListExpan extends StatelessWidget {
       height: 50,
       width: 40,
       color: Colors.white,
-      child: new Row(children: <Widget>[
+      child: new Row(
+        
+        children: <Widget>[
         Container(
+          // constraints: BoxConstraints(maxHeight: 1000),
           padding:EdgeInsets.only(top: 0),
           child:
         Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task))),
@@ -256,6 +313,7 @@ class ListExpan extends StatelessWidget {
               new Row(children: <Widget>[
                 ///Contains [taskName]
                 Container(
+                  // constraints: BoxConstraints(maxHeight: 1000),
                     margin: EdgeInsets.all(5.0),
                     child: Text(task.taskName,
                         textAlign: TextAlign.left,
@@ -272,6 +330,7 @@ class ListExpan extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(width: 10),
                   Container(
+                    // constraints: BoxConstraints(maxHeight: 1000),
                     //alignment: Alignment.centerLeft,
                     child: Text(task.tag,
                         style: TextStyle(
@@ -283,8 +342,9 @@ class ListExpan extends StatelessWidget {
                     ),
                     padding: EdgeInsets.all(2),
                   ),
-                  SizedBox(width: 5),
+                  SizedBox(width: 5,height: 1,),
                   Container(
+                    // constraints: BoxConstraints(maxHeight: 1000),
                     //alignment: Alignment.centerLeft,
                     child: Text('2029',
                         style: TextStyle(
@@ -310,7 +370,7 @@ class ListExpan extends StatelessWidget {
       height: 45,
       color: Colors.white70,
       child: new Row(children: <Widget>[
-        SizedBox(width: 40),
+        SizedBox(width: 40,height: 1,),
         //Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(subtask)),
         //new Column(
         //children: <Widget>[
@@ -318,6 +378,7 @@ class ListExpan extends StatelessWidget {
         //children: <Widget>[
         ///Contains [subtaskName]
         Container(
+          // constraints: BoxConstraints(maxHeight: 1000),
             margin: EdgeInsets.all(5.0),
             child: Text(subtask.taskName,
                 textAlign: TextAlign.left,

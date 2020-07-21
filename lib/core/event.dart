@@ -163,7 +163,7 @@ abstract class AbstractEvent implements Comparable {
   int numClock;
 
   ///A category that the [Event] belongs to
-  String tag;
+  String tag = 'daily task';
 
   ///The date that the event is completed
   DateTime completedDate;
@@ -301,7 +301,7 @@ class Event extends AbstractEvent {
     this.key = Key(map["key"]);
     this.taskName = map["task_name"];
     this.ddl = DateTime.parse(map["deadline"]);
-    this.tag = map["tag"];
+    this.tag = map["tag"]??"";
     this.duration = map["duration"];
     this.eventPriority = ConstantHelper
         .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
@@ -379,7 +379,7 @@ class EventEntity {
   }
 
   static upgradeDb(Database db, int oldVersion, int newVersion) async {
-    if (newVersion == 4) {
+    if (newVersion == 5) {
       await db.execute('DROP TABLE $eventTable');
       await db.execute(
           'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +

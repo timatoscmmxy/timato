@@ -49,6 +49,14 @@ class EventRepository extends DatabaseHelper {
     return result;
   }
 
+  //Deletes all the data on eventTable
+  Future<int> deleteAll(int id) async {
+    var db = await this.database;
+    int result = await db.rawDelete(
+        'DELETE FROM ${EventEntity.eventTable}');
+    return result;
+  }
+
   // Get number of Event objects in database
   Future<int> getCount() async {
     Database db = await this.database;
@@ -86,5 +94,20 @@ class EventRepository extends DatabaseHelper {
     }
 
     return todayEventList;
+  }
+
+  Future<List<Event>> getUnpannedThing() async {
+    Database db = await this.database;
+    var unplannedThingMapList = await db.rawQuery('SELECT * FROM ${EventEntity.eventTable} WHERE ${EventEntity.colUnplanned}=?', [1]);
+    int count =
+        unplannedThingMapList.length; // Count the number of map entries in db table
+
+    List<Event> unplannedThingList = List<Event>();
+    // For loop to create a 'Event List' from a 'Map List'
+    for (int i = 0; i < count; i++) {
+      unplannedThingList.add(Event.fromMapObject(unplannedThingMapList[i]));
+    }
+
+    return unplannedThingList;
   }
 }

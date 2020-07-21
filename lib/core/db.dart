@@ -36,7 +36,7 @@ abstract class DatabaseHelper {
     developer.log(path);
     // Open/create the database at a given path
     var database = await openDatabase(path,
-        version: 4, onCreate: _createDb, onUpgrade: _upgradeDb);
+        version: 5, onCreate: _createDb, onUpgrade: _upgradeDb);
     //_dropDb(database);
     return database;
   }
