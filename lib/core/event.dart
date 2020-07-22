@@ -9,145 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 
 import 'package:sqflite/sqflite.dart';
+import 'package:timato/core/repeat_properties.dart';
 
 import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
-
-enum RepeatUnit { day, week, month, year }
-
-enum WeekNum { First, Second, Third, Fourth, Last }
-
-class RepeatProperties {
-  /// The unit of repeating time
-  RepeatUnit unit;
-
-  /// Repeat Every [unitNum] [unit]
-  int unitNum;
-
-  /// The day starts repeating
-  DateTime start;
-
-  /// Repeat every weekday if [unit] is [RepeatUnit.week]
-  /// Or repeat on every [weekNum] [weekday] if [unit] is [RepeatUnit.month]
-  /// Use [DateTime.monday] ... for weekdays
-  List<int> weekdays;
-  WeekNum weekNum;
-
-  /// Repeat every monthDay if [unit] is [RepeatUnit.month]
-  /// 0 is the last day of the month, otherwise, 1 <= [monthDay] <= 31
-  int monthDay;
-
-  RepeatProperties(
-      {@required this.unit,
-      @required this.unitNum,
-      @required this.start,
-      List<int> weekdays,
-      WeekNum weekNum,
-      int monthDay}) {
-    if (unit == RepeatUnit.week) {
-      if (weekdays == null) {
-        throw ArgumentError('week Day cannot be Null');
-      } else {
-        this.weekdays = weekdays;
-      }
-    } else if (unit == RepeatUnit.month) {
-      if (monthDay != null) {
-        this.monthDay = monthDay;
-      } else if (weekdays != null && weekNum != null) {
-        this.weekdays = weekdays;
-        this.weekNum = weekNum;
-      } else {
-        throw ArgumentError('need monthDay or weekDay and weekNum');
-      }
-    }
-  }
-
-  /// Determine whether today is the repeated date
-  bool isToday(DateTime today) {
-    if (start.isAfter(today)) return false;
-
-    Duration diff = start.difference(today);
-    switch (this.unit) {
-      case RepeatUnit.day:
-        return diff.inDays % unitNum == 0;
-        break;
-      case RepeatUnit.week:
-        return weekdays.contains(today.weekday) &&
-            (this._diffInWeek(today, diff) % unitNum == 0);
-        break;
-      case RepeatUnit.month:
-        if (this._diffInMonth(today) % unitNum == 0) {
-          return (monthDay == today.day)
-              // monthDay == 0 means last day in the month
-              ||
-              (monthDay == 0 &&
-                  today.day ==
-                      DateTime(today.year, today.month + 1, 1)
-                          .add(Duration(days: -1))
-                          .day)
-              // nth Weekday situation
-              ||
-              (today.weekday == weekdays[0] && _nthWeekdayMatches(today));
-        } else {
-          return false;
-        }
-        break;
-      case RepeatUnit.year:
-        return today.isAtSameMomentAs(start) &&
-            ((today.year - start.year) % unitNum == 0);
-        break;
-      default:
-        return false;
-    }
-  }
-
-  /// turn [diff] in days into difference in weeks between [today] and [start]
-  int _diffInWeek(DateTime today, Duration diff) {
-    int num = diff.inDays ~/ DateTime.daysPerWeek;
-    if (today.weekday < this.start.weekday) ++num;
-    return num;
-  }
-
-  /// return difference in months between [today] and [start]
-  int _diffInMonth(DateTime today) {
-    return (today.year - start.year) * 12 + (today.month - start.month);
-  }
-
-  /// Check whether [today] is the [weekNum]th weekday
-  bool _nthWeekdayMatches(DateTime today) {
-    int day = today.day;
-    int weekday = today.weekday;
-    int firstWeekdayInMonth = DateTime(today.year, today.month, 1).weekday;
-    DateTime lastDayInMonth =
-        DateTime(today.year, today.month + 1, 1).add(Duration(days: -1));
-    int lastWeekdayInMonth = lastDayInMonth.weekday;
-    int firstOccurrence = weekday >= firstWeekdayInMonth
-        ? (weekday - firstWeekdayInMonth) + 1
-        : (8 - firstWeekdayInMonth) + weekday;
-    int lastOccurrence = weekday <= lastWeekdayInMonth
-        ? lastDayInMonth.day - (lastWeekdayInMonth - weekday)
-        : lastDayInMonth.day - 7 + (weekday - lastWeekdayInMonth);
-    switch (this.weekNum) {
-      case WeekNum.First:
-        return day == firstOccurrence;
-        break;
-      case WeekNum.Second:
-        return day == firstOccurrence + 7;
-        break;
-      case WeekNum.Third:
-        return day == firstOccurrence + 14;
-        break;
-      case WeekNum.Fourth:
-        return day == firstOccurrence + 21;
-        break;
-      case WeekNum.Last:
-        return day == lastOccurrence;
-        break;
-      default:
-        return false;
-    }
-  }
-}
 
 abstract class AbstractEvent implements Comparable {
   ///Event's name
@@ -191,7 +56,7 @@ abstract class AbstractEvent implements Comparable {
     RepeatProperties repeatProperties,
   }) {
     this.taskName = taskName;
-    this.ddl = DateTime.now();
+    this.ddl = null;
     this.duration = duration;
     this.tag = tag;
     this.eventPriority = eventPriority;
@@ -247,7 +112,7 @@ abstract class AbstractEvent implements Comparable {
   }
 }
 
-///A event that user adds onto the todo list
+///A event that user adds onto the list
 class Event extends AbstractEvent {
   int id;
 

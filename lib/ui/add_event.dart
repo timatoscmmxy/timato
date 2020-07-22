@@ -1,52 +1,86 @@
+import 'dart:ffi';
+
+import 'package:dart_numerics/dart_numerics.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:timato/core/event.dart';
+import 'package:timato/core/repeat_properties.dart';
 import 'package:timato/ui/basics.dart';
 
 DateTime dateOnly(DateTime date) {
   return DateTime(date.year, date.month, date.day);
 }
 
-class AddEvent extends StatefulWidget{
+String formatDate(DateTime date) {
+  return '${ConstantHelper.intToMonth[date.month]} ${date.day}';
+}
+
+class AddEvent extends StatefulWidget {
   final String _textHint;
   final bool isPlanned;
 
   AddEvent(this._textHint, {this.isPlanned});
 
   @override
-  AddEventState createState() => AddEventState(_textHint, isPlanned: isPlanned);
+  AddEventState createState() => AddEventState();
 
-  static showAddEvent(context){
+  static showAddEvent(context) {
     showModalBottomSheet(
       context: context,
-      builder: (_) => AddEvent('New event', isPlanned: false,),
+      builder: (_) => AddEvent(
+        'New event',
+        isPlanned: false,
+      ),
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
   }
 
-  static showAddUnplannedEvent(context){
+  static showAddUnplannedEvent(context) {
     showModalBottomSheet(
       context: context,
-      builder: (_) => AddEvent('New unplanned event', isPlanned: true,),
+      builder: (_) => AddEvent(
+        'New unplanned event',
+        isPlanned: true,
+      ),
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
   }
-
 }
 
 // ignore: must_be_immutable
-class AddEventState extends State<AddEvent>{
-  final String _textHint;
-  final bool isPlanned;
+class AddEventState extends State<AddEvent> {
+  Event newEvent;
+  Icon calendarIcon;
+  FlatButton doneButton;
 
-  AddEventState(this._textHint, {this.isPlanned});
+  @override
+  void initState() {
+    super.initState();
+    newEvent = Event(taskName: "new event");
+    calendarIcon = Icon(
+      Icons.calendar_today,
+      color: ConstantHelper.tomatoColor,
+    );
+    doneButton = FlatButton(
+      child:
+          Text('Done', style: TextStyle(color: Colors.black26, fontSize: 18)),
+      onPressed: null,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(10.0))),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal:18 ),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -59,17 +93,43 @@ class AddEventState extends State<AddEvent>{
             child: Container(
               child: TextField(
                 decoration: InputDecoration(
-                    hintText: _textHint,
+                  hintText: widget._textHint,
                 ),
                 autofocus: true,
                 maxLines: null,
+                onChanged: (string) {
+                  newEvent.taskName = string;
+                  if (string == "") {
+                    setState(() {
+                      doneButton = FlatButton(
+                        child: Text('Done',
+                            style:
+                                TextStyle(color: Colors.black26, fontSize: 18)),
+                        onPressed: null,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(10.0))),
+                      );
+                    });
+                  } else {
+                    setState(() {
+                      doneButton = FlatButton(
+                        child: Text('Done',
+                            style: TextStyle(
+                                color: ConstantHelper.tomatoColor,
+                                fontSize: 18)),
+                        onPressed: () {
+                          Navigator.pop(context, newEvent);
+                        },
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(10.0))),
+                      );
+                    });
+                  }
+                },
               ),
-              padding: EdgeInsets.only(
-                left: 10,
-                right: 10,
-                top: 5,
-                bottom: 30
-              ),
+              padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 30),
             ),
           ),
           Padding(
@@ -81,72 +141,104 @@ class AddEventState extends State<AddEvent>{
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.calendar_today, color: ConstantHelper.tomatoColor,),
-                    onPressed: () async{
-                      await DateTimeSelector.show(context, null);
+                    icon: calendarIcon,
+                    onPressed: () async {
+                      print(newEvent.ddl);
+                      newEvent.ddl =
+                          await DateTimeSelector.show(context, newEvent.ddl) ??
+                              newEvent.ddl;
+                      setState(() {
+                        if (newEvent.ddl != null) {
+                          calendarIcon = Icon(
+                            Icons.event_available,
+                            color: ConstantHelper.tomatoColor,
+                          );
+                        }
+                      });
                     },
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.timer, color: ConstantHelper.tomatoColor,),
-                    onPressed: (){},
+                    icon: Icon(
+                      Icons.timer,
+                      color: ConstantHelper.tomatoColor,
+                    ),
+                    onPressed: () async {
+                      newEvent.duration = await SetDuration.show(context);
+                    },
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.info_outline, color: ConstantHelper.tomatoColor,),
-                    onPressed: (){},
+                    icon: Icon(
+                      Icons.info_outline,
+                      color: ConstantHelper.tomatoColor,
+                    ),
+                    onPressed: () async {
+                      newEvent.tag = await SetTag.show(context);
+                    },
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
                   child: IconButton(
-                    icon: Icon(Icons.low_priority, color: ConstantHelper.tomatoColor,),
-                    onPressed: (){},
+                    icon: Icon(
+                      Icons.low_priority,
+                      color: ConstantHelper.tomatoColor,
+                    ),
+                    onPressed: () async {
+                      newEvent.eventPriority = await SetPriority.show(
+                              context, newEvent.eventPriority) ??
+                          newEvent.eventPriority;
+                      print(newEvent.eventPriority);
+                    },
                   ),
                 ),
-                Expanded(child: Container(),),
+                Expanded(
+                  child: Container(),
+                ),
                 Padding(
                   padding: EdgeInsets.all(5),
-                  child: FlatButton(
-                     child: Text('Done', style: TextStyle(color: Colors.black26, fontSize: 18)),
-                    onPressed: null,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(10.0))),
-                  ),
+                  child: doneButton,
                 ),
               ],
             ),
           ),
-          Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom), child: Container(),)
+          Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(),
+          )
         ],
       ),
     );
   }
 }
 
-class DateTimeSelector extends StatelessWidget{
+// ignore: must_be_immutable
+class DateTimeSelector extends StatelessWidget {
   DateTime dateSelected;
-  RepeatProperties repeatProperties;
 
-  DateTimeSelector({DateTime selected}) : this.dateSelected = selected ?? dateOnly(DateTime.now());
-
+  DateTimeSelector({DateTime selected})
+      : this.dateSelected = selected ?? dateOnly(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
+        child: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           CalendarDatePicker(
-              lastDate: DateTime(9999,12,31),
-              initialDate: DateTime.now(),
-              firstDate: dateOnly(DateTime.now()),
-              onDateChanged: (DateTime date) => dateSelected = date,
-            ),
+            lastDate: DateTime(9999, 12, 31),
+            initialDate: dateSelected,
+            firstDate: dateOnly(DateTime.now()),
+            onDateChanged: (DateTime date) => dateSelected = date,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
           ),
@@ -154,8 +246,9 @@ class DateTimeSelector extends StatelessWidget{
             child: ListTile(
               leading: Icon(Icons.repeat),
               title: Text('Repeat'),
-              onTap: (){
-
+              onTap: () {
+                Navigator.pop(context);
+                SetRepeatProperties.show(context, dateSelected);
               },
             ),
           ),
@@ -169,6 +262,594 @@ class DateTimeSelector extends StatelessWidget{
                 child: Container(),
               ),
               Container(
+                child: FlatButton(
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.black38,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, null);
+                  },
+                ),
+              ),
+              Container(
+                child: FlatButton(
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: ConstantHelper.tomatoColor,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, dateSelected);
+                  },
+                ),
+              )
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(),
+          )
+        ],
+      ),
+    ));
+  }
+
+  static show(context, DateTime date) async {
+    DateTime dateSelected;
+    dateSelected = await showDialog<DateTime>(
+        context: context,
+        builder: (_) => DateTimeSelector(
+              selected: date,
+            ),
+        barrierDismissible: true);
+    return dateSelected;
+  }
+}
+
+class SetTag extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    String tag;
+    return AlertDialog(
+      content: Container(
+        child: TextField(
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: "Give your event an tag",
+          ),
+          onChanged: (s) => tag = s,
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Colors.black38),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        FlatButton(
+          child: Text(
+            'Confirm',
+            style: TextStyle(color: ConstantHelper.tomatoColor),
+          ),
+          onPressed: () {
+            Navigator.pop(context, tag);
+          },
+        ),
+      ],
+    );
+  }
+
+  static show(context) async {
+    return await showDialog(
+        context: context, builder: (_) => SetTag(), barrierDismissible: true);
+  }
+}
+
+class SetDuration extends StatefulWidget {
+  static show(context) async {
+    return await showDialog(
+        context: context,
+        builder: (_) => SetDuration(),
+        barrierDismissible: true);
+  }
+
+  @override
+  State<StatefulWidget> createState() => _SetDurationState();
+}
+
+class _SetDurationState extends State<SetDuration> {
+  FlatButton confirmButton;
+  TextEditingController controller;
+
+  int duration;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+    confirmButton = FlatButton(
+      child: Text(
+        'Confirm',
+        style: TextStyle(color: Colors.black38),
+      ),
+      onPressed: null,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Container(
+        child: TextField(
+          autofocus: true,
+          controller: controller,
+          inputFormatters: [
+            WhitelistingTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(18),
+          ],
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: "Expected time taken (in minutes)",
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+          ),
+          onChanged: (s) {
+            if (s == '0' || s == '') {
+              controller.text = '';
+              setState(() {
+                confirmButton = FlatButton(
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(color: Colors.black38),
+                  ),
+                  onPressed: null,
+                );
+              });
+            } else {
+              duration = int.parse(s);
+              setState(() {
+                confirmButton = FlatButton(
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(color: ConstantHelper.tomatoColor),
+                  ),
+                  onPressed: () => Navigator.pop(context, duration),
+                );
+              });
+            }
+          },
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Colors.black38),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        confirmButton
+      ],
+    );
+  }
+}
+
+class SetPriority extends StatefulWidget {
+  final originPriority;
+
+  SetPriority(this.originPriority);
+
+  static show(context, Priority priority) async {
+    return await showDialog(
+        context: context,
+        builder: (_) => SetPriority(priority),
+        barrierDismissible: true);
+  }
+
+  @override
+  State<StatefulWidget> createState() => _SetPriorityState();
+}
+
+class _SetPriorityState extends State<SetPriority> {
+  Priority priority;
+
+  @override
+  void initState() {
+    super.initState();
+    priority = widget.originPriority;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Choosing event priority',
+        style: TextStyle(fontSize: 20, color: ConstantHelper.tomatoColor),
+        softWrap: true,
+        textAlign: TextAlign.left,
+      ),
+      content: DropdownButton<Priority>(
+        onChanged: (value) {
+          setState(() {
+            priority = value;
+          });
+        },
+        items: [
+          DropdownMenuItem<Priority>(
+            value: Priority.HIGH,
+            child: Text('High'),
+          ),
+          DropdownMenuItem<Priority>(
+            value: Priority.MIDDLE,
+            child: Text('Middle'),
+          ),
+          DropdownMenuItem<Priority>(
+            value: Priority.LOW,
+            child: Text('Low'),
+          ),
+          DropdownMenuItem<Priority>(
+            value: Priority.NONE,
+            child: Text('None'),
+          )
+        ],
+        value: priority,
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'Cancel',
+            style: TextStyle(color: Colors.black38),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        FlatButton(
+          child: Text(
+            'Confirm',
+            style: TextStyle(color: ConstantHelper.tomatoColor),
+          ),
+          onPressed: () {
+            Navigator.pop(context, priority);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class SetRepeatProperties extends StatefulWidget {
+  final DateTime startDate;
+
+  SetRepeatProperties(this.startDate);
+
+  static show(context, DateTime startDate) async {
+    return await showDialog(
+        context: context,
+        builder: (_) => SetRepeatProperties(startDate),
+        barrierDismissible: true);
+  }
+
+  @override
+  State<StatefulWidget> createState() => _SetRepeatPropertiesState();
+}
+
+class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
+  RepeatProperties repeatProperties;
+
+  TextEditingController unitNumController;
+  TextEditingController startController;
+
+  DateTime setStart(){
+    
+  }
+
+  Widget monthWeekSelection() {
+    switch (repeatProperties.unit) {
+      case RepeatUnit.day:
+        return Container();
+        break;
+      case RepeatUnit.week:
+        return Container(
+          child: Row(
+
+          ),
+        );
+        break;
+      case RepeatUnit.month:
+        return Container();
+        break;
+      case RepeatUnit.year:
+        return Container();
+        break;
+      default:
+        return Container();
+    }
+  }
+
+  Widget startSelection() {
+    switch (repeatProperties.unit) {
+      case RepeatUnit.day:
+        return Container(
+          child: Row(
+            children: <Widget>[
+              Padding(
+                child: Text('Start'),
+                padding: EdgeInsets.only(right: 5),
+              ),
+              Expanded(
+                child: Container(
+                    child: FlatButton(
+                      child: Align(
+                        child: Text(
+                          formatDate(repeatProperties.start),
+                          textAlign: TextAlign.left,
+                        ),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () async {
+                        DateTime date = await showDatePicker(
+                            context: context,
+                            initialDate: repeatProperties.start,
+                            firstDate: dateOnly(DateTime.now()),
+                            lastDate: DateTime(9999, 12, 31));
+                        setState(() {
+                          repeatProperties.start = date ?? repeatProperties.start;
+                        });
+                      },
+                      color: Colors.black12,
+                )),
+              )
+            ],
+          ),
+          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+        );
+        break;
+      case RepeatUnit.week:
+        return Container(
+          child: Row(
+            children: <Widget>[
+              Padding(
+                child: Text('Start'),
+                padding: EdgeInsets.only(right: 5),
+              ),
+              Expanded(
+                child: Container(
+                    child: FlatButton(
+                      child: Align(
+                        child: Text(
+                          formatDate(repeatProperties.start),
+                          textAlign: TextAlign.left,
+                        ),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () async {
+                        DateTime date = await showDatePicker(
+                            context: context,
+                            initialDate: repeatProperties.start,
+                            firstDate: dateOnly(DateTime.now()),
+                            lastDate: DateTime(9999, 12, 31));
+                        setState(() {
+                          repeatProperties.start = date ?? repeatProperties.start;
+                        });
+                      },
+                      color: Colors.black12,
+                    )),
+              )
+            ],
+          ),
+          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+        );
+        break;
+      case RepeatUnit.month:
+        return Container(
+          child: Row(
+            children: <Widget>[
+              Padding(
+                child: Text('Start'),
+                padding: EdgeInsets.only(right: 5),
+              ),
+              Expanded(
+                child: Container(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10, right: 5),
+                      child: DropdownButton(
+                        underline: null,
+                        isExpanded: true,
+                        value: repeatProperties.startMonth,
+                        items: <DropdownMenuItem>[
+                          DropdownMenuItem(child: Text('January'), value: 1,),
+                          DropdownMenuItem(child: Text('February'), value: 2,),
+                          DropdownMenuItem(child: Text('March'), value: 3,),
+                          DropdownMenuItem(child: Text('April'), value: 4,),
+                          DropdownMenuItem(child: Text('May'), value: 5,),
+                          DropdownMenuItem(child: Text('June'), value: 6,),
+                          DropdownMenuItem(child: Text('July'), value: 7,),
+                          DropdownMenuItem(child: Text('August'), value: 8,),
+                          DropdownMenuItem(child: Text('September'), value: 9,),
+                          DropdownMenuItem(child: Text('October'), value: 10,),
+                          DropdownMenuItem(child: Text('November'), value: 11,),
+                          DropdownMenuItem(child: Text('December'), value: 12,),
+                        ],
+                        onChanged: (value){
+                          setState(() {
+                            repeatProperties.startMonth = value;
+                          });
+                        },
+                      ),
+                    ),
+                  color: Colors.black12,
+                  height: 35,
+                ),
+              )
+            ],
+          ),
+          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+        );
+        break;
+      case RepeatUnit.year:
+        return Container(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Container(
+                    child: FlatButton(
+                      child: Align(
+                        child: Text(
+                          formatDate(repeatProperties.start),
+                          textAlign: TextAlign.left,
+                        ),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () async {
+                        DateTime date = await showDatePicker(
+                            context: context,
+                            initialDate: repeatProperties.start,
+                            firstDate: dateOnly(DateTime.now()),
+                            lastDate: DateTime(9999, 12, 31));
+                        setState(() {
+                          repeatProperties.start = date ?? repeatProperties.start;
+                        });
+                      },
+                      color: Colors.black12,
+                    )),
+              )
+            ],
+          ),
+          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+        );
+        break;
+      default:
+        return Container();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    repeatProperties = RepeatProperties();
+    unitNumController =
+        TextEditingController(text: repeatProperties.unitNum.toString());
+    startController =
+        TextEditingController(text: formatDate(repeatProperties.start));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    child: Text('Every'),
+                    padding: EdgeInsets.only(right: 5),
+                  ),
+                  Padding(
+                    child: Container(
+                      child: TextFormField(
+                        controller: unitNumController,
+                        textAlign: TextAlign.center,
+                        inputFormatters: [
+                          WhitelistingTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(2),
+                        ],
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                        ),
+                        onChanged: (s) {
+                          if (s == '0') {
+                            unitNumController.text = '';
+                          } else {
+                            repeatProperties.unitNum = int.parse(s);
+                          }
+                        },
+                        onFieldSubmitted: (s) {
+                          if (s == '')
+                            unitNumController.text =
+                                repeatProperties.unitNum.toString();
+                        },
+                      ),
+                      height: 30,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                      ),
+                    ),
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    height: 30,
+                    color: Colors.black12,
+                    child: DropdownButton(
+                      items: <DropdownMenuItem>[
+                        DropdownMenuItem(
+                          child: Text('day'),
+                          value: RepeatUnit.day,
+                        ),
+                        DropdownMenuItem(
+                          child: Text('week'),
+                          value: RepeatUnit.week,
+                        ),
+                        DropdownMenuItem(
+                          child: Text('month'),
+                          value: RepeatUnit.month,
+                        ),
+                        DropdownMenuItem(
+                          child: Text('year'),
+                          value: RepeatUnit.year,
+                        ),
+                      ],
+                      value: repeatProperties.unit,
+                      onChanged: (value) {
+                        setState(() => repeatProperties.unit = value);
+                      },
+                    ),
+                  )
+                ],
+              ),
+              padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+            ),
+            monthWeekSelection(),
+            startSelection(),
+            Container(
+              child: Text(
+                'First occurence will be ${formatDate(repeatProperties.start)}',
+                style: TextStyle(color: Colors.black38, fontSize: 10),
+              ),
+              alignment: Alignment.bottomLeft,
+              padding: EdgeInsets.only(left: 10),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: Container(),
+                ),
+                Container(
                   child: FlatButton(
                     child: Text(
                       'Cancel',
@@ -176,12 +857,12 @@ class DateTimeSelector extends StatelessWidget{
                         color: Colors.black38,
                       ),
                     ),
-                    onPressed: (){
-                      Navigator.pop(context);
+                    onPressed: () {
+                      Navigator.pop(context, null);
                     },
                   ),
-              ),
-              Container(
+                ),
+                Container(
                   child: FlatButton(
                     child: Text(
                       'OK',
@@ -189,23 +870,16 @@ class DateTimeSelector extends StatelessWidget{
                         color: ConstantHelper.tomatoColor,
                       ),
                     ),
-                    onPressed: (){
-                      Navigator.pop(context, dateSelected);
+                    onPressed: () {
+                      Navigator.pop(context, repeatProperties);
                     },
                   ),
-              )
-            ],
-          ),
-          Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom), child: Container(),)
-        ],
+                )
+              ],
+            ),
+          ],
+        ),
       ),
-      
     );
-  }
-
-  static show(context, DateTime date) async{
-    DateTime dateSelected;
-    dateSelected = await showDialog<DateTime>(context: context, builder: (_) => DateTimeSelector(selected: date,), barrierDismissible: true);
-    return dateSelected;
   }
 }

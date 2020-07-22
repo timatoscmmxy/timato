@@ -87,6 +87,17 @@ class TimatoTimerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.keyboard_backspace),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          event.taskName,
+          maxLines: null,
+        ),
+        elevation: 0,
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

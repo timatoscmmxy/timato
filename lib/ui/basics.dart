@@ -6,6 +6,21 @@ import 'package:timato/core/event.dart';
 enum Priority { HIGH, MIDDLE, LOW, NONE }
 
 class ConstantHelper {
+  static final Map intToMonth = {
+    1 : 'Jan',
+    2 : 'Feb',
+    3 : 'Mar',
+    4 : 'Apr',
+    5 : 'May',
+    6 : 'Jun',
+    7 : 'Jul',
+    8 : 'Aug',
+    9 : 'Sep',
+    10 : 'Oct',
+    11 : 'Nov',
+    12 : 'Dec'
+  };
+
   static final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
 
   ///Changes the color according to [eventPriority] of [Event]
@@ -130,5 +145,41 @@ class WarningDialog extends StatelessWidget {
         context: context,
         builder: (_) => WarningDialog(title, text, context, action),
         barrierDismissible: true);
+  }
+}
+
+
+class TimerLengthAlert extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Invalid number input',
+        style: TextStyle(
+            fontSize: 14
+        ),
+        softWrap: true,
+        textAlign: TextAlign.left,
+      ),
+      titlePadding: EdgeInsets.all(10),
+      content: Text('Value input must be between 0 and 5940 minutes'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'OK',
+            style: TextStyle(
+                color: Colors.lightBlue
+            ),
+          ),
+          onPressed: (){
+            Navigator.pop(context);
+          },
+        )
+      ],
+    );
+  }
+
+  static show(BuildContext context){
+    showDialog(context: context, builder: (_) => TimerLengthAlert(), barrierDismissible: true);
   }
 }

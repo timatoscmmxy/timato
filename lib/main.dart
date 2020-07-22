@@ -11,9 +11,9 @@ import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'package:timato/core/event.dart';
 
-void main() => runApp(MyApp1());
+//void main() => runApp(MyApp1());
 
-/*void main() async{
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   notificationInit();
   await initPreferences();
@@ -64,11 +64,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       home: TimatoTimerWidget(
-        event: Event(taskName: 'test'),
+        event: Event(taskName: '写timato_timer_widget.dart'),
         timerLength: 10,
         relaxLength: 10,
       ),
 //      home: Settings(_pref)
     );
   }
-}*/
+}
