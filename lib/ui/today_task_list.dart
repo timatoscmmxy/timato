@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -15,15 +16,15 @@ List<Event> todayEventList = [];
 
 List<Event> unplanned = [new Event(taskName: '回邮件')];
 
-class TodayListPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: TodayList(),
-    );
-  }
-}
-
+// class TodayListPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: TodayList(),
+//     );
+//   }
+// }
+String unplannedDuration;
 class TodayList extends StatefulWidget {
   @override
   _TodayListState createState() => new _TodayListState();
@@ -48,7 +49,7 @@ class _TodayListState extends State<TodayList> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: new AppBar(
-          iconTheme: new IconThemeData(color:ConstantHelper.tomatoColor),
+            iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
             // leading: IconButton(
             //     icon: Icon(Icons.view_list, color: ConstantHelper.tomatoColor),
             //     onPressed: null),
@@ -68,47 +69,9 @@ class _TodayListState extends State<TodayList> {
           decoration: new BoxDecoration(
             color: Colors.white,
           ),
-          child:
-                _todayList(),
-              ),
-        
-          drawer: Drawer(
-            child: ListView(
-              children: <Widget>[
-              DrawerHeader(
-                child: Text('Timato, be productive with you'),
-                decoration: BoxDecoration(
-                  color: ConstantHelper.tomatoColor
-                )
-                ),
-              ListTile(
-                title: Text('My Tasks'),
-                onTap:(){
-                  Navigator.push(context,MaterialPageRoute(builder:(_){
-                    return MyTaskPage();
-                  }));
-                }
-              ),
-              ListTile(
-                title: Text("Today's Task"),
-                onTap:(){
-                  Navigator.push(context,MaterialPageRoute(builder:(_){
-                    return TodayListPage();
-                  }));
-                }
-              ),
-              ListTile(
-                title: Text("Completed Task"),
-                onTap:(){
-                  // Navigator.push(context,MaterialPageRoute(builder:(_){
-                  //   return CompletedTaskPage();
-                  // }));
-                }
-              ),
-              ]
-            )
-          )
-        );
+          child: _todayList(),
+        ),
+        drawer: new SideBar('TodayList'));
   }
 
   Widget _todayList() {
@@ -122,120 +85,153 @@ class _TodayListState extends State<TodayList> {
     //   shrinkWrap: true,
     //   physics: NeverScrollableScrollPhysics(),
     //  return Scaffold(
-     return ReorderableListView(
+    return ReorderableListView(
       // children:<Widget>[
       // children: <Widget>[
       // _buildTiles(task);
-      children:todayEventList.map((task) {
-        if(task.isUnplanned==1){
+      children: todayEventList.map(
+        (task) {
+          if (task.isUnplanned == 1) {
+            return Slidable(
+                key: task.key,
+                actionPane: SlidableDrawerActionPane(),
+                actionExtentRatio: 0.25,
+                secondaryActions: <Widget>[
+                  IconSlideAction(
+                      color: ConstantHelper.tomatoColor,
+                      iconWidget: IconButton(
+                        icon: Icon(Icons.delete, color: Colors.white),
+                        onPressed: () => {
+                          databaseHelper.deleteEvent(task.id),
+                          databaseHelper.getTodayEventList().then((data) {
+                            setState(() {
+                              todayEventList = data;
+                            });
+                          })
+                        },
+                      )),
+                  IconSlideAction(
+                      color: ConstantHelper.tomatoColor,
+                      iconWidget: IconButton(
+                        icon: Icon(Icons.play_circle_outline,
+                            color: Colors.white),
+                        onPressed: () => {
+                          AlertDialog(
+                              title: Text('How long will this take?'),
+                              content: TextFormField(
+                                keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.done,
+                                inputFormatters: [
+                                  WhitelistingTextInputFormatter.digitsOnly
+                                ],
+                                maxLength: 3,
+                                decoration: const InputDecoration(
+                                    suffixText: 'minutes',
+                                    counterText: '',
+                                    border: InputBorder.none),
+                                onChanged:(text){
+                                  unplannedDuration = text;
+                                  print('$unplannedDuration');
+                                }
+                              ),
+                              actions:<Widget>[
+                                new FlatButton(
+                                  child: new Text('Cancel'),
+                                  onPressed:(){
+                                    Navigator.of(context).pop();
+                                  },),
+                                  new FlatButton(child: new Text("Start clock"),
+                                  onPressed: (){
+                                  task.duration = int.parse(unplannedDuration);
+                                  //TODO:continue
+                                  },)
+                              ])
+                          // databaseHelper.deleteEvent(task.id),
+                          // databaseHelper.getTodayEventList().then((data) {
+                          //   setState(() {
+                          //     todayEventList = data;
+                          //   });
+                          // })
+                        },
+                      ))
+                ],
+                child: Container(
+                    // height: constrains.maxHeight,
+                    margin: EdgeInsets.all(5.0),
+                    // height: 50,
+                    child: new Row(
+                      children: <Widget>[
+                        SizedBox(width: 15),
+                        Icon(Icons.warning, color: ConstantHelper.tomatoColor),
+                        SizedBox(width: 5),
+                        Text(task.taskName,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black87,
+                              //fontWeight: FontWeight.bold
+                            ))
+                      ],
+                    )));
+          }
           return Slidable(
-            key: task.key,
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            secondaryActions: <Widget>[
-              IconSlideAction(
-                color: ConstantHelper.tomatoColor,
-                  iconWidget: IconButton(
+              key: task.key,
+              actionPane: SlidableDrawerActionPane(),
+              actionExtentRatio: 0.25,
+              secondaryActions: <Widget>[
+                IconSlideAction(
+                    color: ConstantHelper.tomatoColor,
+                    iconWidget: IconButton(
+                        icon: Icon(Icons.delete_sweep, color: Colors.white),
+                        onPressed: () => {
+                              // setState((){
+                              //   task.isTodayList = 0;
+                              // }),
+                              task.isTodayList = 0,
+                              databaseHelper.updateEvent(task).then((id) {
+                                databaseHelper.getTodayEventList().then((data) {
+                                  setState(() {
+                                    todayEventList = data;
+                                  });
+                                });
+                              })
+                            })
+
+                    ///Needs onTop in the future
+                    ),
+                IconSlideAction(
+                    color: ConstantHelper.tomatoColor,
+                    iconWidget: IconButton(
                       icon: Icon(Icons.delete, color: Colors.white),
                       onPressed: () => {
-                      databaseHelper.deleteEvent(task.id),
-                      databaseHelper.getTodayEventList().then((data) {
-                        setState(() {
-                          todayEventList = data;
-                        });
-                      })
-                    },)
-              ),
-              IconSlideAction(
-                color: ConstantHelper.tomatoColor,
-                  iconWidget: IconButton(
-                      icon: Icon(Icons.play_circle_outline, color: Colors.white),
+                        databaseHelper.deleteEvent(task.id),
+                        databaseHelper.getTodayEventList().then((data) {
+                          setState(() {
+                            todayEventList = data;
+                          });
+                        })
+                      },
+                    )),
+                IconSlideAction(
+                    color: ConstantHelper.tomatoColor,
+                    iconWidget: IconButton(
+                      icon: Icon(Icons.receipt, color: Colors.white),
                       onPressed: () => {
-                      databaseHelper.deleteEvent(task.id),
-                      databaseHelper.getTodayEventList().then((data) {
-                        setState(() {
-                          todayEventList = data;
-                        });
-                      })
-                    },)
-              )
-            ],
-            child:Container(
-              // height: constrains.maxHeight,
-              margin: EdgeInsets.all(5.0),
-              // height: 50,
-              child: new Row(
-                children: <Widget>[
-                SizedBox(width: 15),
-                  Icon(Icons.warning, color:ConstantHelper.tomatoColor),
-                  SizedBox(width: 5),
-                  Text(task.taskName, style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.black87,
-                          //fontWeight: FontWeight.bold
-                        ))
-                ],)
-            ));
-        }
-        return Slidable(
-            key: task.key,
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
-            secondaryActions: <Widget>[
-              IconSlideAction(
-                  color: ConstantHelper.tomatoColor,
-                  iconWidget: IconButton(
-                      icon: Icon(Icons.delete_sweep, color: Colors.white),
-                      onPressed: () => {
-                            // setState((){
-                            //   task.isTodayList = 0;
-                            // }),
-                            task.isTodayList = 0,
-                            databaseHelper.updateEvent(task).then((id) {
-                              databaseHelper.getTodayEventList().then((data) {
-                                setState(() {
-                                  todayEventList = data;
-                                });
-                              });
-                            })
-                          })
-
-                  ///Needs onTop in the future
-                  ),
-              IconSlideAction(
-                  color: ConstantHelper.tomatoColor,
-                  iconWidget: IconButton(
-                    icon: Icon(Icons.delete, color: Colors.white),
-                    onPressed: () => {
-                      databaseHelper.deleteEvent(task.id),
-                      databaseHelper.getTodayEventList().then((data) {
-                        setState(() {
-                          todayEventList = data;
-                        });
-                      })
-                    },
-                  )),
-              IconSlideAction(
-                  color: ConstantHelper.tomatoColor,
-                  iconWidget: IconButton(
-                    icon: Icon(Icons.receipt, color: Colors.white),
-                    onPressed: () => {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return EventList(task: task);
-                      }))
-                    },
-                  ))
-            ],
-            child: ListExpan(task: task));
-      },
-      // UnplannedExpan()
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return EventList(task: task);
+                        }))
+                      },
+                    ))
+              ],
+              child: ListExpan(task: task));
+        },
+        // UnplannedExpan()
       ).toList(),
-     
+
       // UnplannedExpan(),
       onReorder: _onReorder,
       // ]
       // )
-     );
+    );
     //  ]
     //   //)
     // );
@@ -251,8 +247,6 @@ class _TodayListState extends State<TodayList> {
       todayEventList.insert(newIndex, x);
     });
   }
-
-  
 }
 
 class ListExpan extends StatelessWidget {
@@ -420,50 +414,50 @@ class ListExpan extends StatelessWidget {
 
 //   }
 
-  //  Widget _buildTiles() {
-  //   return Container(
-  //       color: Colors.white,
-  //       child: ExpansionTile(
-  //         title: Text('Unplanned Things'),
-  //         onExpansionChanged: (value) {
-  //           // developer.log("onExpansionChanged");
-  //         },
-  //         children: <Widget>[
-  //           Container(
-  //               height: (50.0 * task.subeventsList.length),
-  //               child: ListView(
-  //                   children: task.subeventsList.map((subtask) {
-  //                 return Slidable(
-  //                     key: task.key,
-  //                     actionPane: SlidableDrawerActionPane(),
-  //                     actionExtentRatio: 0.25,
-  //                     secondaryActions: <Widget>[
-  //                       // IconSlideAction(
-  //                       //     color: ConstantHelper.tomatoColor, icon: Icons.add
+//  Widget _buildTiles() {
+//   return Container(
+//       color: Colors.white,
+//       child: ExpansionTile(
+//         title: Text('Unplanned Things'),
+//         onExpansionChanged: (value) {
+//           // developer.log("onExpansionChanged");
+//         },
+//         children: <Widget>[
+//           Container(
+//               height: (50.0 * task.subeventsList.length),
+//               child: ListView(
+//                   children: task.subeventsList.map((subtask) {
+//                 return Slidable(
+//                     key: task.key,
+//                     actionPane: SlidableDrawerActionPane(),
+//                     actionExtentRatio: 0.25,
+//                     secondaryActions: <Widget>[
+//                       // IconSlideAction(
+//                       //     color: ConstantHelper.tomatoColor, icon: Icons.add
 
-  //                       //     ///Needs onTop in the future
-  //                       //     ),
-  //                       IconSlideAction(
-  //                           color: ConstantHelper.tomatoColor,
-  //                           iconWidget: IconButton(
-  //                             icon: Icon(Icons.delete, color: Colors.white),
-  //                             // onPressed: () => {
-  //                             //   databaseHelper.deleteEvent(task.id),
-  //                             //   databaseHelper.getNoteList().then((data) {
-  //                             //     eventsList = data;
-  //                             //     // setState(() {
-  //                             //     //   eventsList = data;
-  //                             //     // }
-  //                             //     // );
-  //                             //   })
-  //                             // },
-  //                           ))
-  //                     ],
-  //                     child:
-  //                         //return
-  //                         _subevent(subtask));
-  //               }).toList()))
-  //         ],
-  //       ));
-  // }
+//                       //     ///Needs onTop in the future
+//                       //     ),
+//                       IconSlideAction(
+//                           color: ConstantHelper.tomatoColor,
+//                           iconWidget: IconButton(
+//                             icon: Icon(Icons.delete, color: Colors.white),
+//                             // onPressed: () => {
+//                             //   databaseHelper.deleteEvent(task.id),
+//                             //   databaseHelper.getNoteList().then((data) {
+//                             //     eventsList = data;
+//                             //     // setState(() {
+//                             //     //   eventsList = data;
+//                             //     // }
+//                             //     // );
+//                             //   })
+//                             // },
+//                           ))
+//                     ],
+//                     child:
+//                         //return
+//                         _subevent(subtask));
+//               }).toList()))
+//         ],
+//       ));
+// }
 // }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:timato/core/event.dart';
+import 'package:timato/ui/main_list.dart';
+import 'package:timato/ui/today_task_list.dart';
 
 ///Splits priotity into three levels
 enum Priority { HIGH, MIDDLE, LOW, NONE }
@@ -130,5 +132,48 @@ class WarningDialog extends StatelessWidget {
         context: context,
         builder: (_) => WarningDialog(title, text, context, action),
         barrierDismissible: true);
+  }
+}
+
+class SideBar extends StatelessWidget {
+  SideBar(this.pageName);
+  final String pageName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+        child: ListView(children: <Widget>[
+      DrawerHeader(
+          child: Text('Timato, be productive with you'),
+          decoration: BoxDecoration(color: ConstantHelper.tomatoColor)),
+      ListTile(
+          title: Text('My Tasks'),
+          onTap: () {
+            if(pageName == 'MyTask'){
+              Navigator.pop(context);
+            }else{
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+              return MyTask();
+            }));}
+          }),
+      ListTile(
+          title: Text("Today's Tasks"),
+          onTap: () {
+            if(pageName == 'TodayList'){
+              Navigator.pop(context);
+            }else{
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+              return TodayList();
+            
+            }));}
+          }),
+      ListTile(
+          title: Text("Completed Task"),
+          onTap: () {
+            // Navigator.push(context,MaterialPageRoute(builder:(_){
+            //   return CompletedTaskPage();
+            // }));
+          }),
+    ]));
   }
 }

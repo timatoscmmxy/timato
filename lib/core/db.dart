@@ -30,8 +30,9 @@ abstract class DatabaseHelper {
 
   Future<Database> initializeDatabase() async {
     // Get the directory path for both Android and iOS to store database.
-    Directory directory = await getApplicationDocumentsDirectory();
-    String path = directory.path + '/core/timato.db';
+    // Directory directory = await getApplicationDocumentsDirectory();
+    // String path = directory.path + '/core/timato.db';
+    String path = await getDatabasesPath() + '/core/timato.db';
 
     developer.log(path);
     // Open/create the database at a given path

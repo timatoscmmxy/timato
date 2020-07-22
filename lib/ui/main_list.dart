@@ -12,25 +12,25 @@ import 'dart:developer' as developer;
 List<Event> eventsList = [];
 
 
-class MyTaskPage extends StatelessWidget {
-  ///newly added
-  //const MyApp1({Key key}) : super(key: key);
+// class MyTaskPage extends StatelessWidget {
+//   ///newly added
+//   //const MyApp1({Key key}) : super(key: key);
 
+//   @override
+//   Widget build(BuildContext context) {
+//     // final size = MediaQuery.of(context).size;
+//     return MaterialApp(
+//       home: ToDoList()
+//     );
+//   }
+// }
+
+class MyTask extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
-    return MaterialApp(
-      home: ToDoList(),
-    );
-  }
+  _MyTaskState createState() => new _MyTaskState();
 }
 
-class ToDoList extends StatefulWidget {
-  @override
-  MainList createState() => new MainList();
-}
-
-class MainList extends State<ToDoList> {
+class _MyTaskState extends State<MyTask> {
   ///For database
   EventRepository databaseHelper = EventRepository();
 
@@ -78,7 +78,7 @@ class MainList extends State<ToDoList> {
     //   developer.log(id.toString());
     // });
     databaseHelper.getEventList().then((data) {
-      setState(() {
+      setState(() {   developer.log("data");
         eventsList = data;
       });
     });
@@ -111,42 +111,7 @@ class MainList extends State<ToDoList> {
             _list()
             // ],),
       ),
-      drawer: Drawer(
-            child: ListView(
-              children: <Widget>[
-              DrawerHeader(
-                child: Text('Timato, be productive with you'),
-                decoration: BoxDecoration(
-                  color: ConstantHelper.tomatoColor
-                )
-                ),
-              ListTile(
-                title: Text('My Tasks'),
-                onTap:(){
-                  Navigator.push(context,MaterialPageRoute(builder:(_){
-                    return MyTaskPage();
-                  }));
-                }
-              ),
-              ListTile(
-                title: Text("Today's Task"),
-                onTap:(){
-                  Navigator.push(context,MaterialPageRoute(builder:(_){
-                    return TodayListPage();
-                  }));
-                }
-              ),
-              ListTile(
-                title: Text("Completed Task"),
-                onTap:(){
-                  // Navigator.push(context,MaterialPageRoute(builder:(_){
-                  //   return CompletedTaskPage();
-                  // }));
-                }
-              ),
-              ]
-            )
-          )
+      drawer: new SideBar('MyTask')
     );
   }
 

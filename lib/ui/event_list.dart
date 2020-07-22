@@ -294,7 +294,7 @@ class _TaskDurationState extends State<TaskDuration> {
             maxLength: 3,
             decoration: const InputDecoration(
                 hintText: 'It might take ...',
-                suffixText: 'minute',
+                suffixText: 'minutes',
                 counterText: '',
                 border: InputBorder.none),
             onChanged: (text) {
