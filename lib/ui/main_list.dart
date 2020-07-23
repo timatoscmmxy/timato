@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
@@ -129,10 +130,35 @@ class _MyTaskState extends State<MyTask> {
                   color: ConstantHelper.tomatoColor,
                   iconWidget: IconButton(
                     icon: Icon(Icons.add, color: Colors.white),
-                  )
-
-                  ///Needs onTop in the future
+                    onPressed: ()=>{
+                      task.isTodayList = 1,
+                      databaseHelper.updateEvent(task),
+                      // setState((){
+                      //   eventsList = data;
+                      // })
+                      databaseHelper.getEventList().then((data){
+                        setState((){
+                        eventsList = data;
+                        });
+                      },
                   ),
+                  showDialog(
+                    context: context,
+                    builder:(context){
+                      Future.delayed(Duration(seconds:3),(){
+                        Navigator.of(context).pop(true);
+                      });
+                      // return AlertDialog(shape:no,title:Text('Added', style: TextStyle(color: ConstantHelper.tomatoColor)),);
+                      
+                    })
+                    }
+                  )
+                  ),
+                      // setState((){
+                      //   eventsList = data;
+                      // })
+                    
+                  
               IconSlideAction(
                   color: ConstantHelper.tomatoColor,
                   iconWidget: IconButton(
