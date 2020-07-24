@@ -24,16 +24,16 @@ void main() async{
       home: MyTask()
     ));
 
-  EventRepository databaseHelper = EventRepository();
-  databaseHelper
-      .insertEvent(Event(
-      taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
-  databaseHelper
-      .insertEvent(Event(
-      taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
-  databaseHelper
-      .insertEvent(Event(
-      taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
+  // EventRepository databaseHelper = EventRepository();
+  // databaseHelper
+  //     .insertEvent(Event(
+  //     taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
+  // databaseHelper
+  //     .insertEvent(Event(
+  //     taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
+  // databaseHelper
+  //     .insertEvent(Event(
+  //     taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
 }
 //void main() => runApp(MyApp1());
 

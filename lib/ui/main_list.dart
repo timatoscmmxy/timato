@@ -48,18 +48,18 @@ class _MyTaskState extends State<MyTask> {
   void initState() {
     super.initState();
 //    developer.log('got here');
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
+   databaseHelper
+       .insertEvent(Event(
+           taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
+       .then((id) {
+     developer.log(id.toString());
+   });
+   databaseHelper
+       .insertEvent(Event(
+           taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
+       .then((id) {
+     developer.log(id.toString());
+   });
 //    databaseHelper
 //        .insertEvent(Event(
 //            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'))
