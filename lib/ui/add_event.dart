@@ -1,21 +1,28 @@
-import 'dart:ffi';
-
-import 'package:dart_numerics/dart_numerics.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:rrule/rrule.dart';
+
+import 'package:time_machine/time_machine.dart';
+
 import 'package:timato/core/event.dart';
-import 'package:timato/core/repeat_properties.dart';
 import 'package:timato/ui/basics.dart';
 
 DateTime dateOnly(DateTime date) {
   return DateTime(date.year, date.month, date.day);
 }
 
-String formatDate(DateTime date) {
-  return '${ConstantHelper.intToMonth[date.month]} ${date.day}';
+String formatDate(dynamic date) {
+  if (date is DateTime) {
+    return '${ConstantHelper.intToMonth[date.month]} ${date.day}';
+  } else if (date is LocalDate) {
+    return '${ConstantHelper.intToMonth[date.monthOfYear]} ${date.dayOfMonth}';
+  } else if (date is LocalDateTime) {
+    return '${ConstantHelper.intToMonth[date.monthOfYear]} ${date.dayOfMonth}';
+  } else {
+    return null;
+  }
 }
 
 class AddEvent extends StatefulWidget {
@@ -143,7 +150,6 @@ class AddEventState extends State<AddEvent> {
                   child: IconButton(
                     icon: calendarIcon,
                     onPressed: () async {
-                      print(newEvent.ddl);
                       newEvent.ddl =
                           await DateTimeSelector.show(context, newEvent.ddl) ??
                               newEvent.ddl;
@@ -193,7 +199,6 @@ class AddEventState extends State<AddEvent> {
                       newEvent.eventPriority = await SetPriority.show(
                               context, newEvent.eventPriority) ??
                           newEvent.eventPriority;
-                      print(newEvent.eventPriority);
                     },
                   ),
                 ),
@@ -549,203 +554,557 @@ class SetRepeatProperties extends StatefulWidget {
 }
 
 class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
-  RepeatProperties repeatProperties;
+  bool byWeekdaysInMonth;
+  DateTime start;
+  Frequency frequency;
+  int interval;
+  ByWeekDayEntry weekDay;
+  Set<ByWeekDayEntry> byWeekDays;
+  int monthDay;
+  int week;
+  int month;
+  RecurrenceRule rule;
 
-  TextEditingController unitNumController;
+  TextEditingController intervalController;
   TextEditingController startController;
 
-  DateTime setStart(){
-    
-  }
-
-  Widget monthWeekSelection() {
-    switch (repeatProperties.unit) {
-      case RepeatUnit.day:
-        return Container();
-        break;
-      case RepeatUnit.week:
-        return Container(
-          child: Row(
-
-          ),
-        );
-        break;
-      case RepeatUnit.month:
-        return Container();
-        break;
-      case RepeatUnit.year:
-        return Container();
-        break;
-      default:
-        return Container();
+  RecurrenceRule toRecurrenceRule() {
+    if (frequency == Frequency.daily) {
+      return RecurrenceRule(
+          frequency: frequency,
+          interval: interval,
+          weekStart: DayOfWeek.monday);
+    } else if (frequency == Frequency.weekly) {
+      return RecurrenceRule(
+          frequency: frequency,
+          interval: interval,
+          byWeekDays: byWeekDays,
+          weekStart: DayOfWeek.monday);
+    } else if (frequency == Frequency.monthly) {
+      if (byWeekdaysInMonth) {
+//        return RecurrenceRule(
+//            frequency: frequency,
+//            interval: interval,
+//            byWeeks: {week},
+//            byWeekDays: {weekDay});
+        return RecurrenceRule.fromString(
+            'RRULE:FREQ=MONTHLY;INTERVAL=$interval;BYDAY=$week${ConstantHelper.dayOfWeekToRFC[weekDay.day]};WKST=MO');
+      } else {
+        return RecurrenceRule(
+            frequency: frequency,
+            interval: interval,
+            byMonthDays: {monthDay},
+            weekStart: DayOfWeek.monday);
+      }
+    } else if (frequency == Frequency.yearly) {
+      return RecurrenceRule(
+          frequency: frequency,
+          interval: interval,
+          weekStart: DayOfWeek.monday);
+    } else {
+      return null;
     }
   }
 
-  Widget startSelection() {
-    switch (repeatProperties.unit) {
-      case RepeatUnit.day:
-        return Container(
-          child: Row(
-            children: <Widget>[
-              Padding(
-                child: Text('Start'),
-                padding: EdgeInsets.only(right: 5),
-              ),
-              Expanded(
-                child: Container(
-                    child: FlatButton(
-                      child: Align(
-                        child: Text(
-                          formatDate(repeatProperties.start),
-                          textAlign: TextAlign.left,
-                        ),
-                        alignment: Alignment.centerLeft,
-                      ),
-                      onPressed: () async {
-                        DateTime date = await showDatePicker(
-                            context: context,
-                            initialDate: repeatProperties.start,
-                            firstDate: dateOnly(DateTime.now()),
-                            lastDate: DateTime(9999, 12, 31));
-                        setState(() {
-                          repeatProperties.start = date ?? repeatProperties.start;
-                        });
-                      },
-                      color: Colors.black12,
+  Widget weekDayButton(String text, ByWeekDayEntry value) {
+    bool selected;
+    Color backgroundColor;
+    Color textColor;
+    if (byWeekDays.contains(value)) {
+      selected = true;
+      backgroundColor = ConstantHelper.tomatoColor;
+      textColor = Colors.white;
+    } else {
+      selected = false;
+      backgroundColor = Colors.white;
+      textColor = Colors.black;
+    }
+    return Padding(
+      padding: EdgeInsets.only(left: 6, right: 6),
+      child: Container(
+        height: 30,
+        width: 30,
+        child: FloatingActionButton(
+          backgroundColor: backgroundColor,
+          child: Text(
+            text,
+            style: TextStyle(color: textColor),
+          ),
+          onPressed: () {
+            setState(() {
+              if (selected == true) {
+                byWeekDays.remove(value);
+              } else {
+                byWeekDays.add(value);
+              }
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem> getMonthDays() {
+    List<DropdownMenuItem> result = [];
+    for (int i = 1; i < 32; ++i) {
+      result.add(DropdownMenuItem(
+        value: i,
+        child: Padding(
+          child: Text('Day $i'),
+          padding: EdgeInsets.all(5),
+        ),
+      ));
+    }
+    result.add(DropdownMenuItem(
+      value: -1,
+      child: Padding(
+        child: Text('Last Day'),
+        padding: EdgeInsets.all(5),
+      ),
+    ));
+    return result;
+  }
+
+  Widget monthWeekSelection() {
+    if (frequency == Frequency.weekly) {
+      return Container(
+          padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+          child: SafeArea(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                weekDayButton('M', ByWeekDayEntry(DayOfWeek.monday)),
+                weekDayButton('T', ByWeekDayEntry(DayOfWeek.tuesday)),
+                weekDayButton('W', ByWeekDayEntry(DayOfWeek.wednesday)),
+                weekDayButton('T', ByWeekDayEntry(DayOfWeek.thursday)),
+                weekDayButton('F', ByWeekDayEntry(DayOfWeek.friday)),
+                weekDayButton('S', ByWeekDayEntry(DayOfWeek.saturday)),
+                weekDayButton('S', ByWeekDayEntry(DayOfWeek.sunday)),
+              ],
+            ),
+          ));
+    } else if (frequency == Frequency.monthly) {
+      return Container(
+        child: Column(
+          children: <Widget>[
+            ListTile(
+                leading: Radio(
+                  value: false,
+                  groupValue: byWeekdaysInMonth,
+                  onChanged: (value) {
+                    setState(() {
+                      byWeekdaysInMonth = value;
+                    });
+                  },
+                ),
+                title: Container(
+                  color: Colors.black12,
+                  child: DropdownButton(
+                    isExpanded: true,
+                    value: monthDay,
+                    items: getMonthDays(),
+                    onChanged: (value) {
+                      setState(() {
+                        monthDay = value;
+                      });
+                    },
+                  ),
                 )),
-              )
-            ],
-          ),
-          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
-        );
-        break;
-      case RepeatUnit.week:
-        return Container(
-          child: Row(
-            children: <Widget>[
-              Padding(
-                child: Text('Start'),
-                padding: EdgeInsets.only(right: 5),
+            ListTile(
+              leading: Radio(
+                value: true,
+                groupValue: byWeekdaysInMonth,
+                onChanged: (value) {
+                  setState(() {
+                    byWeekdaysInMonth = value;
+                  });
+                },
               ),
-              Expanded(
-                child: Container(
-                    child: FlatButton(
-                      child: Align(
-                        child: Text(
-                          formatDate(repeatProperties.start),
-                          textAlign: TextAlign.left,
-                        ),
-                        alignment: Alignment.centerLeft,
-                      ),
-                      onPressed: () async {
-                        DateTime date = await showDatePicker(
-                            context: context,
-                            initialDate: repeatProperties.start,
-                            firstDate: dateOnly(DateTime.now()),
-                            lastDate: DateTime(9999, 12, 31));
-                        setState(() {
-                          repeatProperties.start = date ?? repeatProperties.start;
-                        });
-                      },
+              title: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
                       color: Colors.black12,
-                    )),
-              )
-            ],
-          ),
-          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
-        );
-        break;
-      case RepeatUnit.month:
-        return Container(
-          child: Row(
-            children: <Widget>[
-              Padding(
-                child: Text('Start'),
-                padding: EdgeInsets.only(right: 5),
-              ),
-              Expanded(
-                child: Container(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10, right: 5),
                       child: DropdownButton(
-                        underline: null,
                         isExpanded: true,
-                        value: repeatProperties.startMonth,
+                        value: week,
                         items: <DropdownMenuItem>[
-                          DropdownMenuItem(child: Text('January'), value: 1,),
-                          DropdownMenuItem(child: Text('February'), value: 2,),
-                          DropdownMenuItem(child: Text('March'), value: 3,),
-                          DropdownMenuItem(child: Text('April'), value: 4,),
-                          DropdownMenuItem(child: Text('May'), value: 5,),
-                          DropdownMenuItem(child: Text('June'), value: 6,),
-                          DropdownMenuItem(child: Text('July'), value: 7,),
-                          DropdownMenuItem(child: Text('August'), value: 8,),
-                          DropdownMenuItem(child: Text('September'), value: 9,),
-                          DropdownMenuItem(child: Text('October'), value: 10,),
-                          DropdownMenuItem(child: Text('November'), value: 11,),
-                          DropdownMenuItem(child: Text('December'), value: 12,),
+                          DropdownMenuItem(
+                            value: 1,
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('First'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 2,
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Second'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 3,
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Third'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: 4,
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Fourth'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: -1,
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Last'),
+                            ),
+                          ),
                         ],
-                        onChanged: (value){
+                        onChanged: (value) {
                           setState(() {
-                            repeatProperties.startMonth = value;
+                            week = value;
                           });
                         },
                       ),
                     ),
-                  color: Colors.black12,
-                  height: 35,
-                ),
-              )
-            ],
-          ),
-          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
-        );
-        break;
-      case RepeatUnit.year:
-        return Container(
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                    child: FlatButton(
-                      child: Align(
-                        child: Text(
-                          formatDate(repeatProperties.start),
-                          textAlign: TextAlign.left,
-                        ),
-                        alignment: Alignment.centerLeft,
-                      ),
-                      onPressed: () async {
-                        DateTime date = await showDatePicker(
-                            context: context,
-                            initialDate: repeatProperties.start,
-                            firstDate: dateOnly(DateTime.now()),
-                            lastDate: DateTime(9999, 12, 31));
-                        setState(() {
-                          repeatProperties.start = date ?? repeatProperties.start;
-                        });
-                      },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                  ),
+                  Expanded(
+                    child: Container(
                       color: Colors.black12,
-                    )),
-              )
-            ],
+                      child: DropdownButton(
+                        isExpanded: true,
+                        value: weekDay,
+                        items: <DropdownMenuItem>[
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.monday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Mon'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.tuesday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Tue'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.wednesday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Wed'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.thursday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Thu'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.friday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Fri'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.saturday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Sat'),
+                            ),
+                          ),
+                          DropdownMenuItem(
+                            value: ByWeekDayEntry(DayOfWeek.sunday),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Text('Sun'),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            weekDay = value;
+                          });
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget startSelection() {
+    if (frequency == Frequency.daily) {
+      return Container(
+        child: Row(
+          children: <Widget>[
+            Padding(
+              child: Text('Start'),
+              padding: EdgeInsets.only(right: 5),
+            ),
+            Expanded(
+              child: Container(
+                  child: FlatButton(
+                child: Align(
+                  child: Text(
+                    formatDate(start),
+                    textAlign: TextAlign.left,
+                  ),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  DateTime date = await showDatePicker(
+                      context: context,
+                      initialDate: start,
+                      firstDate: dateOnly(DateTime.now()),
+                      lastDate: DateTime(9999, 12, 31));
+                  setState(() {
+                    start = date ?? start;
+                    month = start.month;
+                    monthDay = start.day;
+                  });
+                },
+                color: Colors.black12,
+              )),
+            )
+          ],
+        ),
+        padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+      );
+    } else if (frequency == Frequency.weekly) {
+      return Container(
+        child: Row(
+          children: <Widget>[
+            Padding(
+              child: Text('Start'),
+              padding: EdgeInsets.only(right: 5),
+            ),
+            Expanded(
+              child: Container(
+                  child: FlatButton(
+                child: Align(
+                  child: Text(
+                    formatDate(start),
+                    textAlign: TextAlign.left,
+                  ),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  DateTime date = await showDatePicker(
+                      context: context,
+                      initialDate: start,
+                      firstDate: dateOnly(DateTime.now()),
+                      lastDate: DateTime(9999, 12, 31));
+                  setState(() {
+                    start = date ?? start;
+                    month = start.month;
+                    monthDay = start.day;
+                  });
+                },
+                color: Colors.black12,
+              )),
+            )
+          ],
+        ),
+        padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+      );
+    } else if (frequency == Frequency.monthly) {
+      return Container(
+        child: Row(
+          children: <Widget>[
+            Padding(
+              child: Text('Start'),
+              padding: EdgeInsets.only(right: 5),
+            ),
+            Expanded(
+              child: Container(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 10, right: 5),
+                  child: DropdownButton(
+                    underline: null,
+                    isExpanded: true,
+                    value: month,
+                    items: <DropdownMenuItem>[
+                      DropdownMenuItem(
+                        child: Text('January'),
+                        value: 1,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('February'),
+                        value: 2,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('March'),
+                        value: 3,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('April'),
+                        value: 4,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('May'),
+                        value: 5,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('June'),
+                        value: 6,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('July'),
+                        value: 7,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('August'),
+                        value: 8,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('September'),
+                        value: 9,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('October'),
+                        value: 10,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('November'),
+                        value: 11,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('December'),
+                        value: 12,
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        month = value;
+                        start = DateTime(start.year, month, start.day);
+                      });
+                    },
+                  ),
+                ),
+                color: Colors.black12,
+                height: 35,
+              ),
+            )
+          ],
+        ),
+        padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+      );
+    } else if (frequency == Frequency.yearly) {
+      return Container(
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Container(
+                  child: FlatButton(
+                child: Align(
+                  child: Text(
+                    formatDate(start),
+                    textAlign: TextAlign.left,
+                  ),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  DateTime date = await showDatePicker(
+                      context: context,
+                      initialDate: start,
+                      firstDate: dateOnly(DateTime.now()),
+                      lastDate: DateTime(9999, 12, 31));
+                  setState(() {
+                    start = date ?? start;
+                    month = start.month;
+                    monthDay = start.day;
+                  });
+                },
+                color: Colors.black12,
+              )),
+            )
+          ],
+        ),
+        padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget nextOccurrence() {
+    if (frequency == Frequency.weekly && byWeekDays.isEmpty) {
+      return Container();
+    } else {
+      return Container(
+        child: Text(
+          'First occurrence will be ${formatDate(this.toRecurrenceRule().getInstances(start: LocalDateTime(start.year, start.month, start.day, 0, 0, 0)).first)}',
+          style: TextStyle(color: Colors.black38, fontSize: 10),
+        ),
+        alignment: Alignment.bottomLeft,
+        padding: EdgeInsets.only(left: 10),
+      );
+    }
+  }
+
+  Widget okButton() {
+    if (frequency == Frequency.weekly && byWeekDays.isEmpty) {
+      return Container(
+        child: FlatButton(
+            child: Text(
+              'OK',
+              style: TextStyle(
+                color: Colors.black38,
+              ),
+            ),
+            onPressed: null),
+      );
+    } else {
+      return Container(
+        child: FlatButton(
+          child: Text(
+            'OK',
+            style: TextStyle(
+              color: ConstantHelper.tomatoColor,
+            ),
           ),
-          padding: EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 10),
-        );
-        break;
-      default:
-        return Container();
+          onPressed: () {
+            Navigator.pop(context, this.toRecurrenceRule());
+          },
+        ),
+      );
     }
   }
 
   @override
   void initState() {
     super.initState();
-    repeatProperties = RepeatProperties();
-    unitNumController =
-        TextEditingController(text: repeatProperties.unitNum.toString());
-    startController =
-        TextEditingController(text: formatDate(repeatProperties.start));
+    byWeekdaysInMonth = false;
+    start = dateOnly(DateTime.now());
+    frequency = Frequency.weekly;
+    interval = 1;
+    weekDay = ByWeekDayEntry(DayOfWeek(start.weekday));
+    byWeekDays = {ByWeekDayEntry(DayOfWeek(start.weekday))};
+    monthDay = start.day;
+    week = getWeekNum(LocalDate(start.year, start.month, start.day));
+    month = start.month;
+    intervalController = TextEditingController(text: interval.toString());
+    startController = TextEditingController(text: formatDate(start));
   }
 
   @override
@@ -764,7 +1123,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                   Padding(
                     child: Container(
                       child: TextFormField(
-                        controller: unitNumController,
+                        controller: intervalController,
                         textAlign: TextAlign.center,
                         inputFormatters: [
                           WhitelistingTextInputFormatter.digitsOnly,
@@ -780,15 +1139,14 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                         ),
                         onChanged: (s) {
                           if (s == '0') {
-                            unitNumController.text = '';
+                            intervalController.text = '';
                           } else {
-                            repeatProperties.unitNum = int.parse(s);
+                            interval = int.parse(s);
                           }
                         },
                         onFieldSubmitted: (s) {
                           if (s == '')
-                            unitNumController.text =
-                                repeatProperties.unitNum.toString();
+                            intervalController.text = interval.toString();
                         },
                       ),
                       height: 30,
@@ -807,24 +1165,24 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                       items: <DropdownMenuItem>[
                         DropdownMenuItem(
                           child: Text('day'),
-                          value: RepeatUnit.day,
+                          value: Frequency.daily,
                         ),
                         DropdownMenuItem(
                           child: Text('week'),
-                          value: RepeatUnit.week,
+                          value: Frequency.weekly,
                         ),
                         DropdownMenuItem(
                           child: Text('month'),
-                          value: RepeatUnit.month,
+                          value: Frequency.monthly,
                         ),
                         DropdownMenuItem(
                           child: Text('year'),
-                          value: RepeatUnit.year,
+                          value: Frequency.yearly,
                         ),
                       ],
-                      value: repeatProperties.unit,
+                      value: frequency,
                       onChanged: (value) {
-                        setState(() => repeatProperties.unit = value);
+                        setState(() => frequency = value);
                       },
                     ),
                   )
@@ -834,14 +1192,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
             ),
             monthWeekSelection(),
             startSelection(),
-            Container(
-              child: Text(
-                'First occurence will be ${formatDate(repeatProperties.start)}',
-                style: TextStyle(color: Colors.black38, fontSize: 10),
-              ),
-              alignment: Alignment.bottomLeft,
-              padding: EdgeInsets.only(left: 10),
-            ),
+            nextOccurrence(),
             Row(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -862,19 +1213,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                     },
                   ),
                 ),
-                Container(
-                  child: FlatButton(
-                    child: Text(
-                      'OK',
-                      style: TextStyle(
-                        color: ConstantHelper.tomatoColor,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context, repeatProperties);
-                    },
-                  ),
-                )
+                okButton(),
               ],
             ),
           ],

@@ -547,7 +547,7 @@ packages:
     source: hosted
     version: "0.3.4"
   time_machine:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: time_machine
       url: "https://pub.flutter-io.cn"

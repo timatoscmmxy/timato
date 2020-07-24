@@ -1,18 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 
 import 'package:meta/meta.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:path/path.dart';
-
-import 'package:sqflite/sqflite.dart';
 import 'package:timato/core/repeat_properties.dart';
-
 import 'package:timato/ui/basics.dart';
-import 'package:timato/core/db.dart';
 
 abstract class AbstractEvent implements Comparable {
   ///Event's name
@@ -41,7 +34,9 @@ abstract class AbstractEvent implements Comparable {
   bool isDone = false;
 
   ///Repeat Properties
-  RepeatProperties repeatProperties;
+  RepeatProeprties repeatProperties;
+
+  int usedTimerNum = 0;
 
   ///The key used to identify individual events
   Key key;
@@ -53,14 +48,12 @@ abstract class AbstractEvent implements Comparable {
     int duration,
     String tag,
     Priority eventPriority = Priority.NONE,
-    RepeatProperties repeatProperties,
   }) {
     this.taskName = taskName;
     this.ddl = null;
     this.duration = duration;
     this.tag = tag;
     this.eventPriority = eventPriority;
-    this.repeatProperties = repeatProperties;
     this.key = UniqueKey();
   }
 
@@ -130,7 +123,6 @@ class Event extends AbstractEvent {
     int duration,
     String tag,
     Priority eventPriority = Priority.NONE,
-    RepeatProperties repeatProperties,
     key,
   }) : super(
             taskName: taskName,
@@ -138,7 +130,7 @@ class Event extends AbstractEvent {
             duration: duration,
             tag: tag,
             eventPriority: eventPriority,
-            repeatProperties: repeatProperties);
+            );
 
   Event.fromMapObject(Map<String, dynamic> map) {
     this.id = map["id"];
