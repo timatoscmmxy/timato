@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:time_machine/time_machine.dart';
+
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/today_task_list.dart';
@@ -10,6 +12,31 @@ List<Event> todayEventList = [];
 enum Priority { HIGH, MIDDLE, LOW, NONE }
 
 class ConstantHelper {
+  static final Map intToMonth = {
+    1 : 'Jan',
+    2 : 'Feb',
+    3 : 'Mar',
+    4 : 'Apr',
+    5 : 'May',
+    6 : 'Jun',
+    7 : 'Jul',
+    8 : 'Aug',
+    9 : 'Sep',
+    10 : 'Oct',
+    11 : 'Nov',
+    12 : 'Dec'
+  };
+
+  static final Map dayOfWeekToRFC = {
+    DayOfWeek.monday : 'MO',
+    DayOfWeek.tuesday : 'TU',
+    DayOfWeek.wednesday : 'WE',
+    DayOfWeek.thursday : 'TH',
+    DayOfWeek.friday : 'FR',
+    DayOfWeek.saturday : 'SA',
+    DayOfWeek.sunday : 'SU',
+  };
+
   static final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
 
   ///Changes the color according to [eventPriority] of [Event]
@@ -177,5 +204,62 @@ class SideBar extends StatelessWidget {
             // }));
           }),
     ]));
+  }
+}
+
+class TimerLengthAlert extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Invalid number input',
+        style: TextStyle(
+            fontSize: 14
+        ),
+        softWrap: true,
+        textAlign: TextAlign.left,
+      ),
+      titlePadding: EdgeInsets.all(10),
+      content: Text('Value input must be between 0 and 5940 minutes'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text(
+            'OK',
+            style: TextStyle(
+                color: Colors.lightBlue
+            ),
+          ),
+          onPressed: (){
+            Navigator.pop(context);
+          },
+        )
+      ],
+    );
+  }
+
+  static show(BuildContext context){
+    showDialog(context: context, builder: (_) => TimerLengthAlert(), barrierDismissible: true);
+  }
+}
+
+int getWeekNum(LocalDate date) {
+  LocalDate firstDay = LocalDate(date.year, date.monthOfYear, 1);
+  LocalDate lastDay = LocalDate(date.year, date.monthOfYear + 1, 1).subtractDays(1);
+  int firstSunday = 1 + (7 - firstDay.dayOfWeek.value);
+  int lastMonday = 31 - lastDay.dayOfWeek.value + 1;
+  if (date.dayOfMonth <= firstSunday) {
+    return 1;
+  } else if (date.dayOfMonth <= firstSunday + 7) {
+    return 2;
+  } else if (date.dayOfMonth <= firstSunday + 14) {
+    return 3;
+  } else if (date.dayOfMonth <= firstSunday + 21) {
+    if (date.dayOfMonth >= lastMonday) {
+      return -1;
+    } else {
+      return 4;
+    }
+  } else {
+    return -1;
   }
 }

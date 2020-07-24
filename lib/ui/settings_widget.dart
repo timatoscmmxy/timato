@@ -8,17 +8,17 @@ class Settings extends StatelessWidget{
   final tomatoColor = Color.fromRGBO(255, 99, 71, 1);
   final SharedPreferences _pref;
 
-  int timerLength, relaxLength;
-  String language;
-
-  Settings(this._pref){
-    timerLength = _pref.getInt('timerLength') ?? 0;
-    relaxLength = _pref.getInt('relaxLength') ?? 0;
-    language = _pref.getString('language') ?? 'en_US';
-  }
+  Settings(this._pref);
 
   @override
   Widget build(BuildContext context) {
+    int timerLength, relaxLength;
+    String language;
+
+    timerLength = _pref.getInt('timerLength') ?? 0;
+    relaxLength = _pref.getInt('relaxLength') ?? 0;
+    language = _pref.getString('language') ?? 'en_US';
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -108,40 +108,5 @@ class TextSetting extends StatelessWidget{
         )
       ),
     );
-  }
-}
-
-class TimerLengthAlert extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'Invalid number input',
-        style: TextStyle(
-          fontSize: 14
-        ),
-        softWrap: true,
-        textAlign: TextAlign.left,
-      ),
-      titlePadding: EdgeInsets.all(10),
-      content: Text('Value input must be between 0 and 5940 minutes'),
-      actions: <Widget>[
-        FlatButton(
-          child: Text(
-            'OK',
-            style: TextStyle(
-              color: Colors.lightBlue
-            ),
-          ),
-          onPressed: (){
-            Navigator.pop(context);
-          },
-        )
-      ],
-    );
-  }
-
-  static show(BuildContext context){
-    showDialog(context: context, builder: (_) => TimerLengthAlert(), barrierDismissible: true);
   }
 }

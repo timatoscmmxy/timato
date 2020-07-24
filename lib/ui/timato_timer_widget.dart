@@ -81,13 +81,24 @@ class TimatoTimerWidget extends StatelessWidget {
     _buttonStatus.value = ButtonStatus.normal;
 
     _timerNum = clockNum ?? -1;
-    usedTimerNum = ValueNotifier(0);
+    usedTimerNum = ValueNotifier(event.usedTimerNum);
     _relaxTime = relaxLength;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.keyboard_backspace),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          event.taskName,
+          maxLines: null,
+        ),
+        elevation: 0,
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -147,7 +158,7 @@ class TimatoTimerWidget extends StatelessWidget {
       floatingActionButton: ValueListenableBuilder(
         valueListenable: _buttonColor,
         builder: (BuildContext context, Color value, Widget child) {
-          return StartButton(_timer, _buttonIcon, _buttonColor, _buttonStatus);
+          return StartButton(_timer, _buttonIcon, _buttonColor, _buttonStatus, event);
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -191,10 +202,11 @@ class StartButton extends StatelessWidget {
   final ValueNotifier<IconData> icon;
   final ValueListenable<Color> color;
   final ValueListenable<ButtonStatus> status;
+  final AbstractEvent event;
 
   var started = false;
 
-  StartButton(this.timer, this.icon, this.color, this.status);
+  StartButton(this.timer, this.icon, this.color, this.status, this.event);
 
   @override
   Widget build(BuildContext context) {
@@ -212,10 +224,12 @@ class StartButton extends StatelessWidget {
           }
         } else if (status.value == ButtonStatus.next) {
           ++TimatoTimerWidget.usedTimerNum.value;
+          ++event.usedTimerNum;
           timer.stop();
           timer.restore();
         } else if (status.value == ButtonStatus.end) {
           ++TimatoTimerWidget.usedTimerNum.value;
+          ++event.usedTimerNum;
           timer.stop();
           timer.restore();
         }
