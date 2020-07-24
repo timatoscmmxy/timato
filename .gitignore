@@ -44,3 +44,5 @@ app.*.map.json
 
 # gradle wrapper
 android/gradle/wrapper/gradle-wrapper.properties
+
+pubspec.lock
