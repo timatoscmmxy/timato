@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_list.dart';
+import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
-import 'dart:developer' as developer;
 
 // List<Event> todayEventList = [];
 
@@ -60,10 +64,11 @@ class _TodayListState extends State<TodayList> {
             actions: <Widget>[
               IconButton(
                   icon: Icon(Icons.settings, color: ConstantHelper.tomatoColor),
-                  onPressed: () {
-                    // Navigator.push(context, MaterialPageRoute(builder: (_){
-                    //   return
-                    // }))
+                  onPressed: () async {
+                    SharedPreferences pref = await SharedPreferences.getInstance();
+                     Navigator.push(context, MaterialPageRoute(builder: (_){
+                       return Settings(pref);
+                     }));
                   })
             ],
             backgroundColor: Colors.white),

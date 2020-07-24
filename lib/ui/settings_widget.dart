@@ -20,10 +20,13 @@ class Settings extends StatelessWidget{
     language = _pref.getString('language') ?? 'en_US';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Settings'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: Text('Settings', style: TextStyle(color: ConstantHelper.tomatoColor),),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: ConstantHelper.tomatoColor,),
           onPressed: () {Navigator.pop(context);},
         ),
       ),

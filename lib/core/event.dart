@@ -6,8 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:timato/core/repeat_properties.dart';
-// import 'package:timato/core/event_repository.dart';
-// import 'package:timato/core/db.dart';
 import 'package:timato/ui/basics.dart';
 
 
@@ -160,7 +158,9 @@ class Event extends AbstractEvent {
     this.id = map["id"];
     this.key = Key(map["key"]);
     this.taskName = map["task_name"];
-    this.ddl = DateTime.parse(map["deadline"]);
+    try{
+      this.ddl = DateTime.parse(map["deadline"]);
+    } catch (e){}
     this.tag = map["tag"]??"";
     this.duration = map["duration"];
     this.eventPriority = ConstantHelper

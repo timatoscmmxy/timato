@@ -4,7 +4,12 @@ import 'package:flutter/services.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:path/path.dart';
+
+import 'package:sqflite/sqflite.dart';
+
 import 'package:timato/core/notifications.dart';
+import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
@@ -12,10 +17,23 @@ import 'package:timato/ui/event_list.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/today_task_list.dart';
 
-void main() {
+import 'core/event_repository.dart';
+
+void main() async{
   runApp(MaterialApp(
       home: MyTask()
     ));
+
+  EventRepository databaseHelper = EventRepository();
+  databaseHelper
+      .insertEvent(Event(
+      taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
+  databaseHelper
+      .insertEvent(Event(
+      taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
+  databaseHelper
+      .insertEvent(Event(
+      taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
 }
 //void main() => runApp(MyApp1());
 

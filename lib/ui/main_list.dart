@@ -12,7 +12,6 @@ import 'dart:developer' as developer;
 
 List<Event> eventsList = [];
 
-
 // class MyTaskPage extends StatelessWidget {
 //   ///newly added
 //   //const MyApp1({Key key}) : super(key: key);
@@ -47,39 +46,55 @@ class _MyTaskState extends State<MyTask> {
 
   @override
   void initState() {
-    developer.log('got here');
-    // databaseHelper.insertEvent(Event(taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English')).then((id){    developer.log(id.toString());});
-    // databaseHelper.insertEvent(Event(taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese')).then((id){    developer.log(id.toString());});
-    // databaseHelper.insertEvent(Event(taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English')).then((id){    developer.log(id.toString());});
-    // databaseHelper.getEventList().then((data) {
-    //   data.forEach((element) {
-    //     databaseHelper.deleteEvent(element.id);
-    //   });
-    //   setState(() {
-    //     eventsList = data;
-    //   });
-    // });
-    // databaseHelper
-    //     .insertEvent(Event(
-    //         taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'));
-      //   .then((id) {
-      // developer.log(id.toString());
-    // }
-    // );
-    // databaseHelper
-    //     .insertEvent(Event(
-    //         taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'));
-    //     .then((id) {
-    //   developer.log(id.toString());
-    // });
-    // databaseHelper
-    //     .insertEvent(Event(
-    //         taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
-    //     .then((id) {
-    //   developer.log(id.toString());
-    // });
+    super.initState();
+//    developer.log('got here');
+//    databaseHelper
+//        .insertEvent(Event(
+//            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
+//        .then((id) {
+//      developer.log(id.toString());
+//    });
+//    databaseHelper
+//        .insertEvent(Event(
+//            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
+//        .then((id) {
+//      developer.log(id.toString());
+//    });
+//    databaseHelper
+//        .insertEvent(Event(
+//            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'))
+//        .then((id) {
+//      developer.log(id.toString());
+//    });
+//     databaseHelper.getEventList().then((data) {
+//       data.forEach((element) {
+//         databaseHelper.deleteEvent(element.id);
+//       });
+//       setState(() {
+//         eventsList = data;
+//       });
+//     });
+//    databaseHelper
+//        .insertEvent(Event(
+//            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
+//        .then((id) {
+//      developer.log(id.toString());
+//    });
+//    databaseHelper
+//        .insertEvent(Event(
+//            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
+//        .then((id) {
+//      developer.log(id.toString());
+//    });
+//    databaseHelper
+//        .insertEvent(Event(
+//            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'))
+//        .then((id) {
+//      developer.log(id.toString());
+//    });
     databaseHelper.getEventList().then((data) {
-      setState(() {   developer.log("data");
+      setState(() {
+        developer.log("data");
         eventsList = data;
       });
     });
@@ -90,30 +105,29 @@ class _MyTaskState extends State<MyTask> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return new Scaffold(
-      appBar: new AppBar(
-        iconTheme: new IconThemeData(color:ConstantHelper.tomatoColor),
-          title: new Text("My Tasks",
-              style: TextStyle(color: ConstantHelper.tomatoColor)),
-          backgroundColor: Colors.white),
-      body: Container(
-        // constraints: BoxConstraints(maxHeight: 1000),
-        // width: size.width,
-        // height:size.height,
-        // constraints: BoxConstraints(
-          // this.maxHeight = 
-        // ),
-        // height: 100,
-        decoration: new BoxDecoration(
-          color: Colors.white,
-        ),
-        child: 
-        // new Row(
-        //   children:<Widget>[
-            _list()
+        appBar: new AppBar(
+            iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
+            title: new Text("My Tasks",
+                style: TextStyle(color: ConstantHelper.tomatoColor)),
+            backgroundColor: Colors.white),
+        body: Container(
+            // constraints: BoxConstraints(maxHeight: 1000),
+            // width: size.width,
+            // height:size.height,
+            // constraints: BoxConstraints(
+            // this.maxHeight =
+            // ),
+            // height: 100,
+            decoration: new BoxDecoration(
+              color: Colors.white,
+            ),
+            child:
+                // new Row(
+                //   children:<Widget>[
+                _list()
             // ],),
-      ),
-      drawer: new SideBar('MyTask')
-    );
+            ),
+        drawer: new SideBar('MyTask'));
   }
 
   ///Builds a list of events that is reorderable
@@ -129,36 +143,33 @@ class _MyTaskState extends State<MyTask> {
               IconSlideAction(
                   color: ConstantHelper.tomatoColor,
                   iconWidget: IconButton(
-                    icon: Icon(Icons.add, color: Colors.white),
-                    onPressed: ()=>{
-                      task.isTodayList = 1,
-                      databaseHelper.updateEvent(task),
-                      // setState((){
-                      //   eventsList = data;
-                      // })
-                      databaseHelper.getEventList().then((data){
-                        setState((){
-                        eventsList = data;
-                        });
-                      },
-                  ),
-                  showDialog(
-                    context: context,
-                    builder:(context){
-                      Future.delayed(Duration(seconds:3),(){
-                        Navigator.of(context).pop(true);
-                      });
-                      // return AlertDialog(shape:no,title:Text('Added', style: TextStyle(color: ConstantHelper.tomatoColor)),);
-                      
-                    })
-                    }
-                  )
-                  ),
-                      // setState((){
-                      //   eventsList = data;
-                      // })
-                    
-                  
+                      icon: Icon(Icons.add, color: Colors.white),
+                      onPressed: () => {
+                            task.isTodayList = 1,
+                            databaseHelper.updateEvent(task),
+                            // setState((){
+                            //   eventsList = data;
+                            // })
+                            databaseHelper.getEventList().then(
+                              (data) {
+                                setState(() {
+                                  eventsList = data;
+                                });
+                              },
+                            ),
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  Future.delayed(Duration(seconds: 3), () {
+                                    Navigator.of(context).pop(true);
+                                  });
+                                  // return AlertDialog(shape:no,title:Text('Added', style: TextStyle(color: ConstantHelper.tomatoColor)),);
+                                })
+                          })),
+              // setState((){
+              //   eventsList = data;
+              // })
+
               IconSlideAction(
                   color: ConstantHelper.tomatoColor,
                   iconWidget: IconButton(
@@ -228,7 +239,7 @@ class ListExpan extends StatelessWidget {
   Widget _buildTiles(Event task) {
     if (task.subeventsList.isEmpty) return _event(task);
     return Container(
-      // constraints: BoxConstraints(maxHeight: 1000),
+        // constraints: BoxConstraints(maxHeight: 1000),
 // width: size.width,
 //         height:size.height,
         // height:50,
@@ -290,29 +301,27 @@ class ListExpan extends StatelessWidget {
       height: 50,
       width: 40,
       color: Colors.white,
-      child: new Row(
-        
-        children: <Widget>[
+      child: new Row(children: <Widget>[
         Container(
-          // constraints: BoxConstraints(maxHeight: 1000),
-          padding:EdgeInsets.only(top: 0),
-          child:
-        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task))),
+            // constraints: BoxConstraints(maxHeight: 1000),
+            padding: EdgeInsets.only(top: 0),
+            child: Icon(Icons.brightness_1,
+                color: ConstantHelper.priorityColor(task))),
         new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               new Row(children: <Widget>[
                 ///Contains [taskName]
                 Container(
-                  // constraints: BoxConstraints(maxHeight: 1000),
+                    // constraints: BoxConstraints(maxHeight: 1000),
                     margin: EdgeInsets.all(5.0),
                     child: Text(task.taskName,
                         textAlign: TextAlign.left,
                         style: TextStyle(
                           fontSize: 15,
-                            color: Colors.black87,
-                            //fontWeight: FontWeight.bold
-                            )))
+                          color: Colors.black87,
+                          //fontWeight: FontWeight.bold
+                        )))
               ]),
 
               ///Contains [tag] and [ddl]
@@ -324,8 +333,7 @@ class ListExpan extends StatelessWidget {
                     // constraints: BoxConstraints(maxHeight: 1000),
                     //alignment: Alignment.centerLeft,
                     child: Text(task.tag,
-                        style: TextStyle(
-                            color: Colors.black87, fontSize: 12)),
+                        style: TextStyle(color: Colors.black87, fontSize: 12)),
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(10),
@@ -333,13 +341,15 @@ class ListExpan extends StatelessWidget {
                     ),
                     padding: EdgeInsets.all(2),
                   ),
-                  SizedBox(width: 5,height: 1,),
+                  SizedBox(
+                    width: 5,
+                    height: 1,
+                  ),
                   Container(
                     // constraints: BoxConstraints(maxHeight: 1000),
                     //alignment: Alignment.centerLeft,
                     child: Text('2029',
-                        style: TextStyle(
-                            color: Colors.black87, fontSize: 12)),
+                        style: TextStyle(color: Colors.black87, fontSize: 12)),
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
                       borderRadius: BorderRadius.circular(10),
@@ -361,7 +371,10 @@ class ListExpan extends StatelessWidget {
       height: 45,
       color: Colors.white70,
       child: new Row(children: <Widget>[
-        SizedBox(width: 40,height: 1,),
+        SizedBox(
+          width: 40,
+          height: 1,
+        ),
         //Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(subtask)),
         //new Column(
         //children: <Widget>[
@@ -369,12 +382,11 @@ class ListExpan extends StatelessWidget {
         //children: <Widget>[
         ///Contains [subtaskName]
         Container(
-          // constraints: BoxConstraints(maxHeight: 1000),
+            // constraints: BoxConstraints(maxHeight: 1000),
             margin: EdgeInsets.all(5.0),
             child: Text(subtask.taskName,
                 textAlign: TextAlign.left,
-                style:
-                    TextStyle(fontSize: 15, color: Colors.black87)))
+                style: TextStyle(fontSize: 15, color: Colors.black87)))
       ]),
       //]
       //),
