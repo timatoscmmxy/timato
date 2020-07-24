@@ -232,7 +232,7 @@ class EventEntity {
   static final String colToday = 'isTodayList';
   static final String colCompleted = 'isCompleted';
 
-  static void createDb(Database db, int newVersion) async {
+  static void createEventTable(Database db, int newVersion) async {
     await db.execute(
           'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
               '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');

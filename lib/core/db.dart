@@ -43,7 +43,7 @@ abstract class DatabaseHelper {
   }
 
   void _createDb(Database db, int newVersion) async {
-    EventEntity.createDb(db, newVersion);
+    EventEntity.createEventTable(db, newVersion);
     TagEntity.createDb(db, newVersion);
     // 	await db.execute('CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, '
     // + '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER), $colUnplanned INTEGER, $colToday INTEGER');
