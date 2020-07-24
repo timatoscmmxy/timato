@@ -1,4 +1,5 @@
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:io';
@@ -32,7 +33,7 @@ abstract class DatabaseHelper {
     // Get the directory path for both Android and iOS to store database.
     // Directory directory = await getApplicationDocumentsDirectory();
     // String path = directory.path + '/core/timato.db';
-    String path = await getDatabasesPath() + '/core/timato.db';
+    String path = join(await getDatabasesPath(), 'timato.db');
 
     developer.log(path);
     // Open/create the database at a given path
