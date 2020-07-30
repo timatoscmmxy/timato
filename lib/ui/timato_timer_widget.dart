@@ -89,13 +89,18 @@ class TimatoTimerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: IconButton(
+          color: ConstantHelper.tomatoColor,
           icon: Icon(Icons.keyboard_backspace),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           event.taskName,
           maxLines: null,
+          style: TextStyle(
+            color: ConstantHelper.tomatoColor
+          ),
         ),
         elevation: 0,
       ),
