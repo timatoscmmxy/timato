@@ -105,6 +105,98 @@ class StatsPageState extends State<StatsPage>{
               mainAxisSpacing: 12.0,
               children: <Widget>[
                 Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 5, top: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 2.0,
+                            spreadRadius: 0.0,
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              'Today',
+                              style: TextStyle(
+                                  color: ConstantHelper.tomatoColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                                padding: EdgeInsets.all(10),
+                                child: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Text(
+                                    widget.timerNumsToday.toString(),
+                                    style: TextStyle(
+                                        color: ConstantHelper.tomatoColor
+                                    ),
+                                  ),
+                                )
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(right: 10, left: 5, top: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 2.0,
+                            spreadRadius: 0.0,
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              'This Week',
+                              style: TextStyle(
+                                  color: ConstantHelper.tomatoColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                                padding: EdgeInsets.all(10),
+                                child: FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Text(
+                                    widget.timerNumsWeek.toString(),
+                                    style: TextStyle(
+                                        color: ConstantHelper.tomatoColor
+                                    ),
+                                  ),
+                                )
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                ),
+                Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
                       decoration: BoxDecoration(
@@ -193,104 +285,12 @@ class StatsPageState extends State<StatsPage>{
                       ),
                     )
                 ),
-                Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 5, top: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black38,
-                            blurRadius: 2.0,
-                            spreadRadius: 0.0,
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.all(10),
-                            child: Text(
-                              'Today',
-                              style: TextStyle(
-                                  color: ConstantHelper.tomatoColor,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: EdgeInsets.all(10),
-                              child: FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Text(
-                                  widget.timerNumsToday.toString(),
-                                  style: TextStyle(
-                                      color: ConstantHelper.tomatoColor
-                                  ),
-                                ),
-                              )
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(right: 10, left: 5, top: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black38,
-                            blurRadius: 2.0,
-                            spreadRadius: 0.0,
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.all(10),
-                            child: Text(
-                              'This Week',
-                              style: TextStyle(
-                                  color: ConstantHelper.tomatoColor,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: EdgeInsets.all(10),
-                              child: FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Text(
-                                  widget.timerNumsWeek.toString(),
-                                  style: TextStyle(
-                                    color: ConstantHelper.tomatoColor
-                                  ),
-                                ),
-                              )
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                ),
               ],
               staggeredTiles: [
-                StaggeredTile.extent(4, constraints.maxHeight / 2 - 40),
-                StaggeredTile.extent(4, constraints.maxHeight / 2 - 40),
                 StaggeredTile.extent(2, constraints.maxHeight / 4),
                 StaggeredTile.extent(2, constraints.maxHeight / 4),
+                StaggeredTile.extent(4, constraints.maxHeight / 2 - 40),
+                StaggeredTile.extent(4, constraints.maxHeight / 2 - 40),
               ],
             ),
           );
