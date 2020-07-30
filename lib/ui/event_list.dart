@@ -90,7 +90,7 @@ class _EventListState extends State<EventList> {
 ///Builds the whole event page
 ///
 ///Event page contains all the details that delong to the [Event]
-///Including: [taskName], [tag], [ddl], [eventPriority], [subeventsList]
+///Including: [taskName], [id], [ddl], [eventPriority], [subeventsList]
 Widget _eventDetail(Event task) {
   return ListView(children: <Widget>[
     TextName(task: task),
@@ -136,7 +136,7 @@ class _TextNameState extends State<TextName> {
   }
 }
 
-///Builds the part for [tag]
+///Builds the part for [id]
 ///
 ///Users select a tag for this [Event] from the list of tags
 class TaskTag extends StatefulWidget {
