@@ -34,8 +34,8 @@ class AddEvent extends StatefulWidget {
   @override
   AddEventState createState() => AddEventState();
 
-  static showAddEvent(context) {
-    showModalBottomSheet(
+  static showAddEvent(context) async{
+    return showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
         'New event',
@@ -47,8 +47,8 @@ class AddEvent extends StatefulWidget {
     );
   }
 
-  static showAddUnplannedEvent(context) {
-    showModalBottomSheet(
+  static showAddUnplannedEvent(context) async{
+    return showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
         'New unplanned event',
