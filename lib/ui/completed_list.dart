@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:timato/core/db.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/add_event.dart';
@@ -12,7 +13,7 @@ class CompletedList extends StatefulWidget {
 }
 
 class _CompletedListState extends State<CompletedList> {
-  EventRepository databaseHelper = EventRepository();
+  DatabaseHelper tabaseHelper = DatabaseHelper();
 
   @override
   Widget build(BuildContext context) {

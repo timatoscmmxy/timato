@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:test/test.dart';
+import 'package:timato/core/db.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
 
@@ -12,18 +13,18 @@ import 'package:sqflite/sqflite.dart';
 // import 'package:'
 
 // final testDBPath = '/core/timato.db';
-EventRepository databaseHelper;
+DatabaseHelper databaseHelper;
 
 void main() {
   group("DB TEST", () {
     setUp(() async {
       WidgetsFlutterBinding.ensureInitialized();
-      databaseHelper = EventRepository();
+      databaseHelper = DatabaseHelper();
     });
 
     test("insert", () async {
       Event event = new Event(taskName: '打电话');
-      int id = await databaseHelper.insertEvent(event);
+      int id = await insertEvent(event);
       expect(id, greaterThan(0));
     });
   });

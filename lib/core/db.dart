@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:timato/core/event.dart';
+import 'package:timato/core/event_repository.dart';
 import 'package:timato/core/tag_repository.dart';
 
 class DatabaseHelper {
