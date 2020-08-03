@@ -31,9 +31,6 @@ class MyTask extends StatefulWidget {
 }
 
 class _MyTaskState extends State<MyTask> {
-  ///For database
-  EventRepository databaseHelper = EventRepository();
-
   ///A list which contains all the [Event]
   ///
   ///Adds test case1 [testTask] and case2 [testTask2] into [eventList]
@@ -92,7 +89,7 @@ class _MyTaskState extends State<MyTask> {
 //        .then((id) {
 //      developer.log(id.toString());
 //    });
-    databaseHelper.getEventList().then((data) {
+    getEventList().then((data) {
       setState(() {
         developer.log("data");
         eventsList = data;
@@ -146,11 +143,11 @@ class _MyTaskState extends State<MyTask> {
                       icon: Icon(Icons.add, color: Colors.white),
                       onPressed: () => {
                             task.isTodayList = 1,
-                            databaseHelper.updateEvent(task),
+                            updateEvent(task),
                             // setState((){
                             //   eventsList = data;
                             // })
-                            databaseHelper.getEventList().then(
+                            getEventList().then(
                               (data) {
                                 setState(() {
                                   eventsList = data;
@@ -175,8 +172,8 @@ class _MyTaskState extends State<MyTask> {
                   iconWidget: IconButton(
                     icon: Icon(Icons.delete, color: Colors.white),
                     onPressed: () => {
-                      databaseHelper.deleteEvent(task.id),
-                      databaseHelper.getEventList().then((data) {
+                      deleteEvent(task.id),
+                      getEventList().then((data) {
                         setState(() {
                           eventsList = data;
                         });
@@ -229,8 +226,6 @@ class ListExpan extends StatelessWidget {
   ListExpan({Key key, this.task}) : super(key: key);
 
   final Event task;
-
-  EventRepository databaseHelper = EventRepository();
 
   //const ListExpan(this.task);
 

@@ -218,36 +218,3 @@ class Subevent extends AbstractEvent {
             tag: tag,
             eventPriority: eventPriority);
 }
-
-class EventEntity {
-  static final String eventTable = 'event_table';
-  static final String colId = 'id';
-  static final String colKey = 'key';
-  static final String colTaskName = 'task_name';
-  static final String colTag = 'tag';
-  static final String colPriority = 'priority';
-  static final String colDDL = 'deadline';
-  static final String colDuration = 'duration';
-  static final String colUnplanned = 'isUnplanned';
-  static final String colToday = 'isTodayList';
-  static final String colCompleted = 'isCompleted';
-
-  static void createEventTable(Database db, int newVersion) async {
-    await db.execute(
-          'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');
-  }
-
-  static upgradeDb(Database db, int oldVersion, int newVersion) async {
-    if (newVersion == 5) {
-      await db.execute('DROP TABLE $eventTable');
-      await db.execute(
-          'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');
-    }
-  }
-
-  // static void dropDb(Database db) async {
-  //   await db.execute('DROP TABLE $eventTable');
-  // }
-}

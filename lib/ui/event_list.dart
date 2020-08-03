@@ -36,7 +36,6 @@ class EventList extends StatefulWidget {
 }
 
 class _EventListState extends State<EventList> {
-  EventRepository databaseHelper = EventRepository();
   _EventListState(this.task);
   final Event task;
 

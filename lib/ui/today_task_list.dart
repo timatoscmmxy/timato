@@ -37,13 +37,12 @@ class TodayList extends StatefulWidget {
 }
 
 class _TodayListState extends State<TodayList> {
-  EventRepository databaseHelper = EventRepository();
 
   @override
   void initState() {
     // databaseHelper.insertEvent(new Event(taskName: '回邮件', isTodayList: 1, isUnplanned: 1));
     // databaseHelper.insertEvent(new Event(taskName: '打电话', isTodayList: 1, isUnplanned: 1));
-    databaseHelper.getTodayEventList().then((data) {
+    getTodayEventList().then((data) {
       setState(() {
         todayEventList = data;
       });
@@ -82,7 +81,6 @@ class _TodayListState extends State<TodayList> {
   }
 
   Widget _todayList() {
-    EventRepository databaseHelper = EventRepository();
     //return ListView(
     // children: <Widget> [
     //return Container(
@@ -115,9 +113,8 @@ class _TodayListState extends State<TodayList> {
                                         'Are you sure to delete this Unplanned event permanently?',
                                     context: context,
                                     action: (context) {
-                                      databaseHelper.deleteEvent(task.id);
-                                      databaseHelper
-                                          .getTodayEventList()
+                                      deleteEvent(task.id);
+                                      getTodayEventList()
                                           .then((data) {
                                         setState(() {
                                           todayEventList = data;
@@ -228,9 +225,8 @@ class _TodayListState extends State<TodayList> {
                                   context: context,
                                   action: (context) {
                                     task.isTodayList = 0;
-                                    databaseHelper.updateEvent(task).then((id) {
-                                      databaseHelper
-                                          .getTodayEventList()
+                                    updateEvent(task).then((id) {
+                                      getTodayEventList()
                                           .then((data) {
                                         setState(() {
                                           todayEventList = data;
@@ -268,9 +264,8 @@ class _TodayListState extends State<TodayList> {
                                       'Are you sure to delete this task permanently?',
                                   context: context,
                                   action: (context) {
-                                    databaseHelper.deleteEvent(task.id);
-                                    databaseHelper
-                                        .getTodayEventList()
+                                    deleteEvent(task.id);
+                                    getTodayEventList()
                                         .then((data) {
                                       setState(() {
                                         todayEventList = data;
@@ -323,7 +318,6 @@ class ListExpan extends StatefulWidget {
 
   final Event task;
 
-  EventRepository databaseHelper = EventRepository();
   @override
   _ListExpanState createState() => _ListExpanState(task);
 }
@@ -333,7 +327,6 @@ class _ListExpanState extends State<ListExpan> {
 
   final Event task;
 
-  EventRepository databaseHelper = EventRepository();
   @override
   Widget build(BuildContext context) {
     if (task.subeventsList.isEmpty) return _event(task);
@@ -370,9 +363,8 @@ class _ListExpanState extends State<ListExpan> {
                                               'Are you sure to delete this subtask permanently?',
                                           context: context,
                                           action: (context) {
-                                            databaseHelper.deleteEvent(task.id);
-                                            databaseHelper
-                                                .getTodayEventList()
+                                            deleteEvent(task.id);
+                                            getTodayEventList()
                                                 .then((data) {
                                               setState(() {
                                                 todayEventList = data;
