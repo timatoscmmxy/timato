@@ -34,7 +34,7 @@ void main() async{
   // databaseHelper
   //     .insertEvent(Event(
   //     taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'));
-}
+// }
 //void main() => runApp(MyApp1());
 
 // void main() async{
@@ -95,4 +95,4 @@ void main() async{
 // //      home: Settings(_pref)
 //     );
 //   }
-// }
+}

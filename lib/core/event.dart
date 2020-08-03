@@ -130,7 +130,7 @@ class Event extends AbstractEvent {
   ///
   ///This list includes sample [Subevent]
   final List subeventsList = <Subevent>[
-    new Subevent(taskName: 'sub1', eventPriority: Priority.MIDDLE)
+    new Subevent(taskName: 'sub1', eventPriority: Priority.MIDDLE),new Subevent(taskName: 'sub2', eventPriority: Priority.MIDDLE)
   ];
 
   Event(

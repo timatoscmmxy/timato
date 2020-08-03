@@ -4,6 +4,7 @@ import 'dart:async';
 import 'db.dart';
 import 'event.dart';
 
+
 class EventRepository extends DatabaseHelper {
   static EventRepository _databaseHelper; // Singleton DatabaseHelper
   EventRepository._createInstance(); // Named constructor to create instance of DatabaseHelper

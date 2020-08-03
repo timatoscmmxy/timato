@@ -28,17 +28,19 @@ import 'package:timato/ui/main_list.dart';
 // }
 
 class EventList extends StatefulWidget {
-  EventList({Key key, this.task}) : super(key: key);
+  EventList({Key key, this.task, this.page}) : super(key: key);
   final Event task;
+  final String page;
 
   @override
-  _EventListState createState() => _EventListState(task);
+  _EventListState createState() => _EventListState(task:task,page:page);
 }
 
 class _EventListState extends State<EventList> {
   EventRepository databaseHelper = EventRepository();
-  _EventListState(this.task);
+  _EventListState({this.task, this.page});
   final Event task;
+  final String page;
 
   @override
   Widget build(BuildContext context) {
@@ -74,16 +76,48 @@ class _EventListState extends State<EventList> {
             //     }),
           ]),
       body: _eventDetail(task),
-      floatingActionButton: FloatingRaisedButton('Start clock', () async {
+      floatingActionButton: 
+        _button(page),
+      // FloatingRaisedButton('Start clock', () async {
+      //   List<int> timerData = await getTimerData();
+      //   int timerLength = timerData[0];
+      //   int relaxLength = timerData[1];
+      //   int currentClockNum = await task.clockNum;
+      //   Navigator.push(context, MaterialPageRoute(builder: (_) {
+      //     return TimatoTimerWidget(
+      //         timerLength: timerLength,
+      //         relaxLength: relaxLength,
+      //         event: task,
+      //         clockNum: currentClockNum);
+      //   }));
+      // }),
+    );
+  }
+
+  FloatingRaisedButton _button(String page){
+    if(page=='mainList'){
+      return FloatingRaisedButton('Done', () async {
+        // List<int> timerData = await getTimerData();
+        // int timerLength = timerData[0];
+        // int relaxLength = timerData[1];
+        // int currentClockNum = await task.clockNum;
+        Navigator.pop(context);
+      });
+    }else{
+      return FloatingRaisedButton('Start clock', () async {
         List<int> timerData = await getTimerData();
         int timerLength = timerData[0];
         int relaxLength = timerData[1];
         int currentClockNum = await task.clockNum;
-        Navigator.push(context, MaterialPageRoute(builder:(_) {
-          return TimatoTimerWidget(timerLength: timerLength, relaxLength: relaxLength, event: task, clockNum: currentClockNum);
+        Navigator.push(context, MaterialPageRoute(builder: (_) {
+          return TimatoTimerWidget(
+              timerLength: timerLength,
+              relaxLength: relaxLength,
+              event: task,
+              clockNum: currentClockNum);
         }));
-      }),
-    );
+      });
+    }
   }
 }
 
@@ -125,7 +159,7 @@ class _TextNameState extends State<TextName> {
         print('$this.task.taskName');
       },
       textInputAction: TextInputAction.done,
-      maxLength: 25,
+      maxLength: 20,
       initialValue: this.task.taskName,
       decoration: const InputDecoration(
         counterText: '',
@@ -154,30 +188,36 @@ class _TaskTagState extends State<TaskTag> {
     return Container(
         child: Row(children: <Widget>[
       SizedBox(width: 12),
-      Icon(
-        Icons.label_outline,
-        color: ConstantHelper.tomatoColor,
-      ),
-      SizedBox(width: 12),
-      DropdownButton<String>(
-        value: this.task.tag,
-        onChanged: (String value) {
-          setState(() {
-            this.task.tag = value;
-          });
-        },
-        items: ConstantHelper.tags.map((tag) {
-          return DropdownMenuItem<String>(
-              value: tag,
-              child: Row(children: <Widget>[
-                Text(
-                  tag,
-                  style: TextStyle(fontSize: 14),
-                )
-              ]));
-        }).toList(),
-      )
+      Icon(Icons.label_outline, color: ConstantHelper.tomatoColor),
+      // SizedBox(width: 12),
+      Container(
+          width: 166,
+          child: TextFormField(
+            onChanged: (text) {
+              this.task.tag = text;
+              //TODO: store
+              print('$this.task.tag');
+            },
+            textInputAction: TextInputAction.done,
+            maxLength: 10,
+            initialValue: _tagString(task),
+            style: TextStyle(fontSize: 14),
+            // this.task.taskName,
+            decoration: const InputDecoration(
+              counterText: '',
+              border: InputBorder.none,
+              prefix: Text('   '),
+            ),
+          ))
     ]));
+  }
+
+  String _tagString(Event task) {
+    if (this.task.tag != null) {
+      return this.task.tag.toString();
+    } else {
+      return "enter a tag";
+    }
   }
 }
 
@@ -196,7 +236,7 @@ class _TaskDateState extends State<TaskDate> {
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: this.task.ddl,
+        initialDate: DateTime.now(),
         firstDate: DateTime.now(),
         lastDate: DateTime(2200));
     if (picked != null && picked != this.task.ddl)
@@ -212,7 +252,13 @@ class _TaskDateState extends State<TaskDate> {
       IconButton(
           icon: Icon(Icons.calendar_today, color: ConstantHelper.tomatoColor),
           onPressed: () => _selectDate(context)),
-      Text("${this.task.ddl.toLocal()}".split(' ')[0]),
+      Text((() {
+        if (this.task.ddl != null) {
+          return "${this.task.ddl.toLocal()}".split(' ')[0];
+        } else {
+          return "select a date";
+        }
+      })()),
     ]));
   }
 }
@@ -288,7 +334,7 @@ class _TaskDurationState extends State<TaskDuration> {
       Container(
           width: 166,
           child: TextFormField(
-            keyboardType: TextInputType.number,
+            // keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 3,
@@ -297,10 +343,28 @@ class _TaskDurationState extends State<TaskDuration> {
                 suffixText: 'minutes',
                 counterText: '',
                 border: InputBorder.none),
-            onChanged: (text) {
+            // onChanged: (text)
+            onChanged: (String text) {
+              if (text == '') {
+                return;
+              }
+              int val;
+              try {
+                val = int.parse(text);
+              } catch (e) {
+                TimerLengthAlert.show(context);
+              }
+              if (val < 0 || val > 5940) {
+                TimerLengthAlert.show(context);
+              }
               this.task.duration = int.parse(text);
               print('$this.task.duration');
+              // _onChange(val);
             },
+            // {
+            //   this.task.duration = int.parse(text);
+            //   print('$this.task.duration');
+            // },
           ))
     ]));
   }
@@ -325,7 +389,7 @@ class _SubtaskListState extends State<SubtaskList> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-        height: 35.0 * (task.subeventsList.length + 1) + 20+22,
+        height: 35.0 * (task.subeventsList.length + 1) + 20 + 22,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -338,7 +402,7 @@ class _SubtaskListState extends State<SubtaskList> {
             Container(
                 padding: EdgeInsets.all(10),
                 width: size.width - 49,
-                height: 35.0 * (task.subeventsList.length + 1) + 20+22,
+                height: 35.0 * (task.subeventsList.length + 1) + 20 + 22,
                 child: _sublist(task)),
           ],
         ));
@@ -353,14 +417,14 @@ class _SubtaskListState extends State<SubtaskList> {
           width: 326,
           child: ListView(
             physics: NeverScrollableScrollPhysics(),
-            children: this.task.subeventsList.map((subtask) {
+            children: task.subeventsList.map((subtask) {
               return Slidable(
                   key: subtask.key,
                   actionPane: SlidableDrawerActionPane(),
                   actionExtentRatio: 0.25,
                   secondaryActions: <Widget>[
                     // IconSlideAction(
-                    //     color: ConstantHelper.tomatoColor, 
+                    //     color: ConstantHelper.tomatoColor,
                     //     icon: Icons.add
                     //     ),
                     IconSlideAction(
@@ -373,6 +437,7 @@ class _SubtaskListState extends State<SubtaskList> {
         height: 35,
         width: 326,
         child: TextField(
+            // keyboardType: TextInputType.multiline,
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
