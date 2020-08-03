@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:timato/ui/completed_list.dart';
 
 import 'package:time_machine/time_machine.dart';
 
@@ -13,28 +14,28 @@ enum Priority { HIGH, MIDDLE, LOW, NONE }
 
 class ConstantHelper {
   static final Map intToMonth = {
-    1 : 'Jan',
-    2 : 'Feb',
-    3 : 'Mar',
-    4 : 'Apr',
-    5 : 'May',
-    6 : 'Jun',
-    7 : 'Jul',
-    8 : 'Aug',
-    9 : 'Sep',
-    10 : 'Oct',
-    11 : 'Nov',
-    12 : 'Dec'
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec'
   };
 
   static final Map dayOfWeekToRFC = {
-    DayOfWeek.monday : 'MO',
-    DayOfWeek.tuesday : 'TU',
-    DayOfWeek.wednesday : 'WE',
-    DayOfWeek.thursday : 'TH',
-    DayOfWeek.friday : 'FR',
-    DayOfWeek.saturday : 'SA',
-    DayOfWeek.sunday : 'SU',
+    DayOfWeek.monday: 'MO',
+    DayOfWeek.tuesday: 'TU',
+    DayOfWeek.wednesday: 'WE',
+    DayOfWeek.thursday: 'TH',
+    DayOfWeek.friday: 'FR',
+    DayOfWeek.saturday: 'SA',
+    DayOfWeek.sunday: 'SU',
   };
 
   static final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
@@ -178,44 +179,60 @@ class SideBar extends StatelessWidget {
       ListTile(
           title: Text('My Tasks'),
           onTap: () {
-            if(pageName == 'MyTask'){
+            if (pageName == 'MyTask') {
               Navigator.pop(context);
-            }else{
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-              return MyTask();
-            }));}
+            } else {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) {
+                return MyTask();
+              }));
+            }
           }),
       ListTile(
           title: Text("Today's Tasks"),
           onTap: () {
-            if(pageName == 'TodayList'){
+            if (pageName == 'TodayList') {
               Navigator.pop(context);
-            }else{
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-              return TodayList();
-            
-            }));}
+            } else {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) {
+                return TodayList();
+              }));
+            }
           }),
       ListTile(
           title: Text("Completed Task"),
           onTap: () {
-            // Navigator.push(context,MaterialPageRoute(builder:(_){
-            //   return CompletedTaskPage();
-            // }));
+            if (pageName == 'Completed') {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) {
+                return CompletedList();
+              }));
+            }
+          }),
+      ListTile(
+          title: Text("Your Stats"),
+          onTap: () {
+            // if(pageName == 'Completed'){
+            //   Navigator.pop(context);
+            // }else{
+            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+            //   return CompletedList();
+            // }));}
           }),
     ]));
   }
 }
 
-class TimerLengthAlert extends StatelessWidget{
+class TimerLengthAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
         'Invalid number input',
-        style: TextStyle(
-            fontSize: 14
-        ),
+        style: TextStyle(fontSize: 14),
         softWrap: true,
         textAlign: TextAlign.left,
       ),
@@ -225,11 +242,9 @@ class TimerLengthAlert extends StatelessWidget{
         FlatButton(
           child: Text(
             'OK',
-            style: TextStyle(
-                color: Colors.lightBlue
-            ),
+            style: TextStyle(color: Colors.lightBlue),
           ),
-          onPressed: (){
+          onPressed: () {
             Navigator.pop(context);
           },
         )
@@ -237,14 +252,18 @@ class TimerLengthAlert extends StatelessWidget{
     );
   }
 
-  static show(BuildContext context){
-    showDialog(context: context, builder: (_) => TimerLengthAlert(), barrierDismissible: true);
+  static show(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (_) => TimerLengthAlert(),
+        barrierDismissible: true);
   }
 }
 
 int getWeekNum(LocalDate date) {
   LocalDate firstDay = LocalDate(date.year, date.monthOfYear, 1);
-  LocalDate lastDay = LocalDate(date.year, date.monthOfYear + 1, 1).subtractDays(1);
+  LocalDate lastDay =
+      LocalDate(date.year, date.monthOfYear + 1, 1).subtractDays(1);
   int firstSunday = 1 + (7 - firstDay.dayOfWeek.value);
   int lastMonday = 31 - lastDay.dayOfWeek.value + 1;
   if (date.dayOfMonth <= firstSunday) {

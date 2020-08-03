@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
+// import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/event_list.dart';
@@ -45,18 +47,18 @@ class _MyTaskState extends State<MyTask> {
   void initState() {
     super.initState();
 //    developer.log('got here');
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
+    //  databaseHelper
+    //      .insertEvent(Event(
+    //          taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
+    //      .then((id) {
+    //    developer.log(id.toString());
+    //  });
+    //  databaseHelper
+    //      .insertEvent(Event(
+    //          taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
+    //      .then((id) {
+    //    developer.log(id.toString());
+    //  });
 //    databaseHelper
 //        .insertEvent(Event(
 //            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'))
@@ -91,7 +93,7 @@ class _MyTaskState extends State<MyTask> {
 //    });
     getEventList().then((data) {
       setState(() {
-        developer.log("data");
+        // developer.log("data");
         eventsList = data;
       });
     });
@@ -141,28 +143,52 @@ class _MyTaskState extends State<MyTask> {
                   color: ConstantHelper.tomatoColor,
                   iconWidget: IconButton(
                       icon: Icon(Icons.add, color: Colors.white),
-                      onPressed: () => {
-                            task.isTodayList = 1,
-                            updateEvent(task),
-                            // setState((){
-                            //   eventsList = data;
-                            // })
-                            getEventList().then(
-                              (data) {
-                                setState(() {
-                                  eventsList = data;
-                                });
-                              },
-                            ),
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  Future.delayed(Duration(seconds: 3), () {
-                                    Navigator.of(context).pop(true);
-                                  });
-                                  // return AlertDialog(shape:no,title:Text('Added', style: TextStyle(color: ConstantHelper.tomatoColor)),);
-                                })
-                          })),
+                      onPressed: () {
+                        if (task.isTodayList == 1) {
+                          Fluttertoast.showToast(
+                              msg: "This task is on Today's Tasks already",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              backgroundColor: Colors.white,
+                              textColor: ConstantHelper.tomatoColor,
+                              fontSize: 16);
+                          //   setState((){}),
+
+                          //   SnackBar(content: Text("This task is already part of Today's Tasks", style: TextStyle(color:ConstantHelper.tomatoColor)))
+                        } else {
+                          task.isTodayList = 1;
+                          updateEvent(task);
+                          // setState((){
+                          //   eventsList = data;
+                          // })
+                          getEventList().then(
+                            (data) {
+                              setState(() {
+                                eventsList = data;
+                              });
+                            },
+                          );
+                          Fluttertoast.showToast(
+                              msg: "Added",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              backgroundColor: Colors.white,
+                              textColor: ConstantHelper.tomatoColor,
+                              fontSize: 16);
+                          // showDialog(
+                          //     context: context,
+                          //     builder: (context) {
+                          //       Future.delayed(Duration(seconds: 3), () {
+                          //         Navigator.of(context).pop(true);
+                          //       });
+                          //       // return AlertDialog(shape:no,title:Text('Added', style: TextStyle(color: ConstantHelper.tomatoColor)),);
+                          //     }),
+                          //   Scaffold.of(context).showSnackBar(
+                          // SnackBar(content: Text("Added to Today's tasks", style: TextStyle(color:ConstantHelper.tomatoColor)))
+                          // );
+                          // }
+                        }
+                      })),
               // setState((){
               //   eventsList = data;
               // })
@@ -186,7 +212,7 @@ class _MyTaskState extends State<MyTask> {
                     icon: Icon(Icons.receipt, color: Colors.white),
                     onPressed: () => {
                       Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return EventList(task: task);
+                        return EventList(task: task, page:"mainList");
                       }))
                     },
                   ))
@@ -296,10 +322,12 @@ class ListExpan extends StatelessWidget {
       height: 50,
       width: 40,
       color: Colors.white,
-      child: new Row(children: <Widget>[
+      child: new Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
         Container(
             // constraints: BoxConstraints(maxHeight: 1000),
-            padding: EdgeInsets.only(top: 0),
+            padding: EdgeInsets.only(top: 3.9),
             child: Icon(Icons.brightness_1,
                 color: ConstantHelper.priorityColor(task))),
         new Column(
@@ -313,7 +341,7 @@ class ListExpan extends StatelessWidget {
                     child: Text(task.taskName,
                         textAlign: TextAlign.left,
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 16,
                           color: Colors.black87,
                           //fontWeight: FontWeight.bold
                         )))
@@ -323,40 +351,91 @@ class ListExpan extends StatelessWidget {
 
               new Row(
                 children: <Widget>[
-                  SizedBox(width: 10),
-                  Container(
+                  SizedBox(width: 5),
+                  _tag(task),
+                  // Container(((){
+                  //   if(task.tag!=null){
+
+                  //   }
+                  // })
                     // constraints: BoxConstraints(maxHeight: 1000),
                     //alignment: Alignment.centerLeft,
-                    child: Text(task.tag,
-                        style: TextStyle(color: Colors.black87, fontSize: 12)),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                    ),
-                    padding: EdgeInsets.all(2),
-                  ),
+                    // child: Text(task.tag,
+                    //     style: TextStyle(color: Colors.black87, fontSize: 12)),
+                    // decoration: BoxDecoration(
+                    //   shape: BoxShape.rectangle,
+                    //   borderRadius: BorderRadius.circular(10),
+                    //   color: Colors.white,
+                    // ),
+                    // padding: EdgeInsets.all(2),
+                  // ),
                   SizedBox(
                     width: 5,
                     height: 1,
                   ),
-                  Container(
-                    // constraints: BoxConstraints(maxHeight: 1000),
-                    //alignment: Alignment.centerLeft,
-                    child: Text('2029',
-                        style: TextStyle(color: Colors.black87, fontSize: 12)),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                    ),
-                    padding: EdgeInsets.all(2),
-                  )
+                  _ddl(task)
+                  // Container(
+                  //   // constraints: BoxConstraints(maxHeight: 1000),
+                  //   //alignment: Alignment.centerLeft,
+                  //   child:
+                  //       // if(task.ddl!=null){
+                  //       Text(task.ddl.toString(),
+                  //           style:
+                  //               TextStyle(color: Colors.black87, fontSize: 12)),
+                  //   decoration: BoxDecoration(
+                  //     shape: BoxShape.rectangle,
+                  //     borderRadius: BorderRadius.circular(10),
+                  //     color: Colors.white,
+                  //   ),
+                  //   padding: EdgeInsets.all(2),
+                  //   // }
+                  // )
                 ],
               )
             ]),
       ]),
     );
+  }
+
+  Widget _tag(Event task){
+    if(task.tag!=null){
+    return Container(
+      child:Text(task.tag,
+                        style: TextStyle(color: Colors.black87, fontSize: 12)),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.all(2),
+    );
+    }else{
+      return SizedBox(width: 0.1,);
+    }
+  }
+
+  Widget _ddl(Event task){
+    if(task.ddl!=null){
+      String formatDdl = ddlFormat.formatDate(task.ddl,[ddlFormat.yyyy, '-',ddlFormat.mm,'-',ddlFormat.dd]);
+      return Container(
+                    // constraints: BoxConstraints(maxHeight: 1000),
+                    //alignment: Alignment.centerLeft,
+                    child:
+                        // if(task.ddl!=null){
+                        Text(formatDdl,
+                            style:
+                                TextStyle(color: Colors.black87, fontSize: 12)),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    padding: EdgeInsets.all(2),
+                    // }
+                  );
+    }else{
+      return SizedBox(width:0.1);
+    }
   }
 
   ///Build each [Subevent] on subevent's list
