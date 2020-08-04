@@ -22,7 +22,7 @@ import 'core/event_repository.dart';
 
 void main() async{
  runApp(MaterialApp(
-     home: MyTask()
+     home: TodayList()
    ));
 }
 // void main() => runApp(MyApp1());

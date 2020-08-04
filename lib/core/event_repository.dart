@@ -16,11 +16,12 @@ class EventEntity {
   static final String colUnplanned = 'isUnplanned';
   static final String colToday = 'isTodayList';
   static final String colCompleted = 'isCompleted';
+  static final String colWhichTask = 'whichTask';
 
   static void createEventTable(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-            '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');
+            '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER, $colWhichTask INTEGER)');
   }
 
   static upgradeDb(Database db, int oldVersion, int newVersion) async {
@@ -28,7 +29,7 @@ class EventEntity {
       await db.execute('DROP TABLE $eventTable');
       await db.execute(
           'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER)');
+              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER, $colWhichTask INTEGER)');
     }
   }
 
@@ -133,4 +134,18 @@ Future<List<Event>> getUnpannedThing() async {
   }
 
   return unplannedThingList;
+}
+
+Future<List<Event>> getSubevent(Event task) async {
+  Database db = await DatabaseHelper.database;
+  var subeventMapList = await db.rawQuery(
+      'SELECT * FROM ${EventEntity.eventTable} where ${EventEntity.colWhichTask} = ${task.id}');
+  int count = subeventMapList.length;
+
+  List<Event> subeventList = List<Event>();
+  for (int i = 0; i < count; i++) {
+    subeventList.add(Event.fromMapObject(subeventMapList[i]));
+  }
+
+  return subeventList;
 }

@@ -6,8 +6,10 @@ import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
+import 'package:timato/ui/add_event.dart';
 // import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
+import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
@@ -46,51 +48,6 @@ class _MyTaskState extends State<MyTask> {
   @override
   void initState() {
     super.initState();
-//    developer.log('got here');
-    //  databaseHelper
-    //      .insertEvent(Event(
-    //          taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
-    //      .then((id) {
-    //    developer.log(id.toString());
-    //  });
-    //  databaseHelper
-    //      .insertEvent(Event(
-    //          taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
-    //      .then((id) {
-    //    developer.log(id.toString());
-    //  });
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
-//     databaseHelper.getEventList().then((data) {
-//       data.forEach((element) {
-//         databaseHelper.deleteEvent(element.id);
-//       });
-//       setState(() {
-//         eventsList = data;
-//       });
-//     });
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词1', eventPriority: Priority.HIGH, tag: 'English'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词2', eventPriority: Priority.LOW, tag: 'Chinese'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
-//    databaseHelper
-//        .insertEvent(Event(
-//            taskName: '背单词3', eventPriority: Priority.MIDDLE, tag: 'English'))
-//        .then((id) {
-//      developer.log(id.toString());
-//    });
     getEventList().then((data) {
       setState(() {
         // developer.log("data");
@@ -104,29 +61,40 @@ class _MyTaskState extends State<MyTask> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return new Scaffold(
-        appBar: new AppBar(
-            iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-            title: new Text("My Tasks",
-                style: TextStyle(color: ConstantHelper.tomatoColor)),
-            backgroundColor: Colors.white),
-        body: Container(
-            // constraints: BoxConstraints(maxHeight: 1000),
-            // width: size.width,
-            // height:size.height,
-            // constraints: BoxConstraints(
-            // this.maxHeight =
-            // ),
-            // height: 100,
-            decoration: new BoxDecoration(
-              color: Colors.white,
-            ),
-            child:
-                // new Row(
-                //   children:<Widget>[
-                _list()
-            // ],),
-            ),
-        drawer: new SideBar('MyTask'));
+      appBar: new AppBar(
+          iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
+          title: new Text("My Tasks",
+              style: TextStyle(color: ConstantHelper.tomatoColor)),
+          backgroundColor: Colors.white),
+      body: Container(
+          decoration: new BoxDecoration(
+            color: Colors.white,
+          ),
+          child: _list()),
+      drawer: new SideBar('MyTask'),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Container(
+            height: 39.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Expanded(child: Container()),
+              ],
+            )),
+        elevation: 20,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          AddEvent.showAddEvent(context);
+        },
+        child: Icon(Icons.add, color: ConstantHelper.tomatoColor),
+        backgroundColor: Colors.white,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
   }
 
   ///Builds a list of events that is reorderable
@@ -212,7 +180,7 @@ class _MyTaskState extends State<MyTask> {
                     icon: Icon(Icons.receipt, color: Colors.white),
                     onPressed: () => {
                       Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return EventList(task: task, page:"mainList");
+                        return EventList(task: task, page: "mainList");
                       }))
                     },
                   ))
@@ -323,118 +291,120 @@ class ListExpan extends StatelessWidget {
       width: 40,
       color: Colors.white,
       child: new Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-        Container(
-            // constraints: BoxConstraints(maxHeight: 1000),
-            padding: EdgeInsets.only(top: 3.9),
-            child: Icon(Icons.brightness_1,
-                color: ConstantHelper.priorityColor(task))),
-        new Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              new Row(children: <Widget>[
-                ///Contains [taskName]
-                Container(
-                    // constraints: BoxConstraints(maxHeight: 1000),
-                    margin: EdgeInsets.all(5.0),
-                    child: Text(task.taskName,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                          //fontWeight: FontWeight.bold
-                        )))
-              ]),
-
-              ///Contains [tag] and [ddl]
-
-              new Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+                // constraints: BoxConstraints(maxHeight: 1000),
+                padding: EdgeInsets.only(top: 3.9),
+                child: Icon(Icons.brightness_1,
+                    color: ConstantHelper.priorityColor(task))),
+            new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(width: 5),
-                  _tag(task),
-                  // Container(((){
-                  //   if(task.tag!=null){
+                  new Row(children: <Widget>[
+                    ///Contains [taskName]
+                    Container(
+                        // constraints: BoxConstraints(maxHeight: 1000),
+                        margin: EdgeInsets.all(5.0),
+                        child: Text(task.taskName,
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                              //fontWeight: FontWeight.bold
+                            )))
+                  ]),
 
-                  //   }
-                  // })
-                    // constraints: BoxConstraints(maxHeight: 1000),
-                    //alignment: Alignment.centerLeft,
-                    // child: Text(task.tag,
-                    //     style: TextStyle(color: Colors.black87, fontSize: 12)),
-                    // decoration: BoxDecoration(
-                    //   shape: BoxShape.rectangle,
-                    //   borderRadius: BorderRadius.circular(10),
-                    //   color: Colors.white,
-                    // ),
-                    // padding: EdgeInsets.all(2),
-                  // ),
-                  SizedBox(
-                    width: 5,
-                    height: 1,
-                  ),
-                  _ddl(task)
-                  // Container(
-                  //   // constraints: BoxConstraints(maxHeight: 1000),
-                  //   //alignment: Alignment.centerLeft,
-                  //   child:
-                  //       // if(task.ddl!=null){
-                  //       Text(task.ddl.toString(),
-                  //           style:
-                  //               TextStyle(color: Colors.black87, fontSize: 12)),
-                  //   decoration: BoxDecoration(
-                  //     shape: BoxShape.rectangle,
-                  //     borderRadius: BorderRadius.circular(10),
-                  //     color: Colors.white,
-                  //   ),
-                  //   padding: EdgeInsets.all(2),
-                  //   // }
-                  // )
-                ],
-              )
-            ]),
-      ]),
+                  ///Contains [tag] and [ddl]
+
+                  new Row(
+                    children: <Widget>[
+                      SizedBox(width: 5),
+                      _tag(task),
+                      // Container(((){
+                      //   if(task.tag!=null){
+
+                      //   }
+                      // })
+                      // constraints: BoxConstraints(maxHeight: 1000),
+                      //alignment: Alignment.centerLeft,
+                      // child: Text(task.tag,
+                      //     style: TextStyle(color: Colors.black87, fontSize: 12)),
+                      // decoration: BoxDecoration(
+                      //   shape: BoxShape.rectangle,
+                      //   borderRadius: BorderRadius.circular(10),
+                      //   color: Colors.white,
+                      // ),
+                      // padding: EdgeInsets.all(2),
+                      // ),
+                      SizedBox(
+                        width: 5,
+                        height: 1,
+                      ),
+                      _ddl(task)
+                      // Container(
+                      //   // constraints: BoxConstraints(maxHeight: 1000),
+                      //   //alignment: Alignment.centerLeft,
+                      //   child:
+                      //       // if(task.ddl!=null){
+                      //       Text(task.ddl.toString(),
+                      //           style:
+                      //               TextStyle(color: Colors.black87, fontSize: 12)),
+                      //   decoration: BoxDecoration(
+                      //     shape: BoxShape.rectangle,
+                      //     borderRadius: BorderRadius.circular(10),
+                      //     color: Colors.white,
+                      //   ),
+                      //   padding: EdgeInsets.all(2),
+                      //   // }
+                      // )
+                    ],
+                  )
+                ]),
+          ]),
     );
   }
 
-  Widget _tag(Event task){
-    if(task.tag!=null){
-    return Container(
-      child:Text(task.tag,
-                        style: TextStyle(color: Colors.black87, fontSize: 12)),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                    ),
-                    padding: EdgeInsets.all(2),
-    );
-    }else{
-      return SizedBox(width: 0.1,);
+  Widget _tag(Event task) {
+    if (task.tag != null) {
+      return Container(
+        child: Text(task.tag,
+            style: TextStyle(color: Colors.black87, fontSize: 12)),
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(2),
+      );
+    } else {
+      return SizedBox(
+        width: 0.1,
+      );
     }
   }
 
-  Widget _ddl(Event task){
-    if(task.ddl!=null){
-      String formatDdl = ddlFormat.formatDate(task.ddl,[ddlFormat.yyyy, '-',ddlFormat.mm,'-',ddlFormat.dd]);
+  Widget _ddl(Event task) {
+    if (task.ddl != null) {
+      String formatDdl = ddlFormat.formatDate(
+          task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
       return Container(
-                    // constraints: BoxConstraints(maxHeight: 1000),
-                    //alignment: Alignment.centerLeft,
-                    child:
-                        // if(task.ddl!=null){
-                        Text(formatDdl,
-                            style:
-                                TextStyle(color: Colors.black87, fontSize: 12)),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.white,
-                    ),
-                    padding: EdgeInsets.all(2),
-                    // }
-                  );
-    }else{
-      return SizedBox(width:0.1);
+        // constraints: BoxConstraints(maxHeight: 1000),
+        //alignment: Alignment.centerLeft,
+        child:
+            // if(task.ddl!=null){
+            Text(formatDdl,
+                style: TextStyle(color: Colors.black87, fontSize: 12)),
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(2),
+        // }
+      );
+    } else {
+      return SizedBox(width: 0.1);
     }
   }
 

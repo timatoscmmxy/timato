@@ -47,6 +47,10 @@ abstract class AbstractEvent implements Comparable {
   ///Repeat Properties
   RepeatProeprties repeatProperties;
 
+  //Indicates which task does this subtask belones to
+  //If it's a task this value will be null
+  int whichTask;
+
   int usedTimerNum = 0;
 
   ///The key used to identify individual events
@@ -61,7 +65,8 @@ abstract class AbstractEvent implements Comparable {
       Priority eventPriority = Priority.NONE,
       DateTime completedDate,
       int isTodayList,
-      int isUnplanned}) {
+      int isUnplanned,
+      int whichTask}) {
     this.taskName = taskName;
     this.ddl = null;
     this.duration = duration;
@@ -71,6 +76,7 @@ abstract class AbstractEvent implements Comparable {
     this.completedDate = completedDate;
     this.isTodayList = isTodayList;
     this.isUnplanned = isUnplanned;
+    this.whichTask = whichTask;
   }
 
   ///List of all the [Subevent] this [Event] has
@@ -142,7 +148,8 @@ class Event extends AbstractEvent {
       DateTime completedDate,
       key,
       int isTodayList,
-      int isUnplanned})
+      int isUnplanned,
+      int whichTask})
       : super(
           taskName: taskName,
           ddl: ddl,
@@ -152,6 +159,7 @@ class Event extends AbstractEvent {
           completedDate: completedDate,
           isTodayList: isTodayList,
           isUnplanned: isUnplanned,
+          whichTask:whichTask,
         );
 
   Event.fromMapObject(Map<String, dynamic> map) {
@@ -168,6 +176,7 @@ class Event extends AbstractEvent {
     this.isTodayList = map["isTodayList"];
     this.isCompleted = map["isCompleted"];
     this.isUnplanned = map["isUnplanned"];
+    this.whichTask = map["whichTask"];
   }
 
   ///Database implementation
@@ -185,7 +194,8 @@ class Event extends AbstractEvent {
       'priority': ConstantHelper.priorityLevel[eventPriority],
       'isTodayList':isTodayList,
       'isCompleted': isCompleted,
-      'isUnplanned': isUnplanned
+      'isUnplanned': isUnplanned,
+      'whichTask': whichTask, 
       // 'subeventsList': subeventsList
     };
   }
@@ -210,11 +220,13 @@ class Subevent extends AbstractEvent {
     int duration,
     String tag,
     Priority eventPriority = Priority.NONE,
+    int whichTask
   }) : super(
             taskName: taskName,
             key: key,
             ddl: ddl,
             duration: duration,
             tag: tag,
-            eventPriority: eventPriority);
+            eventPriority: eventPriority,
+            whichTask: whichTask);
 }
