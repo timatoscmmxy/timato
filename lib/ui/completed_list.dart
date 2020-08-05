@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:timato/core/completed_repository.dart';
 import 'package:timato/core/db.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
@@ -26,8 +27,14 @@ class _CompletedListState extends State<CompletedList> {
             IconButton(
                 icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
                 onPressed: () async {
-                  //TODO: empty the entire table
-                  setState((){});
+                  WarningDialog.show(
+                      title: 'Empty completed list?',
+                      text: 'Are you sure to empty all the completed tasks?',
+                      context: context,
+                      action: (context) {
+                        deleteAllCompleted();
+                        setState(() {});
+                      });
                 })
           ],
           backgroundColor: Colors.white),
@@ -72,11 +79,35 @@ class _DateTileState extends State<DateTile> {
   Widget build(BuildContext context) {
     List<Event> completed;
     if (date == "Today") {
-      completed = [];
+      //TODO:
+      // completed = [];
+      getTodayCompletedList().then(
+        (data) {
+          setState(() {
+            completed = data;
+          });
+        },
+      );
     } else if (date == "Yesterday") {
-      completed = [];
+      //TODO:
+      // completed = [];
+      getYesterdayCompletedList().then(
+        (data) {
+          setState(() {
+            completed = data;
+          });
+        },
+      );
     } else {
+      //TODO:
       completed = [];
+      getBeforeYesterdayCompletedList().then(
+        (data) {
+          setState(() {
+            completed = data;
+          });
+        },
+      );
     }
     return Slidable(
         // key: task.key,
@@ -87,13 +118,34 @@ class _DateTileState extends State<DateTile> {
               color: ConstantHelper.tomatoColor,
               iconWidget: IconButton(
                 icon: Icon(Icons.delete, color: Colors.white),
-                onPressed: () {
+                onPressed: () async {
                   if (date == "Today") {
-                    //TODO: delete all the events that are marked as "today's completed" on the completed table
+                    WarningDialog.show(
+                        title: "Empty today's completed list?",
+                        text: "Are you sure to empty all the tasks you completed today?",
+                        context: context,
+                        action: (context) {
+                          deleteToday();
+                          setState(() {});
+                        });
                   } else if (date == "Yesterday") {
-                    //TODO: delete all the events that are marked as "yesterday's completed" on the completed table
+                    WarningDialog.show(
+                        title: "Empty yesterday's completed list?",
+                        text: "Are you sure to empty all the tasks you completed yesterday?",
+                        context: context,
+                        action: (context) {
+                          deleteYesterday();
+                          setState(() {});
+                        });
                   } else {
-                    //TODO: delete all the events that are marked as "before yesterday's completed" on the completed table
+                    WarningDialog.show(
+                        title: "Empty otherdays' completed list?",
+                        text: "Are you sure to empty all the tasks you completed other days?",
+                        context: context,
+                        action: (context) {
+                          deleteBeforeYesterday();
+                          setState(() {});
+                        });
                   }
                   setState(() {
                     completed = [];

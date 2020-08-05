@@ -17,19 +17,25 @@ class EventEntity {
   static final String colToday = 'isTodayList';
   static final String colCompleted = 'isCompleted';
   static final String colWhichTask = 'whichTask';
+  static final String colTaskOrder = 'taskOrder';
+  static final String colTodayOrder = 'todayOrder';
 
   static void createEventTable(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-            '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER, $colWhichTask INTEGER)');
+            '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, '+
+            '$colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER, $colWhichTask INTEGER, '+
+            '$colTaskOrder INTEGER, $colTodayOrder INTEGER)');
   }
 
   static upgradeDb(Database db, int oldVersion, int newVersion) async {
-    if (newVersion == 5) {
-      await db.execute('DROP TABLE $eventTable');
+    if (newVersion == 7) {
+      // await db.execute('DROP TABLE $eventTable');
       await db.execute(
           'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, $colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER, $colWhichTask INTEGER)');
+              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, '+
+              '$colUnplanned INTEGER, $colToday INTEGER, $colCompleted INTEGER, $colWhichTask INTEGER, '+
+              '$colTaskOrder INTEGER, $colTodayOrder INTEGER)');
     }
   }
 
@@ -44,7 +50,8 @@ Future<List<Map<String, dynamic>>> getEventMapList() async {
 
 //		var result = await db.rawQuery('SELECT * FROM $eventTable order by $colPriority ASC');
   var result = await db.query(EventEntity.eventTable,
-      orderBy: '${EventEntity.colPriority} DESC');
+      where: '${EventEntity.colWhichTask}= NULL',
+      orderBy: '${EventEntity.colTaskOrder} ASC');
   return result;
 }
 
@@ -72,7 +79,7 @@ Future<int> deleteEvent(int id) async {
 }
 
 //Deletes all the data on eventTable
-Future<int> deleteAll(int id) async {
+Future<int> deleteAll() async {
   var db = await DatabaseHelper.database;
   int result = await db.rawDelete('DELETE FROM ${EventEntity.eventTable}');
   return result;
@@ -83,6 +90,15 @@ Future<int> getCount() async {
   Database db = await DatabaseHelper.database;
   List<Map<String, dynamic>> x =
       await db.rawQuery('SELECT COUNT (*) from ${EventEntity.eventTable}');
+  int result = Sqflite.firstIntValue(x);
+  return result;
+}
+
+Future<int> getTodayCount() async {
+  Database db = await DatabaseHelper.database;
+  List<Map<String, dynamic>> x =
+      await db.rawQuery('SELECT COUNT (*) from ${EventEntity.eventTable} WHERE ${EventEntity.colToday}=?',
+      [1]);
   int result = Sqflite.firstIntValue(x);
   return result;
 }
@@ -105,7 +121,7 @@ Future<List<Event>> getEventList() async {
 Future<List<Event>> getTodayEventList() async {
   Database db = await DatabaseHelper.database;
   var todayEventMapList = await db.rawQuery(
-      'SELECT * FROM ${EventEntity.eventTable} WHERE ${EventEntity.colToday}=?',
+      'SELECT * FROM ${EventEntity.eventTable} WHERE ${EventEntity.colToday}=? ORDER BY ${EventEntity.colTodayOrder} ASC', 
       [1]);
   int count =
       todayEventMapList.length; // Count the number of map entries in db table

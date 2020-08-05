@@ -8,6 +8,8 @@ import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/today_task_list.dart';
 
 List<Event> todayEventList = [];
+List<Event> eventsList = [];
+List<Event> subtasksList=[];
 
 ///Splits priotity into three levels
 enum Priority { HIGH, MIDDLE, LOW, NONE }

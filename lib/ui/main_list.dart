@@ -14,43 +14,22 @@ import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
-List<Event> eventsList = [];
-
-// class MyTaskPage extends StatelessWidget {
-//   ///newly added
-//   //const MyApp1({Key key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // final size = MediaQuery.of(context).size;
-//     return MaterialApp(
-//       home: ToDoList()
-//     );
-//   }
-// }
-
 class MyTask extends StatefulWidget {
   @override
   _MyTaskState createState() => new _MyTaskState();
 }
 
 class _MyTaskState extends State<MyTask> {
-  ///A list which contains all the [Event]
-  ///
-  ///Adds test case1 [testTask] and case2 [testTask2] into [eventList]
-  // List eventsList = <Event>[
-  //   new Event(taskName: '背单词', eventPriority: Priority.HIGH, tag: 'English'),
-  //   new Event(taskName: '写作文', eventPriority: Priority.LOW, tag: 'Chinese'),
-  // ];
-
-  ///Turns [eventsList] into [eventsMap]
-
   @override
   void initState() {
     super.initState();
+    getTodayEventList().then((data) {
+      setState(() {
+        todayEventList = data;
+      });
+    });
     getEventList().then((data) {
       setState(() {
-        // developer.log("data");
         eventsList = data;
       });
     });
@@ -89,6 +68,7 @@ class _MyTaskState extends State<MyTask> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           AddEvent.showAddEvent(context);
+          //TODO: when add a new event, update its taskOrder
         },
         child: Icon(Icons.add, color: ConstantHelper.tomatoColor),
         backgroundColor: Colors.white,
@@ -97,11 +77,16 @@ class _MyTaskState extends State<MyTask> {
     );
   }
 
+  void _subtasksListHelper(Event task) async {
+    subtasksList = await getSubevent(task);
+  }
+
   ///Builds a list of events that is reorderable
   Widget _list() {
     return ReorderableListView(
       // scrollController: ScrollController(),
       children: eventsList.map((task) {
+        _subtasksListHelper(task);
         return Slidable(
             key: task.key,
             actionPane: SlidableDrawerActionPane(),
@@ -124,37 +109,31 @@ class _MyTaskState extends State<MyTask> {
 
                           //   SnackBar(content: Text("This task is already part of Today's Tasks", style: TextStyle(color:ConstantHelper.tomatoColor)))
                         } else {
-                          task.isTodayList = 1;
-                          updateEvent(task);
-                          // setState((){
-                          //   eventsList = data;
-                          // })
-                          getEventList().then(
-                            (data) {
-                              setState(() {
-                                eventsList = data;
+                          WarningDialog.show(
+                              title: "Add to today's tasks?",
+                              text:
+                                  "Are you sure to add this task to today's tasks?",
+                              context: context,
+                              action: (context) {
+                                task.isTodayList = 1;
+                                int count = todayEventList.length;
+                                task.todayOrder = count;
+                                updateEvent(task);
+                                getEventList().then(
+                                  (data) {
+                                    setState(() {
+                                      eventsList = data;
+                                    });
+                                  },
+                                );
+                                Fluttertoast.showToast(
+                                    msg: "Added",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    backgroundColor: Colors.white,
+                                    textColor: ConstantHelper.tomatoColor,
+                                    fontSize: 16);
                               });
-                            },
-                          );
-                          Fluttertoast.showToast(
-                              msg: "Added",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              backgroundColor: Colors.white,
-                              textColor: ConstantHelper.tomatoColor,
-                              fontSize: 16);
-                          // showDialog(
-                          //     context: context,
-                          //     builder: (context) {
-                          //       Future.delayed(Duration(seconds: 3), () {
-                          //         Navigator.of(context).pop(true);
-                          //       });
-                          //       // return AlertDialog(shape:no,title:Text('Added', style: TextStyle(color: ConstantHelper.tomatoColor)),);
-                          //     }),
-                          //   Scaffold.of(context).showSnackBar(
-                          // SnackBar(content: Text("Added to Today's tasks", style: TextStyle(color:ConstantHelper.tomatoColor)))
-                          // );
-                          // }
                         }
                       })),
               // setState((){
@@ -166,12 +145,18 @@ class _MyTaskState extends State<MyTask> {
                   iconWidget: IconButton(
                     icon: Icon(Icons.delete, color: Colors.white),
                     onPressed: () => {
-                      deleteEvent(task.id),
-                      getEventList().then((data) {
-                        setState(() {
-                          eventsList = data;
-                        });
-                      })
+                      WarningDialog.show(
+                          title: 'Delete this task?',
+                          text: 'Are you sure to delete this task?',
+                          context: context,
+                          action: (context) {
+                            deleteEvent(task.id);
+                            getEventList().then((data) {
+                              setState(() {
+                                eventsList = data;
+                              });
+                            });
+                          })
                     },
                   )),
               IconSlideAction(
@@ -185,7 +170,7 @@ class _MyTaskState extends State<MyTask> {
                     },
                   ))
             ],
-            child: ListExpan(task: task));
+            child: ListExpan(task: task, subtasksList: subtasksList));
       }).toList(),
       onReorder: _onReorder,
     );
@@ -194,44 +179,51 @@ class _MyTaskState extends State<MyTask> {
   ///[onreorder] uses in [ReorderableListView]
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
+      if (oldIndex < newIndex) {
+        Event reorderedEvent = eventsList[oldIndex];
+        reorderedEvent.taskOrder = newIndex;
+        updateEvent(reorderedEvent);
+        for (int i = oldIndex + 1; i <= newIndex; i++) {
+          Event movedEvent = eventsList[i];
+          movedEvent.taskOrder -= 1;
+          updateEvent(movedEvent);
+        }
+      } else if (oldIndex > newIndex) {
+        Event reorderedEvent = eventsList[oldIndex];
+        reorderedEvent.taskOrder = newIndex;
+        updateEvent(reorderedEvent);
+        for (int i = oldIndex; i < newIndex; i++) {
+          Event movedEvent = eventsList[i];
+          movedEvent.taskOrder += 1;
+          updateEvent(movedEvent);
+        }
       }
-      final Event x = eventsList.removeAt(oldIndex);
-      eventsList.insert(newIndex, x);
     });
   }
-
-  /*Widget _event(Event task) {
-    return Container(
-        key: Key(task.id.toString()),
-        margin: EdgeInsets.all(5.0),
-        height: 50,
-        color: Colors.red[100],
-        child: Center(
-            child: Text(
-          task.taskName,
-          style: TextStyle(fontSize: 15, color: Colors.black87),
-        )));
-  }*/
 }
 
-class ListExpan extends StatelessWidget {
-  ListExpan({Key key, this.task}) : super(key: key);
+class ListExpan extends StatefulWidget {
+  ListExpan({Key key, this.task, this.subtasksList}) : super(key: key);
 
   final Event task;
+  List<Event> subtasksList;
+  @override
+  _ListExpanState createState() => _ListExpanState(task:task,subtasksList: subtasksList);
+}
 
-  //const ListExpan(this.task);
+class _ListExpanState extends State<ListExpan> {
+  _ListExpanState({this.task, this.subtasksList});
 
-  //final Event task;
+  final Event task;
+  List<Event> subtasksList;
+  @override
+  Widget build(BuildContext context) {
+    return _buildTiles(task);
+  }
 
   Widget _buildTiles(Event task) {
-    if (task.subeventsList.isEmpty) return _event(task);
+    if (subtasksList.isEmpty) return _event(task);
     return Container(
-        // constraints: BoxConstraints(maxHeight: 1000),
-// width: size.width,
-//         height:size.height,
-        // height:50,
         color: Colors.white,
         child: ExpansionTile(
           title: _event(task),
@@ -240,33 +232,32 @@ class ListExpan extends StatelessWidget {
           },
           children: <Widget>[
             Container(
-                height: (50.0 * task.subeventsList.length),
+                height: (50.0 * subtasksList.length),
                 child: ListView(
-                    children: task.subeventsList.map((subtask) {
+                    children: subtasksList.map((subtask) {
                   return Slidable(
-                      key: task.key,
+                      key: subtask.key,
                       actionPane: SlidableDrawerActionPane(),
                       actionExtentRatio: 0.25,
                       secondaryActions: <Widget>[
-                        // IconSlideAction(
-                        //     color: ConstantHelper.tomatoColor, icon: Icons.add
-
-                        //     ///Needs onTop in the future
-                        //     ),
                         IconSlideAction(
                             color: ConstantHelper.tomatoColor,
                             iconWidget: IconButton(
                               icon: Icon(Icons.delete, color: Colors.white),
-                              // onPressed: () => {
-                              //   databaseHelper.deleteEvent(task.id),
-                              //   databaseHelper.getNoteList().then((data) {
-                              //     eventsList = data;
-                              //     // setState(() {
-                              //     //   eventsList = data;
-                              //     // }
-                              //     // );
-                              //   })
-                              // },
+                              onPressed: () => {
+                      WarningDialog.show(
+                          title: 'Delete this subtask?',
+                          text: 'Are you sure to delete this subtask?',
+                          context: context,
+                          action: (context) {
+                            deleteEvent(subtask.id);
+                            getSubevent(task).then((data) {
+                              setState(() {
+                                subtasksList = data;
+                              });
+                            });
+                          })
+                    },
                             ))
                       ],
                       child:
@@ -277,12 +268,6 @@ class ListExpan extends StatelessWidget {
         ));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return _buildTiles(task);
-  }
-
-  ///Builds each [Event] on the list
   Widget _event(Event task) {
     return Container(
       key: task.key,
@@ -409,7 +394,7 @@ class ListExpan extends StatelessWidget {
   }
 
   ///Build each [Subevent] on subevent's list
-  Widget _subevent(Subevent subtask) {
+  Widget _subevent(Event subtask) {
     return Container(
       ///key: Key(subtask.id.toString()),
       height: 45,
@@ -439,3 +424,220 @@ class ListExpan extends StatelessWidget {
     );
   }
 }
+
+
+// class ListExpan extends StatelessWidget {
+//   ListExpan({Key key, this.task, this.subtasksList}) : super(key: key);
+
+//   final Event task;
+//   final List<Event> subtasksList;
+
+  // Widget _buildTiles(Event task) {
+  //   if (subtasksList.isEmpty) return _event(task);
+  //   return Container(
+  //       color: Colors.white,
+  //       child: ExpansionTile(
+  //         title: _event(task),
+  //         onExpansionChanged: (value) {
+  //           // developer.log("onExpansionChanged");
+  //         },
+  //         children: <Widget>[
+  //           Container(
+  //               height: (50.0 * subtasksList.length),
+  //               child: ListView(
+  //                   children: subtasksList.map((subtask) {
+  //                 return Slidable(
+  //                     key: task.key,
+  //                     actionPane: SlidableDrawerActionPane(),
+  //                     actionExtentRatio: 0.25,
+  //                     secondaryActions: <Widget>[
+  //                       IconSlideAction(
+  //                           color: ConstantHelper.tomatoColor,
+  //                           iconWidget: IconButton(
+  //                             icon: Icon(Icons.delete, color: Colors.white),
+  //                             onPressed: () => {
+  //                     WarningDialog.show(
+  //                         title: 'Delete this task?',
+  //                         text: 'Are you sure to delete this task?',
+  //                         context: context,
+  //                         action: (context) {
+  //                           deleteEvent(task.id);
+  //                           getEventList().then((data) {
+  //                             setState(() {
+  //                               eventsList = data;
+  //                             });
+  //                           });
+  //                         })
+  //                   },
+  //                           ))
+  //                     ],
+  //                     child:
+  //                         //return
+  //                         _subevent(subtask));
+  //               }).toList()))
+  //         ],
+  //       ));
+  // }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return _buildTiles(task);
+  // }
+
+  ///Builds each [Event] on the list
+//   Widget _event(Event task) {
+//     return Container(
+//       key: task.key,
+//       margin: EdgeInsets.all(5.0),
+//       height: 50,
+//       width: 40,
+//       color: Colors.white,
+//       child: new Row(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: <Widget>[
+//             Container(
+//                 // constraints: BoxConstraints(maxHeight: 1000),
+//                 padding: EdgeInsets.only(top: 3.9),
+//                 child: Icon(Icons.brightness_1,
+//                     color: ConstantHelper.priorityColor(task))),
+//             new Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: <Widget>[
+//                   new Row(children: <Widget>[
+//                     ///Contains [taskName]
+//                     Container(
+//                         // constraints: BoxConstraints(maxHeight: 1000),
+//                         margin: EdgeInsets.all(5.0),
+//                         child: Text(task.taskName,
+//                             textAlign: TextAlign.left,
+//                             style: TextStyle(
+//                               fontSize: 16,
+//                               color: Colors.black87,
+//                               //fontWeight: FontWeight.bold
+//                             )))
+//                   ]),
+
+//                   ///Contains [tag] and [ddl]
+
+//                   new Row(
+//                     children: <Widget>[
+//                       SizedBox(width: 5),
+//                       _tag(task),
+//                       // Container(((){
+//                       //   if(task.tag!=null){
+
+//                       //   }
+//                       // })
+//                       // constraints: BoxConstraints(maxHeight: 1000),
+//                       //alignment: Alignment.centerLeft,
+//                       // child: Text(task.tag,
+//                       //     style: TextStyle(color: Colors.black87, fontSize: 12)),
+//                       // decoration: BoxDecoration(
+//                       //   shape: BoxShape.rectangle,
+//                       //   borderRadius: BorderRadius.circular(10),
+//                       //   color: Colors.white,
+//                       // ),
+//                       // padding: EdgeInsets.all(2),
+//                       // ),
+//                       SizedBox(
+//                         width: 5,
+//                         height: 1,
+//                       ),
+//                       _ddl(task)
+//                       // Container(
+//                       //   // constraints: BoxConstraints(maxHeight: 1000),
+//                       //   //alignment: Alignment.centerLeft,
+//                       //   child:
+//                       //       // if(task.ddl!=null){
+//                       //       Text(task.ddl.toString(),
+//                       //           style:
+//                       //               TextStyle(color: Colors.black87, fontSize: 12)),
+//                       //   decoration: BoxDecoration(
+//                       //     shape: BoxShape.rectangle,
+//                       //     borderRadius: BorderRadius.circular(10),
+//                       //     color: Colors.white,
+//                       //   ),
+//                       //   padding: EdgeInsets.all(2),
+//                       //   // }
+//                       // )
+//                     ],
+//                   )
+//                 ]),
+//           ]),
+//     );
+//   }
+
+//   Widget _tag(Event task) {
+//     if (task.tag != null) {
+//       return Container(
+//         child: Text(task.tag,
+//             style: TextStyle(color: Colors.black87, fontSize: 12)),
+//         decoration: BoxDecoration(
+//           shape: BoxShape.rectangle,
+//           borderRadius: BorderRadius.circular(10),
+//           color: Colors.white,
+//         ),
+//         padding: EdgeInsets.all(2),
+//       );
+//     } else {
+//       return SizedBox(
+//         width: 0.1,
+//       );
+//     }
+//   }
+
+//   Widget _ddl(Event task) {
+//     if (task.ddl != null) {
+//       String formatDdl = ddlFormat.formatDate(
+//           task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
+//       return Container(
+//         // constraints: BoxConstraints(maxHeight: 1000),
+//         //alignment: Alignment.centerLeft,
+//         child:
+//             // if(task.ddl!=null){
+//             Text(formatDdl,
+//                 style: TextStyle(color: Colors.black87, fontSize: 12)),
+//         decoration: BoxDecoration(
+//           shape: BoxShape.rectangle,
+//           borderRadius: BorderRadius.circular(10),
+//           color: Colors.white,
+//         ),
+//         padding: EdgeInsets.all(2),
+//         // }
+//       );
+//     } else {
+//       return SizedBox(width: 0.1);
+//     }
+//   }
+
+//   ///Build each [Subevent] on subevent's list
+//   Widget _subevent(Event subtask) {
+//     return Container(
+//       ///key: Key(subtask.id.toString()),
+//       height: 45,
+//       color: Colors.white70,
+//       child: new Row(children: <Widget>[
+//         SizedBox(
+//           width: 40,
+//           height: 1,
+//         ),
+//         //Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(subtask)),
+//         //new Column(
+//         //children: <Widget>[
+//         //new Row(
+//         //children: <Widget>[
+//         ///Contains [subtaskName]
+//         Container(
+//             // constraints: BoxConstraints(maxHeight: 1000),
+//             margin: EdgeInsets.all(5.0),
+//             child: Text(subtask.taskName,
+//                 textAlign: TextAlign.left,
+//                 style: TextStyle(fontSize: 15, color: Colors.black87)))
+//       ]),
+//       //]
+//       //),
+//       //]
+//       //),
+//     );
+//   }
+// }

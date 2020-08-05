@@ -10,23 +10,6 @@ import 'package:timato/core/db.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
 
-//Fake data for [Event]
-// Event task1 = new Event(
-//     taskName: '背单词',
-//     ddl: DateTime.now(),
-//     eventPriority: Priority.NONE,
-//     tag: 'English');
-
-// class MyApp2 extends StatelessWidget {
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: EventList(task: task1),
-//     );
-//   }
-// }
-
 class EventList extends StatefulWidget {
   EventList({Key key, this.task, this.page}) : super(key: key);
   final Event task;
@@ -42,6 +25,18 @@ class _EventListState extends State<EventList> {
   final Event task;
   final String page;
 
+  List<Event> subeventsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getSubevent(task).then((data) {
+      setState(() {
+        subeventsList = data;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,16 +50,26 @@ class _EventListState extends State<EventList> {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
-              // onPressed: () => {
-
-              //   Navigator.pop(context),
-              //   databaseHelper.deleteEvent(task.id),
-              //   MainList()
-              //   // databaseHelper.getNoteList().then((data) {
-              //   //   eventsList = data;
-              //   //   MainList();
-              //   // })
-              // },
+              onPressed: () => {
+                      WarningDialog.show(
+                          title: 'Delete this task?',
+                          text: 'Are you sure to delete this task?',
+                          context: context,
+                          action: (context) {
+                            deleteEvent(task.id);
+                            getEventList().then((data) {
+                              setState(() {
+                                eventsList = data;
+                              });
+                            });
+                            getTodayEventList().then((data) {
+                              setState(() {
+                                todayEventList = data;
+                              });
+                            });
+                            Navigator.pop(context);
+                          })
+                    },
             ),
             // IconButton(
             //     icon: Icon(
@@ -76,31 +81,15 @@ class _EventListState extends State<EventList> {
             //     }),
           ]),
       body: _eventDetail(task),
-      floatingActionButton: 
+      floatingActionButton:
         _button(page),
-      // FloatingRaisedButton('Start clock', () async {
-      //   List<int> timerData = await getTimerData();
-      //   int timerLength = timerData[0];
-      //   int relaxLength = timerData[1];
-      //   int currentClockNum = await task.clockNum;
-      //   Navigator.push(context, MaterialPageRoute(builder: (_) {
-      //     return TimatoTimerWidget(
-      //         timerLength: timerLength,
-      //         relaxLength: relaxLength,
-      //         event: task,
-      //         clockNum: currentClockNum);
-      //   }));
-      // }),
+      resizeToAvoidBottomPadding: false,
     );
   }
 
   FloatingRaisedButton _button(String page){
     if(page=='mainList'){
       return FloatingRaisedButton('Done', () async {
-        // List<int> timerData = await getTimerData();
-        // int timerLength = timerData[0];
-        // int relaxLength = timerData[1];
-        // int currentClockNum = await task.clockNum;
         Navigator.pop(context);
       });
     }else{
@@ -154,8 +143,10 @@ class _TextNameState extends State<TextName> {
   Widget build(BuildContext context) {
     return Container(
         child: TextFormField(
+      //TODO: choose a better way
       onChanged: (text) {
         this.task.taskName = text;
+        updateEvent(task);
         print('$this.task.taskName');
       },
       textInputAction: TextInputAction.done,
@@ -196,6 +187,7 @@ class _TaskTagState extends State<TaskTag> {
             onChanged: (text) {
               this.task.tag = text;
               //TODO: store
+              updateEvent(task);
               print('$this.task.tag');
             },
             textInputAction: TextInputAction.done,
@@ -242,6 +234,7 @@ class _TaskDateState extends State<TaskDate> {
     if (picked != null && picked != this.task.ddl)
       setState(() {
         this.task.ddl = picked;
+        updateEvent(task);
       });
   }
 
@@ -291,6 +284,7 @@ class _TaskPriorityState extends State<TaskPriority> {
             setState(() {
               Priority value = ConstantHelper.priorityEnum[priority];
               this.task.eventPriority = value;
+              updateEvent(task);
             });
           },
           items: ConstantHelper.priorityList.map((priority) {
@@ -337,7 +331,8 @@ class _TaskDurationState extends State<TaskDuration> {
             // keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
-            maxLength: 3,
+            maxLength: 4,
+            initialValue: this.task.duration.toString(),
             decoration: const InputDecoration(
                 hintText: 'It might take ...',
                 suffixText: 'minutes',
@@ -358,6 +353,7 @@ class _TaskDurationState extends State<TaskDuration> {
                 TimerLengthAlert.show(context);
               }
               this.task.duration = int.parse(text);
+              updateEvent(this.task);
               print('$this.task.duration');
               // _onChange(val);
             },
@@ -375,21 +371,23 @@ class _TaskDurationState extends State<TaskDuration> {
 ///Users can add [Subevents] to this list
 ///Checkbox can be checked when a [Subevent] is completed
 class SubtaskList extends StatefulWidget {
-  SubtaskList({Key key, this.task}) : super(key: key);
+  SubtaskList({Key key, this.task, this.subeventsList}) : super(key: key);
   final Event task;
+  final List<Event> subeventsList;
   @override
-  _SubtaskListState createState() => _SubtaskListState(task);
+  _SubtaskListState createState() => _SubtaskListState(task:task, subeventsList:subeventsList);
 }
 
 class _SubtaskListState extends State<SubtaskList> {
-  _SubtaskListState(this.task);
+  _SubtaskListState({this.task, this.subeventsList});
   final Event task;
+  final List<Event> subeventsList;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-        height: 35.0 * (task.subeventsList.length + 1) + 20 + 22,
+        height: 35.0 * (subeventsList.length + 1) + 20 + 22,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -402,7 +400,7 @@ class _SubtaskListState extends State<SubtaskList> {
             Container(
                 padding: EdgeInsets.all(10),
                 width: size.width - 49,
-                height: 35.0 * (task.subeventsList.length + 1) + 20 + 22,
+                height: 35.0 * (subeventsList.length + 1) + 20 + 22,
                 child: _sublist(task)),
           ],
         ));
@@ -413,11 +411,11 @@ class _SubtaskListState extends State<SubtaskList> {
       SizedBox(height: 22),
       Container(
           //color: Colors.white70,
-          height: 35.0 * (task.subeventsList.length),
+          height: 35.0 * (subeventsList.length),
           width: 326,
           child: ListView(
             physics: NeverScrollableScrollPhysics(),
-            children: task.subeventsList.map((subtask) {
+            children: subeventsList.map((subtask) {
               return Slidable(
                   key: subtask.key,
                   actionPane: SlidableDrawerActionPane(),
@@ -441,8 +439,11 @@ class _SubtaskListState extends State<SubtaskList> {
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
-              Subevent sub = new Subevent(taskName: text);
-              this.task.subeventsList.add(sub);
+              Event sub = new Event(taskName: text);
+              sub.whichTask = task.id;
+              insertEvent(sub);
+              // sub.whichTask = 
+              // this.task.subeventsList.add(sub);
               setState(() {});
             },
             textInputAction: TextInputAction.done,
@@ -463,15 +464,15 @@ class _SubtaskListState extends State<SubtaskList> {
 ///Displays the name of the [Subevent]
 class SublistDetail extends StatefulWidget {
   SublistDetail({Key key, this.subtask}) : super(key: key);
-  final Subevent subtask;
+  final Event subtask;
   @override
   _SublistDetailState createState() => _SublistDetailState(subtask);
 }
 
 class _SublistDetailState extends State<SublistDetail> {
   _SublistDetailState(this.subtask);
-  final Subevent subtask;
-  var _checkValue = false;
+  final Event subtask;
+  // var _checkValue = false;
 
   @override
   Widget build(BuildContext context) {
@@ -480,19 +481,20 @@ class _SublistDetailState extends State<SublistDetail> {
         width: 326,
         child: Row(
           children: <Widget>[
-            Checkbox(
-                value: _checkValue,
-                onChanged: (value) {
-                  setState(() {
-                    _checkValue = value;
-                  });
-                }),
+            // Checkbox(
+            //     value: _checkValue,
+            //     onChanged: (value) {
+            //       setState(() {
+            //         _checkValue = value;
+            //       });
+            //     }),
             Container(
                 width: 200,
                 height: 35,
                 child: TextFormField(
                   onChanged: (text) {
                     subtask.taskName = text;
+                    updateEvent(subtask);
                     print('$subtask.taskName');
                   },
                   textInputAction: TextInputAction.done,

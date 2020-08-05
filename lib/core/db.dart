@@ -8,6 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
 import 'package:timato/core/tag_repository.dart';
+import 'package:timato/core/completed_repository.dart';
 
 class DatabaseHelper {
   static Database _database; // Singleton Database
@@ -28,7 +29,7 @@ class DatabaseHelper {
     developer.log(path);
     // Open/create the database at a given path
     var database = await openDatabase(path,
-        version: 5, onCreate: _createDb, onUpgrade: _upgradeDb);
+        version: 7, onCreate: _createDb, onUpgrade: _upgradeDb);
     //_dropDb(database);
     return database;
   }
@@ -36,10 +37,12 @@ class DatabaseHelper {
   static void _createDb(Database db, int newVersion) async {
     EventEntity.createEventTable(db, newVersion);
     TagEntity.createDb(db, newVersion);
+    CompletedEntity.createCompletedTable(db, newVersion);
   }
 
   static void _upgradeDb(Database db, int oldVersion, int newVersion) async {
     EventEntity.upgradeDb(db, oldVersion, newVersion);
     TagEntity.upgradeDb(db, oldVersion, newVersion);
+    CompletedEntity.upgradeDb(db, oldVersion,newVersion);
   }
 }

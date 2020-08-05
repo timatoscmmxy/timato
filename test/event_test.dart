@@ -4,7 +4,7 @@ import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 
 main(){
-  var event = Subevent(
+  var event = Event(
     taskName: 'abla'
   );
 

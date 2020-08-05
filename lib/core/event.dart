@@ -44,6 +44,10 @@ abstract class AbstractEvent implements Comparable {
   ///Indicates whether this [Event] is unplanned
   int isUnplanned = 0;
 
+  int taskOrder;
+
+  int todayOrder;
+
   ///Repeat Properties
   RepeatProeprties repeatProperties;
 
@@ -66,7 +70,9 @@ abstract class AbstractEvent implements Comparable {
       DateTime completedDate,
       int isTodayList,
       int isUnplanned,
-      int whichTask}) {
+      int whichTask,
+      int taskOrder,
+      int todayOrder}) {
     this.taskName = taskName;
     this.ddl = null;
     this.duration = duration;
@@ -77,11 +83,13 @@ abstract class AbstractEvent implements Comparable {
     this.isTodayList = isTodayList;
     this.isUnplanned = isUnplanned;
     this.whichTask = whichTask;
+    this.taskOrder = taskOrder;
+    this.todayOrder = todayOrder;
   }
 
-  ///List of all the [Subevent] this [Event] has
+  ///List of all the subevent this [Event] has
   ///
-  ///This list includes sample [Subevent]
+  ///This list includes sample subevent
 
   ///Number of clocks each event needs
   get clockNum async {
@@ -132,12 +140,12 @@ class Event extends AbstractEvent {
   int id;
 
   // final List subeventsList = <Subevent> [];
-  ///List of all the [Subevent] this [Event] has
+  ///List of all the subevent this [Event] has
   ///
-  ///This list includes sample [Subevent]
-  final List subeventsList = <Subevent>[
-    new Subevent(taskName: 'sub1', eventPriority: Priority.MIDDLE),new Subevent(taskName: 'sub2', eventPriority: Priority.MIDDLE)
-  ];
+  ///This list includes sample subevent
+  // final List subeventsList = <Event>[
+  //   new Event(taskName: 'sub1', eventPriority: Priority.MIDDLE),new Event(taskName: 'sub2', eventPriority: Priority.MIDDLE)
+  // ];
 
   Event(
       {@required String taskName,
@@ -149,7 +157,9 @@ class Event extends AbstractEvent {
       key,
       int isTodayList,
       int isUnplanned,
-      int whichTask})
+      int whichTask,
+      int taskOrder,
+      int todayOrder})
       : super(
           taskName: taskName,
           ddl: ddl,
@@ -159,7 +169,9 @@ class Event extends AbstractEvent {
           completedDate: completedDate,
           isTodayList: isTodayList,
           isUnplanned: isUnplanned,
-          whichTask:whichTask,
+          whichTask: whichTask,
+          taskOrder: taskOrder,
+          todayOrder: todayOrder,
         );
 
   Event.fromMapObject(Map<String, dynamic> map) {
@@ -169,14 +181,19 @@ class Event extends AbstractEvent {
     try{
       this.ddl = DateTime.parse(map["deadline"]);
     } catch (e){}
+    try{
+      this.completedDate = DateTime.parse(map["completedDate"]);
+    } catch (e){}
     this.tag = map["tag"]??"";
-    this.duration = map["duration"];
+    this.duration = map["duration"]??"";
     this.eventPriority = ConstantHelper
         .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
-    this.isTodayList = map["isTodayList"];
-    this.isCompleted = map["isCompleted"];
-    this.isUnplanned = map["isUnplanned"];
-    this.whichTask = map["whichTask"];
+    this.isTodayList = map["isTodayList"??""];
+    this.isCompleted = map["isCompleted"??""];
+    this.isUnplanned = map["isUnplanned"??""];
+    this.whichTask = map["whichTask"??""];
+    this.taskOrder = map["taskOrder"??""];
+    this.todayOrder = map["todayOrder"??""];
   }
 
   ///Database implementation
@@ -189,6 +206,7 @@ class Event extends AbstractEvent {
       'key': key.toString(),
       'task_name': taskName,
       'deadline': ddl.toString(),
+      'completeDate': completedDate.toString(),
       'duration': duration,
       'tag': tag,
       'priority': ConstantHelper.priorityLevel[eventPriority],
@@ -196,37 +214,9 @@ class Event extends AbstractEvent {
       'isCompleted': isCompleted,
       'isUnplanned': isUnplanned,
       'whichTask': whichTask, 
+      'taskOrder': taskOrder,
+      'todayOrder': todayOrder,
       // 'subeventsList': subeventsList
     };
   }
-
-  // ///Defines a function that inserts events into the database
-  // Future<void> insertEvent(Event task) async {
-  //   final Database db = await database;
-  // }
-
-  ///Adds new [Subevent] to the [subeventsList]
-  void addSub(String subName) {
-    Subevent sub = new Subevent(taskName: subName);
-    subeventsList.add(sub);
-  }
-}
-
-class Subevent extends AbstractEvent {
-  Subevent({
-    @required String taskName,
-    Key key,
-    DateTime ddl,
-    int duration,
-    String tag,
-    Priority eventPriority = Priority.NONE,
-    int whichTask
-  }) : super(
-            taskName: taskName,
-            key: key,
-            ddl: ddl,
-            duration: duration,
-            tag: tag,
-            eventPriority: eventPriority,
-            whichTask: whichTask);
 }

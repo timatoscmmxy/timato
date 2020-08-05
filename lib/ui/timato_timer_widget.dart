@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timato/core/completed_repository.dart';
+import 'package:timato/core/event_repository.dart';
 
 import 'package:timato/core/notifications.dart';
 import 'package:timato/core/timato_timer.dart';
@@ -31,7 +33,7 @@ class TimatoTimerWidget extends StatelessWidget {
 
   static TimerStatus _status = TimerStatus.normal;
 
-  final AbstractEvent event;
+  final Event event;
 
   TimatoTimer _timer;
 
@@ -74,7 +76,7 @@ class TimatoTimerWidget extends StatelessWidget {
       @required AbstractEvent event,
       int clockNum})
       : this._timer = TimatoTimer(timerLength, _onData),
-        this.event = event{
+        this.event = event {
     _textColor.value = Colors.black;
     _buttonColor.value = Colors.white;
     _buttonIcon.value = Icons.play_arrow;
@@ -98,9 +100,7 @@ class TimatoTimerWidget extends StatelessWidget {
         title: Text(
           event.taskName,
           maxLines: null,
-          style: TextStyle(
-            color: ConstantHelper.tomatoColor
-          ),
+          style: TextStyle(color: ConstantHelper.tomatoColor),
         ),
         elevation: 0,
       ),
@@ -119,7 +119,7 @@ class TimatoTimerWidget extends StatelessWidget {
             valueListenable: usedTimerNum,
             builder: (BuildContext context, int value, Widget child) {
               return Text(
-                "$value/${_timerNum == -1? '-' : _timerNum}",
+                "$value/${_timerNum == -1 ? '-' : _timerNum}",
                 style: TextStyle(fontSize: 30, color: Colors.black38),
               );
             },
@@ -139,6 +139,7 @@ class TimatoTimerWidget extends StatelessWidget {
                   icon: Icon(Icons.assistant, color: Colors.black38),
                   onPressed: () {
                     AddEvent.showAddUnplannedEvent(context);
+                    //TODO: when add a unplanned event, update its todayOrder
                   },
                 ),
                 Expanded(child: Container()),
@@ -146,14 +147,20 @@ class TimatoTimerWidget extends StatelessWidget {
                   icon: Icon(Icons.check, color: Colors.black38),
                   onPressed: () {
                     WarningDialog.show(
-                      title: 'Mark as completed?',
-                      text: 'Are you sure to mark this task as completed?',
-                      context: context,
-                      action: (context){
-                          event.isCompleted = 1;
-                          Navigator.pop(context);
-                      }
-                    );
+                        title: 'Mark as completed?',
+                        text: 'Are you sure to mark this task as completed?',
+                        context: context,
+                        action: (context) {
+                          // event.isCompleted = 1;
+                          event.completedDate = DateTime(DateTime.now().year,
+                              DateTime.now().month, DateTime.now().day);
+                          insertCompletedEvent(event);
+                          deleteEvent(event.id);
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (_) {
+                            return TodayList();
+                          }));
+                        });
                   },
                 ),
               ],
@@ -163,7 +170,8 @@ class TimatoTimerWidget extends StatelessWidget {
       floatingActionButton: ValueListenableBuilder(
         valueListenable: _buttonColor,
         builder: (BuildContext context, Color value, Widget child) {
-          return StartButton(_timer, _buttonIcon, _buttonColor, _buttonStatus, event);
+          return StartButton(
+              _timer, _buttonIcon, _buttonColor, _buttonStatus, event);
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
