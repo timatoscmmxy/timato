@@ -12,7 +12,6 @@ class RepeatProeprties{
 
   LocalDateTime nextOccurrence(){
     LocalDateTime nextOccurrence = rule.getInstances(start: start).firstWhere((element) => element >= start);
-    start = nextOccurrence;
     return nextOccurrence;
   }
 
