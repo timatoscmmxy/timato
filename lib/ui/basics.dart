@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:timato/ui/completed_list.dart';
 
@@ -282,5 +284,16 @@ int getWeekNum(LocalDate date) {
     }
   } else {
     return -1;
+  }
+}
+
+extension Conversion on DateTime{
+  LocalDateTime toLocalDateTime(){
+    return LocalDateTime(
+        this.year,
+        this.month,
+        this.day,
+        0,0,0
+    );
   }
 }

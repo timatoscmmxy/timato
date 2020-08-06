@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:rrule/rrule.dart';
 import 'package:timato/core/event_repository.dart';
+import 'package:timato/core/repeat_properties.dart';
 
 import 'package:time_machine/time_machine.dart';
 
@@ -46,8 +47,10 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    newEvent.taskOrder = eventsList.length;
-    await insertEvent(newEvent);
+    if (newEvent != null){
+      newEvent.taskOrder = eventsList.length;
+      await insertEvent(newEvent);
+    }
   }
 
   static showAddUnplannedEvent(context) async{
@@ -61,9 +64,11 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    newEvent.taskOrder = eventsList.length;
-    newEvent.todayOrder = todayEventList.length;
-    await insertEvent(newEvent);
+    if (newEvent != null){
+      newEvent.taskOrder = eventsList.length;
+      newEvent.todayOrder = todayEventList.length;
+      await insertEvent(newEvent);
+    }
   }
 }
 
@@ -156,17 +161,31 @@ class AddEventState extends State<AddEvent> {
                   child: IconButton(
                     icon: calendarIcon,
                     onPressed: () async {
-                      newEvent.ddl =
-                          await DateTimeSelector.show(context, newEvent.ddl) ??
-                              newEvent.ddl;
-                      setState(() {
-                        if (newEvent.ddl != null) {
-                          calendarIcon = Icon(
-                            Icons.event_available,
-                            color: ConstantHelper.tomatoColor,
-                          );
-                        }
-                      });
+                      dynamic dateTimeReturn = await DateTimeSelector.show(context, newEvent.ddl);
+                      if (dateTimeReturn is DateTime){
+                        newEvent.ddl =
+                            dateTimeReturn ??
+                                newEvent.ddl;
+                        setState(() {
+                          if (newEvent.ddl != null) {
+                            calendarIcon = Icon(
+                              Icons.event_available,
+                              color: ConstantHelper.tomatoColor,
+                            );
+                          }
+                        });
+                      } else if (dateTimeReturn is RepeatProeprties){
+                        newEvent.ddl = dateTimeReturn.nextOccurrence().toDateTimeLocal();
+                        newEvent.repeatProperties = dateTimeReturn;
+                        setState(() {
+                          if (newEvent.ddl != null) {
+                            calendarIcon = Icon(
+                              Icons.event_available,
+                              color: ConstantHelper.tomatoColor,
+                            );
+                          }
+                        });
+                      }
                     },
                   ),
                 ),
@@ -229,96 +248,115 @@ class AddEventState extends State<AddEvent> {
   }
 }
 
-// ignore: must_be_immutable
-class DateTimeSelector extends StatelessWidget {
-  DateTime dateSelected;
+class DateTimeSelector extends StatefulWidget{
+  final DateTime selected;
 
   DateTimeSelector({DateTime selected})
-      : this.dateSelected = selected ?? dateOnly(DateTime.now());
+      : this.selected = selected ?? dateOnly(DateTime.now());
+
+  @override
+  State<StatefulWidget> createState() => DateTimeSelectorState();
+
+  static show(context, DateTime date) async {
+    dynamic result;
+    result = await showDialog(
+        context: context,
+        builder: (_) => DateTimeSelector(
+          selected: date,
+        ),
+        barrierDismissible: true);
+    return result;
+  }
+}
+
+class DateTimeSelectorState extends State<DateTimeSelector> {
+  DateTime dateSelected;
+  bool _isVisible;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    this.dateSelected = widget.selected;
+    this._isVisible = true;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-        child: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          CalendarDatePicker(
-            lastDate: DateTime(9999, 12, 31),
-            initialDate: dateSelected,
-            firstDate: dateOnly(DateTime.now()),
-            onDateChanged: (DateTime date) => dateSelected = date,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-          ),
-          Container(
-            child: ListTile(
-              leading: Icon(Icons.repeat),
-              title: Text('Repeat'),
-              onTap: () {
-                Navigator.pop(context);
-                SetRepeatProperties.show(context, dateSelected);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Expanded(
-                child: Container(),
-              ),
-              Container(
-                child: FlatButton(
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      color: Colors.black38,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context, null);
-                  },
+    return Visibility(
+      visible: _isVisible,
+      child: Dialog(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CalendarDatePicker(
+                  lastDate: DateTime(9999, 12, 31),
+                  initialDate: dateSelected,
+                  firstDate: dateOnly(DateTime.now()),
+                  onDateChanged: (DateTime date) => dateSelected = date,
                 ),
-              ),
-              Container(
-                child: FlatButton(
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      color: ConstantHelper.tomatoColor,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context, dateSelected);
-                  },
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
                 ),
-              )
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Container(),
-          )
-        ],
-      ),
-    ));
-  }
-
-  static show(context, DateTime date) async {
-    DateTime dateSelected;
-    dateSelected = await showDialog<DateTime>(
-        context: context,
-        builder: (_) => DateTimeSelector(
-              selected: date,
+                Container(
+                  child: ListTile(
+                    leading: Icon(Icons.repeat),
+                    title: Text('Repeat'),
+                    onTap: () async {
+                      setState(() => this._isVisible = false);
+                      RepeatProeprties repeatProperties = await SetRepeatProperties.show(context, dateSelected);
+                      Navigator.pop(context, repeatProperties);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(),
+                    ),
+                    Container(
+                      child: FlatButton(
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.black38,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context, null);
+                        },
+                      ),
+                    ),
+                    Container(
+                      child: FlatButton(
+                        child: Text(
+                          'OK',
+                          style: TextStyle(
+                            color: ConstantHelper.tomatoColor,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context, dateSelected);
+                        },
+                      ),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Container(),
+                )
+              ],
             ),
-        barrierDismissible: true);
-    return dateSelected;
+          )),
+    );
   }
 }
 
@@ -1090,7 +1128,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
             ),
           ),
           onPressed: () {
-            Navigator.pop(context, this.toRecurrenceRule());
+            RepeatProeprties repeatProeprties = RepeatProeprties(rule: this.toRecurrenceRule(), start: start.toLocalDateTime());
+            Navigator.pop(context, repeatProeprties);
           },
         ),
       );
@@ -1101,7 +1140,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
   void initState() {
     super.initState();
     byWeekdaysInMonth = false;
-    start = dateOnly(DateTime.now());
+    start = dateOnly(widget.startDate);
     frequency = Frequency.weekly;
     interval = 1;
     weekDay = ByWeekDayEntry(DayOfWeek(start.weekday));
