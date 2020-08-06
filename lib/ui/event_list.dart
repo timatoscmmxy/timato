@@ -71,14 +71,6 @@ class _EventListState extends State<EventList> {
                           })
                     },
             ),
-            // IconButton(
-            //     icon: Icon(
-            //       Icons.check,
-            //       color: ConstantHelper.tomatoColor,
-            //     ),
-            //     onPressed: () {
-            //       Navigator.pop(context);
-            //     }),
           ]),
       body: _eventDetail(task),
       floatingActionButton:
@@ -122,6 +114,7 @@ Widget _eventDetail(Event task) {
     TaskPriority(task: task),
     SizedBox(height: 10),
     TaskDuration(task: task),
+    RepeatTime(task:task),
     SubtaskList(task: task)
   ]);
 }
@@ -366,6 +359,24 @@ class _TaskDurationState extends State<TaskDuration> {
   }
 }
 
+class RepeatTime extends StatefulWidget {
+  RepeatTime({Key key, this.task}) : super(key: key);
+  final Event task;
+
+  @override
+  _RepeatTimeState createState() => _RepeatTimeState(task);
+}
+
+class _RepeatTimeState extends State<RepeatTime> {
+  _RepeatTimeState(this.task);
+  final Event task;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      
+    );
+  }
+}
 ///Builds [Subevent] list for this [Event]
 ///
 ///Users can add [Subevents] to this list
