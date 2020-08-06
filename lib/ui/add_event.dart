@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:rrule/rrule.dart';
+import 'package:timato/core/event_repository.dart';
 
 import 'package:time_machine/time_machine.dart';
 
@@ -35,7 +36,7 @@ class AddEvent extends StatefulWidget {
   AddEventState createState() => AddEventState();
 
   static showAddEvent(context) async{
-    return showModalBottomSheet(
+    AbstractEvent newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
         'New event',
@@ -45,10 +46,12 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
+    newEvent.taskOrder = eventsList.length;
+    await insertEvent(newEvent);
   }
 
   static showAddUnplannedEvent(context) async{
-    return showModalBottomSheet(
+    AbstractEvent newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
         'New unplanned event',
@@ -58,6 +61,9 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
+    newEvent.taskOrder = eventsList.length;
+    newEvent.todayOrder = todayEventList.length;
+    await insertEvent(newEvent);
   }
 }
 
