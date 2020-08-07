@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timato/core/completed_repository.dart';
 import 'package:timato/core/event_repository.dart';
+import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/notifications.dart';
 import 'package:timato/core/timato_timer.dart';
@@ -95,7 +96,7 @@ class TimatoTimerWidget extends StatelessWidget {
         leading: IconButton(
           color: ConstantHelper.tomatoColor,
           icon: Icon(Icons.keyboard_backspace),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () { _timer.stop(); Navigator.pop(context);},
         ),
         title: Text(
           event.taskName,
@@ -145,22 +146,34 @@ class TimatoTimerWidget extends StatelessWidget {
                 Expanded(child: Container()),
                 IconButton(
                   icon: Icon(Icons.check, color: Colors.black38),
-                  onPressed: () {
-                    WarningDialog.show(
+                  onPressed: () async {
+                    var data = await  WarningDialog.show(
                         title: 'Mark as completed?',
                         text: 'Are you sure to mark this task as completed?',
                         context: context,
                         action: (context) {
                           // event.isCompleted = 1;
-                          event.completedDate = DateTime(DateTime.now().year,
+                          DateTime completedDate = DateTime(DateTime.now().year,
                               DateTime.now().month, DateTime.now().day);
+                          event.completedDate = ddlFormat.formatDate(
+                              completedDate, [
+                            ddlFormat.yyyy,
+                            '-',
+                            ddlFormat.mm,
+                            '-',
+                            ddlFormat.dd
+                          ]);
+                          //TODO
                           insertCompletedEvent(event);
                           deleteEvent(event.id);
-                          Navigator.pushReplacement(context,
-                              MaterialPageRoute(builder: (_) {
-                            return TodayList();
-                          }));
                         });
+                        if(data){
+                          // Navigator.pushReplacement(context,
+                          //     MaterialPageRoute(builder: (_) {
+                          //   return TodayList();
+                          // }));
+                          Navigator.pop(context, true);
+                        }
                   },
                 ),
               ],

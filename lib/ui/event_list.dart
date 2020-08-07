@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
@@ -9,14 +10,22 @@ import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
+import 'package:timato/core/repeat_properties.dart';
+import 'dart:developer' as developer;
 
+import 'package:timato/ui/today_task_list.dart';
+
+//TODO
+// List<Event> todayEventList = [];
+// List<Event> eventsList = [];
+// List<Event> subtasksList=[];
 class EventList extends StatefulWidget {
   EventList({Key key, this.task, this.page}) : super(key: key);
   final Event task;
   final String page;
 
   @override
-  _EventListState createState() => _EventListState(task:task,page:page);
+  _EventListState createState() => _EventListState(task: task, page: page);
 }
 
 class _EventListState extends State<EventList> {
@@ -25,14 +34,15 @@ class _EventListState extends State<EventList> {
   final Event task;
   final String page;
 
-  List<Event> subeventsList = [];
+  // List<Event> subeventsList = [];
 
   @override
   void initState() {
     super.initState();
     getSubevent(task).then((data) {
       setState(() {
-        subeventsList = data;
+        subtasksList = data;
+        developer.log(subtasksList.toString());
       });
     });
   }
@@ -40,6 +50,7 @@ class _EventListState extends State<EventList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
           backgroundColor: Colors.white,
           leading: IconButton(
@@ -51,40 +62,54 @@ class _EventListState extends State<EventList> {
             IconButton(
               icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
               onPressed: () => {
-                      WarningDialog.show(
-                          title: 'Delete this task?',
-                          text: 'Are you sure to delete this task?',
-                          context: context,
-                          action: (context) {
-                            deleteEvent(task.id);
-                            getEventList().then((data) {
-                              setState(() {
-                                eventsList = data;
-                              });
-                            });
-                            getTodayEventList().then((data) {
-                              setState(() {
-                                todayEventList = data;
-                              });
-                            });
-                            Navigator.pop(context);
-                          })
-                    },
+                WarningDialog.show(
+                    title: 'Delete this task?',
+                    text: 'Are you sure to delete this task?',
+                    context: context,
+                    action: (context) {
+                      deleteEvent(task.id);
+                      getEventList().then((data) {
+                        setState(() {
+                          eventsList = data;
+                        });
+                      });
+                      getTodayEventList().then((data) {
+                        setState(() {
+                          todayEventList = data;
+                        });
+                      });
+                      Navigator.pop(context);
+                      changePage(page);
+                    })
+              },
             ),
           ]),
       body: _eventDetail(task),
-      floatingActionButton:
-        _button(page),
+      floatingActionButton: _button(page),
       resizeToAvoidBottomPadding: false,
     );
   }
 
-  FloatingRaisedButton _button(String page){
+  void changePage(String page){
     if(page=='mainList'){
+      Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) {
+                return MyTask();
+              }));
+    }else{
+      Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) {
+                return TodayList();
+              }));
+    }
+  }
+
+  FloatingRaisedButton _button(String page) {
+    if (page == 'mainList') {
       return FloatingRaisedButton('Done', () async {
         Navigator.pop(context);
       });
-    }else{
+    } else {
       return FloatingRaisedButton('Start clock', () async {
         List<int> timerData = await getTimerData();
         int timerLength = timerData[0];
@@ -114,7 +139,9 @@ Widget _eventDetail(Event task) {
     TaskPriority(task: task),
     SizedBox(height: 10),
     TaskDuration(task: task),
-    RepeatTime(task:task),
+    // SizedBox(height: 10),
+    RepeatTime(task: task),
+    // SizedBox(height: 10),
     SubtaskList(task: task)
   ]);
 }
@@ -373,32 +400,63 @@ class _RepeatTimeState extends State<RepeatTime> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      
+      child: new Row(children: <Widget>[
+        // SizedBox(width: 12),
+        IconButton(
+              icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
+              onPressed: () {
+                //TODO:
+              }),
+        // Text(ddlFormat.formatDate(task.RepeatProeprties.nextOccurrence(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
+      ],)
     );
   }
 }
+
 ///Builds [Subevent] list for this [Event]
 ///
 ///Users can add [Subevents] to this list
 ///Checkbox can be checked when a [Subevent] is completed
 class SubtaskList extends StatefulWidget {
-  SubtaskList({Key key, this.task, this.subeventsList}) : super(key: key);
+  SubtaskList({Key key, this.task}) : super(key: key);
   final Event task;
-  final List<Event> subeventsList;
+  // final List<Event> subtasksList;
   @override
-  _SubtaskListState createState() => _SubtaskListState(task:task, subeventsList:subeventsList);
+  _SubtaskListState createState() => _SubtaskListState(task: task);
 }
 
 class _SubtaskListState extends State<SubtaskList> {
-  _SubtaskListState({this.task, this.subeventsList});
+  _SubtaskListState({this.task});
   final Event task;
-  final List<Event> subeventsList;
+  // final List<Event> subtasksList;
+
+  int _subLength(List<Event> subtasksList) {
+    int subLength;
+    if (subtasksList == []) {
+      subLength = 0;
+    } else {
+      subLength = subtasksList.length;
+    }
+    return subLength;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getSubevent(task).then((data) {
+      setState(() {
+        subtasksList = data;
+        developer.log(subtasksList.toString());
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    developer.log(_subLength(subtasksList).toString());
     return Container(
-        height: 35.0 * (subeventsList.length + 1) + 20 + 22,
+        height: 35.0 * (_subLength(subtasksList) + 1) + 20 + 22,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -411,7 +469,7 @@ class _SubtaskListState extends State<SubtaskList> {
             Container(
                 padding: EdgeInsets.all(10),
                 width: size.width - 49,
-                height: 35.0 * (subeventsList.length + 1) + 20 + 22,
+                height: 35.0 * (_subLength(subtasksList) + 1) + 20 + 22,
                 child: _sublist(task)),
           ],
         ));
@@ -422,11 +480,11 @@ class _SubtaskListState extends State<SubtaskList> {
       SizedBox(height: 22),
       Container(
           //color: Colors.white70,
-          height: 35.0 * (subeventsList.length),
+          height: 35.0 * (_subLength(subtasksList)),
           width: 326,
           child: ListView(
             physics: NeverScrollableScrollPhysics(),
-            children: subeventsList.map((subtask) {
+            children: subtasksList.map((subtask) {
               return Slidable(
                   key: subtask.key,
                   actionPane: SlidableDrawerActionPane(),
@@ -437,7 +495,17 @@ class _SubtaskListState extends State<SubtaskList> {
                     //     icon: Icons.add
                     //     ),
                     IconSlideAction(
-                        color: ConstantHelper.tomatoColor, icon: Icons.delete)
+                        color: ConstantHelper.tomatoColor, 
+                        iconWidget: IconButton(
+                          icon:Icon(Icons.delete,color:Colors.white),
+                          onPressed: ()=>{
+                            deleteEvent(subtask.id),
+                            getSubevent(task).then((data){
+                              setState(() {
+                                subtasksList = data;
+                              });
+                            })
+                          },))
                   ],
                   child: SublistDetail(subtask: subtask));
             }).toList(),
@@ -450,12 +518,18 @@ class _SubtaskListState extends State<SubtaskList> {
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
+              if(text.length!=0){
               Event sub = new Event(taskName: text);
               sub.whichTask = task.id;
               insertEvent(sub);
-              // sub.whichTask = 
+              // sub.whichTask =
               // this.task.subeventsList.add(sub);
-              setState(() {});
+              getSubevent(task).then((data) {
+                setState(() {
+                  subtasksList = data;
+                  developer.log(subtasksList.toString());
+                });
+              });}
             },
             textInputAction: TextInputAction.done,
             maxLength: 15,

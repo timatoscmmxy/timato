@@ -26,7 +26,7 @@ abstract class AbstractEvent implements Comparable {
   String tag = 'daily task';
 
   ///The date that the event is completed
-  DateTime completedDate;
+  String completedDate;
 
   ///The [Event]'s priority level
   Priority eventPriority = Priority.NONE;
@@ -67,7 +67,7 @@ abstract class AbstractEvent implements Comparable {
       int duration,
       String tag,
       Priority eventPriority = Priority.NONE,
-      DateTime completedDate,
+      String completedDate,
       int isTodayList,
       int isUnplanned,
       int whichTask,
@@ -153,7 +153,7 @@ class Event extends AbstractEvent {
       int duration,
       String tag,
       Priority eventPriority = Priority.NONE,
-      DateTime completedDate,
+      String completedDate,
       key,
       int isTodayList,
       int isUnplanned,
@@ -178,22 +178,22 @@ class Event extends AbstractEvent {
     this.id = map["id"];
     this.key = Key(map["key"]);
     this.taskName = map["task_name"];
+    this.tag = map["tag"]??"";
+    this.eventPriority = ConstantHelper
+        .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
     try{
       this.ddl = DateTime.parse(map["deadline"]);
     } catch (e){}
-    try{
-      this.completedDate = DateTime.parse(map["completedDate"]);
-    } catch (e){}
-    this.tag = map["tag"]??"";
-    this.duration = map["duration"]??"";
-    this.eventPriority = ConstantHelper
-        .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
-    this.isTodayList = map["isTodayList"??""];
-    this.isCompleted = map["isCompleted"??""];
-    this.isUnplanned = map["isUnplanned"??""];
-    this.whichTask = map["whichTask"??""];
-    this.taskOrder = map["taskOrder"??""];
-    this.todayOrder = map["todayOrder"??""];
+    // try{
+    //   this.completedDate = DateTime.parse(map["completedDate"]);
+    // } catch (e){}
+    this.duration = map["duration"]??0;
+    this.isUnplanned = map["isUnplanned"??0];
+    this.isTodayList = map["isTodayList"??0];
+    // this.isCompleted = map["isCompleted"??""];
+    this.whichTask = map["whichTask"];
+    this.taskOrder = map["taskOrder"];
+    this.todayOrder = map["todayOrder"];
   }
 
   ///Database implementation
@@ -205,17 +205,62 @@ class Event extends AbstractEvent {
       'id': id,
       'key': key.toString(),
       'task_name': taskName,
-      'deadline': ddl.toString(),
-      'completeDate': completedDate.toString(),
-      'duration': duration,
       'tag': tag,
       'priority': ConstantHelper.priorityLevel[eventPriority],
-      'isTodayList':isTodayList,
-      'isCompleted': isCompleted,
+      'deadline': ddl.toString(),
+      'duration': duration,
       'isUnplanned': isUnplanned,
+      'isTodayList':isTodayList,
       'whichTask': whichTask, 
       'taskOrder': taskOrder,
       'todayOrder': todayOrder,
+      // 'subeventsList': subeventsList
+    };
+  }
+
+  Event.fromMapObjectCompleted(Map<String, dynamic> map) {
+    this.id = map["id"];
+    // this.key = Key(map["key"]);
+    // try{
+    //   this.completedDate = DateTime.parse(map["completedDate"]);
+    // } catch (e){}
+    this.completedDate = map["completedDate"];
+    this.taskName = map["task_name"];
+    this.tag = map["tag"]??"";
+    this.eventPriority = ConstantHelper
+        .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
+    try{
+      this.ddl = DateTime.parse(map["deadline"]);
+    } catch (e){}
+    // try{
+    //   this.completedDate = DateTime.parse(map["completedDate"]);
+    // } catch (e){}
+    // this.duration = map["duration"]??"";
+    this.isUnplanned = map["isUnplanned"??""];
+    // this.isTodayList = map["isTodayList"??""];
+    // this.isCompleted = map["isCompleted"??""];
+    this.whichTask = map["whichTask"??""];
+    // this.taskOrder = map["taskOrder"??""];
+    // this.todayOrder = map["todayOrder"??""];
+  }
+
+  Map<String, dynamic> toMapCompleted() {
+    return {
+      //TODO: add completedDate into the table
+      'id': id,
+      // 'key': key.toString(),
+      'completedDate': completedDate,
+      'task_name': taskName,
+      'tag': tag,
+      'priority': ConstantHelper.priorityLevel[eventPriority],
+      'deadline': ddl.toString(),
+      // 'duration': duration,
+      'isUnplanned': isUnplanned,
+      // 'isTodayList':isTodayList,
+      // 'isCompleted': isCompleted,
+      'whichTask': whichTask, 
+      // 'taskOrder': taskOrder,
+      // 'todayOrder': todayOrder,
       // 'subeventsList': subeventsList
     };
   }

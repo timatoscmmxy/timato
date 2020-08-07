@@ -12,6 +12,10 @@ import 'package:timato/ui/today_task_list.dart';
 List<Event> todayEventList = [];
 List<Event> eventsList = [];
 List<Event> subtasksList=[];
+List<Event> completed = [];
+
+
+typedef AddEventCallback = void Function(Event context);
 
 ///Splits priotity into three levels
 enum Priority { HIGH, MIDDLE, LOW, NONE }
@@ -140,7 +144,7 @@ class WarningDialog extends StatelessWidget {
             style: TextStyle(color: Colors.black38),
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, false);
           },
         ),
         FlatButton(
@@ -150,7 +154,7 @@ class WarningDialog extends StatelessWidget {
           ),
           onPressed: () {
             action(parentContext);
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
         ),
       ],
@@ -162,7 +166,7 @@ class WarningDialog extends StatelessWidget {
       @required String text,
       @required BuildContext context,
       @required void Function(BuildContext) action}) {
-    showDialog(
+    return showDialog(
         context: context,
         builder: (_) => WarningDialog(title, text, context, action),
         barrierDismissible: true);
