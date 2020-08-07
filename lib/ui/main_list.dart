@@ -14,6 +14,7 @@ import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
+// List<Event> subtasksList=[];
 class MyTask extends StatefulWidget {
   @override
   _MyTaskState createState() => new _MyTaskState();
@@ -103,15 +104,16 @@ class _MyTaskState extends State<MyTask> {
     );
   }
 
-  void _subtasksListHelper(Event task) async {
-    subtasksList = await getSubevent(task);
-  }
+  // void _subtasksListHelper(Event task) async {
+  //   subtasksList = await getSubevent(task);
+  // }
 
   ///Builds a list of events that is reorderable
   Widget _list() {
     return ReorderableListView(
       // scrollController: ScrollController(),
       children: eventsList.map((task) {
+        // List<Event>subtasksList=[];
         if (task.isUnplanned == 1) {
           return Container(
               key: task.key,
@@ -161,7 +163,8 @@ class _MyTaskState extends State<MyTask> {
                         ],
                       ))));
         } else {
-          _subtasksListHelper(task);
+          // List<Event>subtasksList=[];
+          //   _subtasksListHelper(task);
           return Slidable(
               key: task.key,
               actionPane: SlidableDrawerActionPane(),
@@ -199,12 +202,15 @@ class _MyTaskState extends State<MyTask> {
                                     },
                                   );
                                   // int count = todayEventList.last.todayOrder+1;
-                                  if(todayEventList.length==0){
-                                    task.todayOrder=0;
-                                  }else{
-                                    developer.log('taskname'+todayEventList.last.taskName);
+                                  if (todayEventList.length == 0) {
+                                    task.todayOrder = 0;
+                                  } else {
+                                    developer.log('taskname' +
+                                        todayEventList.last.taskName);
                                     // developer.log('todayorder'+todayEventList.last.);
-                                  task.todayOrder = todayEventList.last.todayOrder+1;}
+                                    task.todayOrder =
+                                        todayEventList.last.todayOrder + 1;
+                                  }
                                   task.isTodayList = 1;
                                   updateEvent(task);
                                   getTodayEventList().then(
@@ -265,7 +271,7 @@ class _MyTaskState extends State<MyTask> {
                       },
                     ))
               ],
-              child: ListExpan(task: task, subtasksList: subtasksList));
+              child: ListExpan(task: task));
         }
       }).toList(),
       onReorder: _onReorder,
@@ -301,22 +307,34 @@ class _MyTaskState extends State<MyTask> {
 }
 
 class ListExpan extends StatefulWidget {
-  ListExpan({Key key, this.task, this.subtasksList}) : super(key: key);
+  ListExpan({Key key, this.task}) : super(key: key);
 
   final Event task;
-  List<Event> subtasksList;
+  // List<Event> subtasksList;
   @override
-  _ListExpanState createState() =>
-      _ListExpanState(task: task, subtasksList: subtasksList);
+  _ListExpanState createState() => _ListExpanState(task: task);
 }
 
 class _ListExpanState extends State<ListExpan> {
-  _ListExpanState({this.task, this.subtasksList});
+  _ListExpanState({this.task});
 
   final Event task;
-  List<Event> subtasksList;
+
+  List<Event> subtasksList = [];
+
+  @override
+  void initState() {
+    _subtasksListHelper(task);
+  }
+
+  void _subtasksListHelper(Event task) async {
+    subtasksList = await getSubevent(task);
+    if (this.mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    //  _subtasksListHelper(task);
     return _buildTiles(task);
   }
 
@@ -356,9 +374,11 @@ class _ListExpanState extends State<ListExpan> {
                                           action: (context) {
                                             deleteEvent(subtask.id);
                                             getSubevent(task).then((data) {
-                                              setState(() {
-                                                subtasksList = data;
-                                              });
+                                              if (this.mounted) {
+                                                setState(() {
+                                                  subtasksList = data;
+                                                });
+                                              }
                                             });
                                           })
                                     },

@@ -61,21 +61,6 @@ Widget _completed() {
       return new DateTile(date:title[i]);
     },
   );
-
-  // children: <Widget>[
-  //   //TODO: overflowed by 8px when height was 50
-  //   Container(
-  //       height: 58,
-  //       color: Colors.white, child: DateTile(date: "Today")),
-  //   Container(
-  //       height: 58,
-  //       color: Colors.white, child: DateTile(date: "Yesterday")),
-  //   Container(
-  //       height: 58,
-  //       color: Colors.white,
-  //       child: DateTile(date: "Before Yesterday")),
-  // ],
-  // );
 }
 
 class DateTile extends StatefulWidget {
@@ -101,89 +86,16 @@ class _DateTileState extends State<DateTile> {
     // List<Event> completed=[];
     if (date == "Today") {
       completed = await getTodayCompletedList();
-      //TODO:
-      // completed = [];
-      // getTodayCompletedList().then(
-      //   (data) {
-      //     // setState(() {
-      //     completed = data;
-      //     developer.log('right here2' + completed.toString());
-      //     // return completed;
-      //     // });
-      //   },
-      // );
     } else if (date == "Yesterday") {
-      //TODO:
       completed=await getYesterdayCompletedList();
-      // completed = [];
-      // getYesterdayCompletedList().then(
-      //   (data) {
-      //     // int count = data.length;
-      //     // for(int i=0;i<count;i++){
-      //     //   completed.add(data[i]);
-      //     // }
-      //     // developer.log('right here2' + completed.toString());
-      //     // setState(() {
-      //     completed = data;
-      //     developer.log('right here3' + completed.toString());
-      //     // return completed;
-      //     // });
-      //   },
-      // );
     } else {
-      //TODO:
-      // completed = [];
-
       completed=await getBeforeYesterdayCompletedList();
-
-      // getBeforeYesterdayCompletedList().then(
-      //   (data) {
-      //     // setState(() {
-      //     completed = data;
-      //     // return completed;
-      //     // developer.log('right here2'+completed.toString());
-      //     // });
-      //   },
-      // );
     }
-    //developer.log('right here4' + completed.toString());
-    // return completed;
   }
 
   @override
   Widget build(BuildContext context) {
     findCompleted(date);
-    // if (date == "Today") {
-    //   //TODO:
-    //   // completed = [];
-    //   getTodayCompletedList().then(
-    //     (data) {
-    //       // setState(() {
-    //         completed = data;
-    //       // });
-    //     },
-    //   );
-    // } else if (date == "Yesterday") {
-    //   //TODO:
-    //   // completed = [];
-    //   getYesterdayCompletedList().then(
-    //     (data) {
-    //       // setState(() {
-    //         completed = data;
-    //       // });
-    //     },
-    //   );
-    // } else {
-    //   //TODO:
-    //   // completed = [];
-    //   getBeforeYesterdayCompletedList().then(
-    //     (data) {
-    //       // setState(() {
-    //         completed = data;
-    //       // });
-    //     },
-    //   );
-    // }
     return Slidable(
         // key: task.key,
         actionPane: SlidableDrawerActionPane(),

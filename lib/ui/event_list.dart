@@ -19,6 +19,9 @@ import 'package:timato/ui/today_task_list.dart';
 // List<Event> todayEventList = [];
 // List<Event> eventsList = [];
 // List<Event> subtasksList=[];
+
+List<Event> subtasksList=[];
+
 class EventList extends StatefulWidget {
   EventList({Key key, this.task, this.page}) : super(key: key);
   final Event task;
@@ -33,6 +36,7 @@ class _EventListState extends State<EventList> {
   _EventListState({this.task, this.page});
   final Event task;
   final String page;
+  // List<Event> subtasksList=[];
 
   // List<Event> subeventsList = [];
 
@@ -428,6 +432,7 @@ class SubtaskList extends StatefulWidget {
 class _SubtaskListState extends State<SubtaskList> {
   _SubtaskListState({this.task});
   final Event task;
+
   // final List<Event> subtasksList;
 
   int _subLength(List<Event> subtasksList) {
