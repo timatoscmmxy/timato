@@ -8,6 +8,10 @@ import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 
+import 'dart:developer' as developer;
+
+List<String> title = ['Today', 'Yesterday', 'Before Yesterday'];
+
 class CompletedList extends StatefulWidget {
   @override
   _CompletedListState createState() => _CompletedListState();
@@ -27,13 +31,15 @@ class _CompletedListState extends State<CompletedList> {
             IconButton(
                 icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
                 onPressed: () async {
-                  WarningDialog.show(
+                  var data=WarningDialog.show(
                       title: 'Empty completed list?',
                       text: 'Are you sure to empty all the completed tasks?',
                       context: context,
                       action: (context) {
                         deleteAllCompleted();
-                        setState(() {});
+                        setState(() {
+                          completed.clear();
+                        });
                       });
                 })
           ],
@@ -49,19 +55,27 @@ class _CompletedListState extends State<CompletedList> {
 }
 
 Widget _completed() {
-  return ListView(
-    children: <Widget>[
-      //TODO: overflowed by 8px when height was 50
-      Container(
-          height: 58, color: Colors.white, child: DateTile(date: "Today")),
-      Container(
-          height: 58, color: Colors.white, child: DateTile(date: "Yesterday")),
-      Container(
-          height: 58,
-          color: Colors.white,
-          child: DateTile(date: "Before Yesterday")),
-    ],
+  return ListView.builder(
+    itemCount: 3,
+    itemBuilder: (BuildContext context, int i) {
+      return new DateTile(date:title[i]);
+    },
   );
+
+  // children: <Widget>[
+  //   //TODO: overflowed by 8px when height was 50
+  //   Container(
+  //       height: 58,
+  //       color: Colors.white, child: DateTile(date: "Today")),
+  //   Container(
+  //       height: 58,
+  //       color: Colors.white, child: DateTile(date: "Yesterday")),
+  //   Container(
+  //       height: 58,
+  //       color: Colors.white,
+  //       child: DateTile(date: "Before Yesterday")),
+  // ],
+  // );
 }
 
 class DateTile extends StatefulWidget {
@@ -75,40 +89,101 @@ class _DateTileState extends State<DateTile> {
   _DateTileState(this.date);
   final String date;
 
-  @override
-  Widget build(BuildContext context) {
-    List<Event> completed;
+  int findLength(List<Event> completed){
+    if(completed == null){
+      return 0;
+    }else{
+      return completed.length;
+    }
+  }
+
+  Future<void> findCompleted(String date) async {
+    // List<Event> completed=[];
     if (date == "Today") {
+      completed = await getTodayCompletedList();
       //TODO:
       // completed = [];
-      getTodayCompletedList().then(
-        (data) {
-          setState(() {
-            completed = data;
-          });
-        },
-      );
+      // getTodayCompletedList().then(
+      //   (data) {
+      //     // setState(() {
+      //     completed = data;
+      //     developer.log('right here2' + completed.toString());
+      //     // return completed;
+      //     // });
+      //   },
+      // );
     } else if (date == "Yesterday") {
       //TODO:
+      completed=await getYesterdayCompletedList();
       // completed = [];
-      getYesterdayCompletedList().then(
-        (data) {
-          setState(() {
-            completed = data;
-          });
-        },
-      );
+      // getYesterdayCompletedList().then(
+      //   (data) {
+      //     // int count = data.length;
+      //     // for(int i=0;i<count;i++){
+      //     //   completed.add(data[i]);
+      //     // }
+      //     // developer.log('right here2' + completed.toString());
+      //     // setState(() {
+      //     completed = data;
+      //     developer.log('right here3' + completed.toString());
+      //     // return completed;
+      //     // });
+      //   },
+      // );
     } else {
       //TODO:
-      completed = [];
-      getBeforeYesterdayCompletedList().then(
-        (data) {
-          setState(() {
-            completed = data;
-          });
-        },
-      );
+      // completed = [];
+
+      completed=await getBeforeYesterdayCompletedList();
+
+      // getBeforeYesterdayCompletedList().then(
+      //   (data) {
+      //     // setState(() {
+      //     completed = data;
+      //     // return completed;
+      //     // developer.log('right here2'+completed.toString());
+      //     // });
+      //   },
+      // );
     }
+    //developer.log('right here4' + completed.toString());
+    // return completed;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    findCompleted(date);
+    // if (date == "Today") {
+    //   //TODO:
+    //   // completed = [];
+    //   getTodayCompletedList().then(
+    //     (data) {
+    //       // setState(() {
+    //         completed = data;
+    //       // });
+    //     },
+    //   );
+    // } else if (date == "Yesterday") {
+    //   //TODO:
+    //   // completed = [];
+    //   getYesterdayCompletedList().then(
+    //     (data) {
+    //       // setState(() {
+    //         completed = data;
+    //       // });
+    //     },
+    //   );
+    // } else {
+    //   //TODO:
+    //   // completed = [];
+    //   getBeforeYesterdayCompletedList().then(
+    //     (data) {
+    //       // setState(() {
+    //         completed = data;
+    //       // });
+    //     },
+    //   );
+    // }
     return Slidable(
         // key: task.key,
         actionPane: SlidableDrawerActionPane(),
@@ -120,27 +195,30 @@ class _DateTileState extends State<DateTile> {
                 icon: Icon(Icons.delete, color: Colors.white),
                 onPressed: () async {
                   if (date == "Today") {
-                    WarningDialog.show(
+                    var data=WarningDialog.show(
                         title: "Empty today's completed list?",
-                        text: "Are you sure to empty all the tasks you completed today?",
+                        text:
+                            "Are you sure to empty all the tasks you completed today?",
                         context: context,
                         action: (context) {
                           deleteToday();
                           setState(() {});
                         });
                   } else if (date == "Yesterday") {
-                    WarningDialog.show(
+                    var data=WarningDialog.show(
                         title: "Empty yesterday's completed list?",
-                        text: "Are you sure to empty all the tasks you completed yesterday?",
+                        text:
+                            "Are you sure to empty all the tasks you completed yesterday?",
                         context: context,
                         action: (context) {
                           deleteYesterday();
                           setState(() {});
                         });
                   } else {
-                    WarningDialog.show(
+                    var data=WarningDialog.show(
                         title: "Empty otherdays' completed list?",
-                        text: "Are you sure to empty all the tasks you completed other days?",
+                        text:
+                            "Are you sure to empty all the tasks you completed other days?",
                         context: context,
                         action: (context) {
                           deleteBeforeYesterday();
@@ -148,7 +226,7 @@ class _DateTileState extends State<DateTile> {
                         });
                   }
                   setState(() {
-                    completed = [];
+                    completed.clear();
                   });
                 },
               )),
@@ -168,23 +246,41 @@ class _DateTileState extends State<DateTile> {
           onExpansionChanged: (value) {
             // developer.log("onExpansionChanged");
           },
+          // developer.log(completed.toString());
           children: <Widget>[
             Container(
-                height: (50.0 * completed.length),
+                // height: (35.0 * 2),
+                height: (35.0 * findLength(completed)),
                 child: ListView(
+                    // key:task
+                    physics: new NeverScrollableScrollPhysics(),
                     children: completed.map((completedTask) {
-                  _completedTask(completedTask);
-                }).toList()))
+                      return Container(
+                          height: 35,
+                          child: new Row(children: <Widget>[
+                            SizedBox(width: 30),
+                            // Icon(Icons.brightness_1,
+                            //     color: ConstantHelper.priorityColor(
+                            //         completedTask)),
+                            Text(completedTask.taskName,
+                                style: TextStyle(fontSize: 14))
+                          ]));
+                      // _completedTask(completedTask);
+                    }).toList()))
           ],
         ));
   }
-}
 
-Widget _completedTask(Event completedTask) {
-  return Container(
-      height: 45,
-      child: new Row(children: <Widget>[
-        SizedBox(width: 15),
-        Text(completedTask.taskName, style: TextStyle(fontSize: 12))
-      ]));
+  // Widget _completedTask(Event completedTask) {
+  //   developer.log('!!!' + completed.toString());
+  //   return Container(
+  //       height: 50,
+  //       child:
+  //       // new Row(children: <Widget>[
+  //         // SizedBox(width: 15),
+  //         Text(completedTask.taskName, style: TextStyle(fontSize: 12))
+  //       // ]
+  //       );
+  //       // );
+  // }
 }

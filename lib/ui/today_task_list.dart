@@ -16,6 +16,7 @@ import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
+import 'dart:developer' as developer;
 
 // List<Event> todayEventList = [];
 
@@ -43,7 +44,7 @@ class TodayList extends StatefulWidget {
 }
 
 class _TodayListState extends State<TodayList> {
-  List<Event> subtasksList;
+  // List<Event> subtasksList;
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _TodayListState extends State<TodayList> {
         todayEventList = data;
       });
     });
+    developer.log(eventsList.toString());
   }
 
   String name = '';
@@ -94,7 +96,7 @@ class _TodayListState extends State<TodayList> {
   // }
 
   void _subtasksListHelper(Event task) async {
-    subtasksList= await getSubevent(task);
+    subtasksList = await getSubevent(task);
   }
 
   Widget _todayList() {
@@ -140,7 +142,7 @@ class _TodayListState extends State<TodayList> {
                               int timerLength = timerData[0];
                               int relaxLength = timerData[1];
                               int currentClockNum = await task.clockNum;
-                              Navigator.push(context,
+                              var needRefresh = await Navigator.push(context,
                                   MaterialPageRoute(builder: (_) {
                                 return TimatoTimerWidget(
                                     timerLength: timerLength,
@@ -148,6 +150,14 @@ class _TodayListState extends State<TodayList> {
                                     event: task,
                                     clockNum: currentClockNum);
                               }));
+
+                              if (needRefresh != null && needRefresh) {
+                                getTodayEventList().then((data) {
+                                  setState(() {
+                                    todayEventList = data;
+                                  });
+                                });
+                              }
                             },
                           ))
                     ],
@@ -182,7 +192,7 @@ class _TodayListState extends State<TodayList> {
                     height: (30.0 * subtasksList.length
                         // task.subeventsList.length
                         +
-                        61),
+                        88),
                     width: MediaQuery.of(context).size.width,
                     color: Colors.white,
                     child: new Column(
@@ -228,14 +238,23 @@ class _TodayListState extends State<TodayList> {
                                       int timerLength = timerData[0];
                                       int relaxLength = timerData[1];
                                       int currentClockNum = await task.clockNum;
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (_) {
+                                      var needRefresh =
+                                          await Navigator.push(context,
+                                              MaterialPageRoute(builder: (_) {
                                         return TimatoTimerWidget(
                                             timerLength: timerLength,
                                             relaxLength: relaxLength,
                                             event: task,
                                             clockNum: currentClockNum);
                                       }));
+
+                                      if (needRefresh != null && needRefresh) {
+                                        getTodayEventList().then((data) {
+                                          setState(() {
+                                            todayEventList = data;
+                                          });
+                                        });
+                                      }
                                     },
                                   ))
                             ],
@@ -306,31 +325,44 @@ class _TodayListState extends State<TodayList> {
 
   ///[onreorder] uses in [ReorderableListView]
   void _onReorder(int oldIndex, int newIndex) {
-    setState(() {
-        if(oldIndex < newIndex){
-          Event reorderedEvent = todayEventList[oldIndex];
-          reorderedEvent.todayOrder=newIndex;
-          updateEvent(reorderedEvent);
-          for(int i = oldIndex+1; i <=newIndex; i++){
-            Event movedEvent = todayEventList[i];
-            movedEvent.todayOrder-=1;
-            updateEvent(movedEvent);
-          }
-        }else if(oldIndex > newIndex){
-          Event reorderedEvent = todayEventList[oldIndex];
-          reorderedEvent.todayOrder=newIndex;
-          updateEvent(reorderedEvent);
-          for(int i = oldIndex; i <newIndex; i++){
-            Event movedEvent = todayEventList[i];
-            movedEvent.todayOrder+=1;
-            updateEvent(movedEvent);
-          }
-        }
+    // setState(() {
+    if (newIndex >= todayEventList.length) {
+      todayEventList[oldIndex].todayOrder = oldIndex;
+    } else if (oldIndex < newIndex) {
+      todayEventList[oldIndex].todayOrder = newIndex;
+      updateEvent(todayEventList[oldIndex]);
+      for (int i = oldIndex + 1; i <= newIndex; i++) {
+        todayEventList[i].todayOrder -= 1;
+        updateEvent(todayEventList[i]);
+      }
+    } else if (oldIndex > newIndex) {
+      todayEventList[oldIndex].todayOrder = newIndex;
+      updateEvent(todayEventList[oldIndex]);
+      for (int i = newIndex; i < oldIndex; i++) {
+        todayEventList[i].todayOrder += 1;
+        updateEvent(todayEventList[i]);
+      }
+    }
+    getTodayEventList().then((data) {
+      setState(() {
+        todayEventList = data;
+      });
     });
+    // });
   }
 
   Widget _sublist(Event task) {
-    if (subtasksList != null) {
+    subtasksList = [];
+    getSubevent(task).then((data) {
+      // setState(() {
+      subtasksList = data;
+      // });
+    });
+    developer.log('this is it' + subtasksList.toString());
+    // developer.log('this is itt'+subtasksList!==[]);
+    if (subtasksList.length == 0) {
+      return SizedBox();
+    } else {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -370,8 +402,6 @@ class _TodayListState extends State<TodayList> {
               )),
         ],
       );
-    }else{
-      return SizedBox();
     }
   }
 
@@ -397,9 +427,8 @@ class _TodayListState extends State<TodayList> {
   Widget _ddl(Event task) {
     if (task.ddl != null) {
       return Container(
-        child:
-            Text(task.ddl.toString(),
-                style: TextStyle(color: Colors.black87, fontSize: 12)),
+        child: Text(task.ddl.toString(),
+            style: TextStyle(color: Colors.black87, fontSize: 12)),
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),

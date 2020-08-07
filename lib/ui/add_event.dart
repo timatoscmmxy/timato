@@ -10,6 +10,11 @@ import 'package:time_machine/time_machine.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 
+//TODO
+// List<Event> todayEventList = [];
+// List<Event> eventsList = [];
+// List<Event> subtasksList=[];
+
 DateTime dateOnly(DateTime date) {
   return DateTime(date.year, date.month, date.day);
 }
@@ -35,8 +40,8 @@ class AddEvent extends StatefulWidget {
   @override
   AddEventState createState() => AddEventState();
 
-  static showAddEvent(context) async{
-    AbstractEvent newEvent = await showModalBottomSheet(
+  static showAddEvent(context, AddEventCallback callback) async{
+    Event newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
         'New event',
@@ -46,12 +51,25 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    newEvent.taskOrder = eventsList.length;
+    
+    getEventList().then((data) {
+      // setState(() {
+        eventsList = data;
+      // });
+    });
+    if(eventsList.length==0){
+      newEvent.taskOrder=0;
+    }else{
+    newEvent.taskOrder = eventsList.last.taskOrder+1;}
     await insertEvent(newEvent);
+
+    if(callback==null) return;
+
+    callback.call(newEvent);
   }
 
   static showAddUnplannedEvent(context) async{
-    AbstractEvent newEvent = await showModalBottomSheet(
+    Event newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
         'New unplanned event',
@@ -61,10 +79,27 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    newEvent.taskOrder = eventsList.length;
-    newEvent.todayOrder = todayEventList.length;
+    getEventList().then((data) {
+        eventsList = data;
+    });
+    if(eventsList.length==0){
+      newEvent.taskOrder=0;
+    }else{
+    newEvent.taskOrder = eventsList.last.taskOrder+1;}
+    // newEvent.isTodayList = 1;
+    // newEvent.isUnplanned = 1;
+    getTodayEventList().then((data) {
+        todayEventList = data;
+    });
+    if(todayEventList.length==0){
+      newEvent.todayOrder=0;
+    }else{
+    newEvent.todayOrder = todayEventList.last.todayOrder+1;}
+    newEvent.isTodayList = 1;
+    newEvent.isUnplanned = 1;
     await insertEvent(newEvent);
   }
+  
 }
 
 // ignore: must_be_immutable
