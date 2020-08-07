@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
@@ -9,6 +10,7 @@ import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
+import 'package:timato/core/repeat_properties.dart';
 import 'dart:developer' as developer;
 
 import 'package:timato/ui/today_task_list.dart';
@@ -48,6 +50,7 @@ class _EventListState extends State<EventList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
           backgroundColor: Colors.white,
           leading: IconButton(
@@ -136,7 +139,9 @@ Widget _eventDetail(Event task) {
     TaskPriority(task: task),
     SizedBox(height: 10),
     TaskDuration(task: task),
+    // SizedBox(height: 10),
     RepeatTime(task: task),
+    // SizedBox(height: 10),
     SubtaskList(task: task)
   ]);
 }
@@ -394,7 +399,17 @@ class _RepeatTimeState extends State<RepeatTime> {
   final Event task;
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(
+      child: new Row(children: <Widget>[
+        // SizedBox(width: 12),
+        IconButton(
+              icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
+              onPressed: () {
+                //TODO:
+              }),
+        // Text(ddlFormat.formatDate(task.RepeatProeprties.nextOccurrence(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
+      ],)
+    );
   }
 }
 
@@ -480,7 +495,17 @@ class _SubtaskListState extends State<SubtaskList> {
                     //     icon: Icons.add
                     //     ),
                     IconSlideAction(
-                        color: ConstantHelper.tomatoColor, icon: Icons.delete)
+                        color: ConstantHelper.tomatoColor, 
+                        iconWidget: IconButton(
+                          icon:Icon(Icons.delete,color:Colors.white),
+                          onPressed: ()=>{
+                            deleteEvent(subtask.id),
+                            getSubevent(task).then((data){
+                              setState(() {
+                                subtasksList = data;
+                              });
+                            })
+                          },))
                   ],
                   child: SublistDetail(subtask: subtask));
             }).toList(),
@@ -493,6 +518,7 @@ class _SubtaskListState extends State<SubtaskList> {
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
+              if(text.length!=0){
               Event sub = new Event(taskName: text);
               sub.whichTask = task.id;
               insertEvent(sub);
@@ -503,7 +529,7 @@ class _SubtaskListState extends State<SubtaskList> {
                   subtasksList = data;
                   developer.log(subtasksList.toString());
                 });
-              });
+              });}
             },
             textInputAction: TextInputAction.done,
             maxLength: 15,
