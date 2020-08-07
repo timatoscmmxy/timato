@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +27,7 @@ import 'dart:developer' as developer;
 //   new Event(taskName: 'subevent3')
 // ];
 
-List<Event> unplanned = [new Event(taskName: '回邮件')];
+// List<Event> unplanned = [new Event(taskName: '回邮件')];
 
 // class TodayListPage extends StatelessWidget {
 //   @override
@@ -36,7 +37,7 @@ List<Event> unplanned = [new Event(taskName: '回邮件')];
 //     );
 //   }
 // }
-String unplannedDuration;
+// String unplannedDuration;
 
 class TodayList extends StatefulWidget {
   @override
@@ -90,12 +91,7 @@ class _TodayListState extends State<TodayList> {
         drawer: new SideBar('TodayList'));
   }
 
-  // Future<List<Event>> _subtasksList(Event task){
-  //   Future<List<Event>> subtasksList = getSubevent(task);
-  //   return subtasksList;
-  // }
-
-  void _subtasksListHelper(Event task) async {
+  Future<void> _subtasksListHelper(Event task) async {
     subtasksList = await getSubevent(task);
   }
 
@@ -165,21 +161,29 @@ class _TodayListState extends State<TodayList> {
                         // height: constrains.maxHeight,
                         margin: EdgeInsets.all(5.0),
                         // height: 50,
-                        child: new Row(
-                          children: <Widget>[
-                            SizedBox(width: 15),
-                            Icon(Icons.warning,
-                                color: ConstantHelper.tomatoColor),
-                            SizedBox(width: 5),
-                            Text(task.taskName,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black87,
-                                  //fontWeight: FontWeight.bold
-                                ))
-                          ],
-                        ))));
+                        child: new Column(children: <Widget>[
+                          new Row(
+                            children: <Widget>[
+                              SizedBox(width: 15),
+                              Icon(Icons.warning,
+                                  color: ConstantHelper.tomatoColor),
+                              SizedBox(width: 5),
+                              Text(task.taskName,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.black87,
+                                    //fontWeight: FontWeight.bold
+                                  ))
+                            ],
+                          ),
+                          Divider(color: Colors.grey[350], height: 1)
+                        ]))));
           } else {
+            // getSubevent(task).then((data) {
+            //   // setState(() {
+            //     subtasksList = data;
+            //   // });
+            // });
             _subtasksListHelper(task);
             return InkWell(
                 key: task.key,
@@ -192,7 +196,7 @@ class _TodayListState extends State<TodayList> {
                     height: (30.0 * subtasksList.length
                         // task.subeventsList.length
                         +
-                        88),
+                        80),
                     width: MediaQuery.of(context).size.width,
                     color: Colors.white,
                     child: new Column(
@@ -296,21 +300,11 @@ class _TodayListState extends State<TodayList> {
 
                                               ///Contains [tag] and [ddl]
 
-                                              new Row(
-                                                children: <Widget>[
-                                                  SizedBox(width: 5),
-                                                  _tag(task),
-                                                  SizedBox(
-                                                    width: 5,
-                                                    height: 1,
-                                                  ),
-                                                  _ddl(task)
-                                                ],
-                                              ),
+                                              tagDdl(task),
                                             ]),
                                       ]),
                                   _sublist(task),
-                                  SizedBox(height: 4),
+                                  // SizedBox(height: 4),
                                   // Divider(color: Colors.grey[350],height:1)
                                 ]))),
                         Divider(color: Colors.grey[350], height: 1)
@@ -352,14 +346,10 @@ class _TodayListState extends State<TodayList> {
   }
 
   Widget _sublist(Event task) {
-    subtasksList = [];
-    getSubevent(task).then((data) {
-      // setState(() {
-      subtasksList = data;
-      // });
-    });
+    // getSubevent(task).then((data) {
+    //   subtasksList = data;
+    // });
     developer.log('this is it' + subtasksList.toString());
-    // developer.log('this is itt'+subtasksList!==[]);
     if (subtasksList.length == 0) {
       return SizedBox();
     } else {
@@ -405,6 +395,25 @@ class _TodayListState extends State<TodayList> {
     }
   }
 
+  Widget tagDdl(Event task) {
+    developer.log('tag' + task.tag);
+    if (task.tag == null && task.ddl == null) {
+      return SizedBox();
+    } else {
+      return new Row(
+        children: <Widget>[
+          SizedBox(width: 5),
+          _tag(task),
+          SizedBox(
+            width: 5,
+            height: 1,
+          ),
+          _ddl(task)
+        ],
+      );
+    }
+  }
+
   Widget _tag(Event task) {
     if (task.tag != null) {
       return Container(
@@ -426,15 +435,22 @@ class _TodayListState extends State<TodayList> {
 
   Widget _ddl(Event task) {
     if (task.ddl != null) {
+      String formatDdl = ddlFormat.formatDate(
+          task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
       return Container(
-        child: Text(task.ddl.toString(),
-            style: TextStyle(color: Colors.black87, fontSize: 12)),
+        // constraints: BoxConstraints(maxHeight: 1000),
+        //alignment: Alignment.centerLeft,
+        child:
+            // if(task.ddl!=null){
+            Text(formatDdl,
+                style: TextStyle(color: Colors.black87, fontSize: 12)),
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
         ),
         padding: EdgeInsets.all(2),
+        // }
       );
     } else {
       return SizedBox(width: 0.1);
