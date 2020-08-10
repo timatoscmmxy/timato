@@ -11,14 +11,35 @@ import 'package:timato/ui/basics.dart';
 import 'dart:developer' as developer;
 
 List<String> title = ['Today', 'Yesterday', 'Before Yesterday'];
+// List<Event> completed=[];
+Map<Key, Function> refreshFunc = Map<Key, Function>();
 
 class CompletedList extends StatefulWidget {
+  _CompletedListState _state;
   @override
-  _CompletedListState createState() => _CompletedListState();
+  _CompletedListState createState() {
+    _state = new _CompletedListState();
+    return _state;
+  }
+
+  void refreshState() {
+    if (_state == null || !_state.mounted) return;
+    _state.setState(() {});
+  }
 }
 
 class _CompletedListState extends State<CompletedList> {
   DatabaseHelper tabaseHelper = DatabaseHelper();
+
+  @override
+  void setState(VoidCallback fn) {
+    if (this == null || !mounted) return;
+    refreshFunc.forEach((key, value) {
+      value();
+    });
+
+    super.setState(fn);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,15 +52,14 @@ class _CompletedListState extends State<CompletedList> {
             IconButton(
                 icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
                 onPressed: () async {
-                  var data=WarningDialog.show(
+                  var data = WarningDialog.show(
                       title: 'Empty completed list?',
                       text: 'Are you sure to empty all the completed tasks?',
                       context: context,
-                      action: (context) {
-                        deleteAllCompleted();
-                        setState(() {
-                          completed.clear();
-                        });
+                      action: (context) async {
+                        await deleteAllCompleted();
+                        // _completed();
+                        setState(() {});
                       });
                 })
           ],
@@ -58,7 +78,7 @@ Widget _completed() {
   return ListView.builder(
     itemCount: 3,
     itemBuilder: (BuildContext context, int i) {
-      return new DateTile(date:title[i]);
+      return new DateTile(date: title[i]);
     },
   );
 }
@@ -73,13 +93,34 @@ class DateTile extends StatefulWidget {
 class _DateTileState extends State<DateTile> {
   _DateTileState(this.date);
   final String date;
+  List<Event> completed = [];
+  Key _key = UniqueKey();
 
-  int findLength(List<Event> completed){
-    if(completed == null){
+  int findLength(List<Event> completed) {
+    if (completed == null) {
       return 0;
-    }else{
+    } else {
+      developer.log("what is the length" + completed.length.toString());
       return completed.length;
     }
+  }
+
+  @override
+  void initState() {
+    developer.log("initState");
+    refreshFunc[_key] = this.refreshState;
+    refreshState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    refreshFunc.remove(this._key);
+  }
+
+  void refreshState() {
+    // developer.log(date);
+    findCompleted(date);
   }
 
   Future<void> findCompleted(String date) async {
@@ -87,15 +128,16 @@ class _DateTileState extends State<DateTile> {
     if (date == "Today") {
       completed = await getTodayCompletedList();
     } else if (date == "Yesterday") {
-      completed=await getYesterdayCompletedList();
+      completed = await getYesterdayCompletedList();
     } else {
-      completed=await getBeforeYesterdayCompletedList();
+      completed = await getBeforeYesterdayCompletedList();
     }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    findCompleted(date);
+    // findCompleted(date);
     return Slidable(
         // key: task.key,
         actionPane: SlidableDrawerActionPane(),
@@ -107,39 +149,58 @@ class _DateTileState extends State<DateTile> {
                 icon: Icon(Icons.delete, color: Colors.white),
                 onPressed: () async {
                   if (date == "Today") {
-                    var data=WarningDialog.show(
+                    WarningDialog.show(
                         title: "Empty today's completed list?",
                         text:
                             "Are you sure to empty all the tasks you completed today?",
                         context: context,
-                        action: (context) {
-                          deleteToday();
-                          setState(() {});
+                        action: (context) async {
+                          await deleteToday();
+                          // getTodayCompletedList().then((todayList) {
+                          //   completed = todayList;
+                          //   context
+                          //       .findAncestorWidgetOfExactType<CompletedList>()
+                          //       .refreshState();
+                          // });
+                          context
+                              .findAncestorWidgetOfExactType<CompletedList>()
+                              .refreshState();
                         });
                   } else if (date == "Yesterday") {
-                    var data=WarningDialog.show(
+                    var data = WarningDialog.show(
                         title: "Empty yesterday's completed list?",
                         text:
                             "Are you sure to empty all the tasks you completed yesterday?",
                         context: context,
-                        action: (context) {
-                          deleteYesterday();
-                          setState(() {});
+                        action: (context) async {
+                          await deleteYesterday();
+                          // getYesterdayCompletedList().then((yesterdayList) {
+                          //   completed = yesterdayList;
+                          context
+                              .findAncestorWidgetOfExactType<CompletedList>()
+                              .refreshState();
+                          // });
                         });
                   } else {
-                    var data=WarningDialog.show(
+                    var data = WarningDialog.show(
                         title: "Empty otherdays' completed list?",
                         text:
                             "Are you sure to empty all the tasks you completed other days?",
                         context: context,
-                        action: (context) {
-                          deleteBeforeYesterday();
-                          setState(() {});
+                        action: (context) async {
+                          await deleteBeforeYesterday();
+                          // getBeforeYesterdayCompletedList()
+                          //     .then((beforeYesterdayList) {
+                          //   completed = beforeYesterdayList;
+                          context
+                              .findAncestorWidgetOfExactType<CompletedList>()
+                              .refreshState();
+                          // });
                         });
                   }
-                  setState(() {
-                    completed.clear();
-                  });
+                  // setState(() {
+                  //   completed.clear();
+                  // });
                 },
               )),
         ],

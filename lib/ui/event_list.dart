@@ -1,8 +1,11 @@
+// import 'dart:html';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:date_format/date_format.dart' as ddlFormat;
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
@@ -20,7 +23,7 @@ import 'package:timato/ui/today_task_list.dart';
 // List<Event> eventsList = [];
 // List<Event> subtasksList=[];
 
-List<Event> subtasksList=[];
+List<Event> subtasksList = [];
 
 class EventList extends StatefulWidget {
   EventList({Key key, this.task, this.page}) : super(key: key);
@@ -60,7 +63,17 @@ class _EventListState extends State<EventList> {
           leading: IconButton(
               icon: Icon(Icons.arrow_back, color: ConstantHelper.tomatoColor),
               onPressed: () {
-                Navigator.pop(context);
+                if(this.task.taskName==''){
+                  Fluttertoast.showToast(
+              msg: "Task's name cannot be empty",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.white,
+              textColor: ConstantHelper.tomatoColor,
+              fontSize: 16);
+                }else{
+                Navigator.pop(context,true);
+                }
               }),
           actions: <Widget>[
             IconButton(
@@ -82,8 +95,8 @@ class _EventListState extends State<EventList> {
                           todayEventList = data;
                         });
                       });
-                      Navigator.pop(context);
-                      changePage(page);
+                      Navigator.pop(context, true);
+                      // changePage(page);
                     })
               },
             ),
@@ -94,24 +107,33 @@ class _EventListState extends State<EventList> {
     );
   }
 
-  void changePage(String page){
-    if(page=='mainList'){
-      Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (_) {
-                return MyTask();
-              }));
-    }else{
-      Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (_) {
-                return TodayList();
-              }));
+  void changePage(String page) {
+    if (page == 'mainList') {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+        return MyTask();
+      }));
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+        return TodayList();
+      }));
     }
   }
 
   FloatingRaisedButton _button(String page) {
     if (page == 'mainList') {
       return FloatingRaisedButton('Done', () async {
-        Navigator.pop(context);
+        if (this.task.taskName == '') {
+          Fluttertoast.showToast(
+              msg: "Task's name cannot be empty",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              backgroundColor: Colors.white,
+              textColor: ConstantHelper.tomatoColor,
+              fontSize: 16);
+        } else {
+          updateEvent(task);
+          Navigator.pop(context, true);
+        }
       });
     } else {
       return FloatingRaisedButton('Start clock', () async {
@@ -119,13 +141,21 @@ class _EventListState extends State<EventList> {
         int timerLength = timerData[0];
         int relaxLength = timerData[1];
         int currentClockNum = await task.clockNum;
-        Navigator.push(context, MaterialPageRoute(builder: (_) {
+        var needRefresh =
+            await Navigator.push(context, MaterialPageRoute(builder: (_) {
           return TimatoTimerWidget(
-              timerLength: timerLength,
-              relaxLength: relaxLength,
-              event: task,
-              clockNum: currentClockNum);
+            timerLength: timerLength,
+            relaxLength: relaxLength,
+            event: task,
+            clockNum: currentClockNum,
+          );
         }));
+        if (needRefresh != null && needRefresh) {
+          getTodayEventList().then((data) {
+            todayEventList = data;
+          });
+          Navigator.pop(context, true);
+        }
       });
     }
   }
@@ -137,6 +167,7 @@ class _EventListState extends State<EventList> {
 ///Including: [taskName], [id], [ddl], [eventPriority], [subeventsList]
 Widget _eventDetail(Event task) {
   return ListView(children: <Widget>[
+    SizedBox(height:10),
     TextName(task: task),
     TaskTag(task: task),
     TaskDate(task: task),
@@ -175,6 +206,7 @@ class _TextNameState extends State<TextName> {
       },
       textInputAction: TextInputAction.done,
       maxLength: 20,
+      maxLines: 2,
       initialValue: this.task.taskName,
       decoration: const InputDecoration(
         counterText: '',
@@ -209,17 +241,20 @@ class _TaskTagState extends State<TaskTag> {
           width: 166,
           child: TextFormField(
             onChanged: (text) {
-              this.task.tag = text;
-              //TODO: store
-              updateEvent(task);
-              print('$this.task.tag');
+              if (text != '') {
+                this.task.tag = text;
+                //TODO: store
+                updateEvent(task);
+                print('$this.task.tag');
+              }
             },
             textInputAction: TextInputAction.done,
             maxLength: 10,
-            initialValue: _tagString(task),
+            initialValue: this.task.tag,
             style: TextStyle(fontSize: 14),
             // this.task.taskName,
             decoration: const InputDecoration(
+              hintText: 'enter a tag',
               counterText: '',
               border: InputBorder.none,
               prefix: Text('   '),
@@ -228,13 +263,13 @@ class _TaskTagState extends State<TaskTag> {
     ]));
   }
 
-  String _tagString(Event task) {
-    if (this.task.tag != null) {
-      return this.task.tag.toString();
-    } else {
-      return "enter a tag";
-    }
-  }
+  // String _tagString(Event task) {
+  //   if (this.task.tag != null) {
+  //     return this.task.tag.toString();
+  //   } else {
+  //     return "enter a tag";
+  //   }
+  // }
 }
 
 ///Builds the part for [ddl]
@@ -299,8 +334,17 @@ class _TaskPriorityState extends State<TaskPriority> {
     return Container(
         child: Row(
       children: <Widget>[
-        SizedBox(width: 12),
-        Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
+        SizedBox(width: 13),
+        Container(
+          height: 20,
+          width:20,
+          decoration: BoxDecoration(
+            color:ConstantHelper.priorityColor(task),
+            border:new Border.all(color: Colors.black38,width:0.5),
+            borderRadius: new BorderRadius.circular((20.0)), 
+          ),
+        ),
+        // Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
         SizedBox(width: 12),
         DropdownButton<String>(
           value: ConstantHelper.priorityString[this.task.eventPriority],
@@ -356,9 +400,9 @@ class _TaskDurationState extends State<TaskDuration> {
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 4,
-            initialValue: this.task.duration.toString(),
+            initialValue: task.duration.toString(),
             decoration: const InputDecoration(
-                hintText: 'It might take ...',
+                hintText: 'It might take',
                 suffixText: 'minutes',
                 counterText: '',
                 border: InputBorder.none),
@@ -404,16 +448,17 @@ class _RepeatTimeState extends State<RepeatTime> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: new Row(children: <Widget>[
+        child: new Row(
+      children: <Widget>[
         // SizedBox(width: 12),
         IconButton(
-              icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
-              onPressed: () {
-                //TODO:
-              }),
+            icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
+            onPressed: () {
+              //TODO:
+            }),
         // Text(ddlFormat.formatDate(task.RepeatProeprties.nextOccurrence(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
-      ],)
-    );
+      ],
+    ));
   }
 }
 
@@ -500,17 +545,18 @@ class _SubtaskListState extends State<SubtaskList> {
                     //     icon: Icons.add
                     //     ),
                     IconSlideAction(
-                        color: ConstantHelper.tomatoColor, 
+                        color: ConstantHelper.tomatoColor,
                         iconWidget: IconButton(
-                          icon:Icon(Icons.delete,color:Colors.white),
-                          onPressed: ()=>{
+                          icon: Icon(Icons.delete, color: Colors.white),
+                          onPressed: () => {
                             deleteEvent(subtask.id),
-                            getSubevent(task).then((data){
+                            getSubevent(task).then((data) {
                               setState(() {
                                 subtasksList = data;
                               });
                             })
-                          },))
+                          },
+                        ))
                   ],
                   child: SublistDetail(subtask: subtask));
             }).toList(),
@@ -523,18 +569,19 @@ class _SubtaskListState extends State<SubtaskList> {
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
-              if(text.length!=0){
-              Event sub = new Event(taskName: text);
-              sub.whichTask = task.id;
-              insertEvent(sub);
-              // sub.whichTask =
-              // this.task.subeventsList.add(sub);
-              getSubevent(task).then((data) {
-                setState(() {
-                  subtasksList = data;
-                  developer.log(subtasksList.toString());
+              if (text.length != 0) {
+                Event sub = new Event(taskName: text);
+                sub.whichTask = task.id;
+                insertEvent(sub);
+                // sub.whichTask =
+                // this.task.subeventsList.add(sub);
+                getSubevent(task).then((data) {
+                  setState(() {
+                    subtasksList = data;
+                    developer.log(subtasksList.toString());
+                  });
                 });
-              });}
+              }
             },
             textInputAction: TextInputAction.done,
             maxLength: 15,

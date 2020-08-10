@@ -139,7 +139,7 @@ Future<List<Event>> getTodayEventList() async {
   for (int i = 0; i < count; i++) {
     todayEventList.add(Event.fromMapObject(todayEventMapList[i]));
   }
-  developer.log(todayEventList.toString());
+  // developer.log(todayEventList.toString());
   return todayEventList;
 }
 

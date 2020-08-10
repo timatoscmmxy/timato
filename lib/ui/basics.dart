@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:date_format/date_format.dart' as ddlFormat;
 import 'package:timato/ui/completed_list.dart';
 
 import 'package:time_machine/time_machine.dart';
@@ -11,9 +12,7 @@ import 'package:timato/ui/today_task_list.dart';
 
 List<Event> todayEventList = [];
 List<Event> eventsList = [];
-// List<Event> subtasksList=[];
-List<Event> completed = [];
-
+// List<Event> completed = [];
 
 typedef AddEventCallback = void Function(Event context);
 
@@ -93,6 +92,78 @@ class ConstantHelper {
 
   //List for priority level
   static final List<String> priorityList = ['High', 'Middle', 'Low', 'None'];
+
+  static Widget tagDdl(Event task) {
+    if (task.tag == null && task.ddl == null) {
+      return SizedBox();
+    } else if (task.tag == null) {
+      return new Row(
+        children: <Widget>[SizedBox(width: 5), _ddl(task)],
+      );
+    } else if (task.ddl == null) {
+      return new Row(
+        children: <Widget>[
+          SizedBox(width: 5),
+          _tag(task),
+        ],
+      );
+    } else {
+      return new Row(
+        children: <Widget>[
+          SizedBox(width: 5),
+          _tag(task),
+          SizedBox(
+            width: 5,
+            height: 1,
+          ),
+          _ddl(task)
+        ],
+      );
+    }
+  }
+
+  static Widget _tag(Event task) {
+    if (task.tag != null) {
+      return Container(
+        child: Text(task.tag,
+            style: TextStyle(color: Colors.black87, fontSize: 12)),
+        decoration: BoxDecoration(
+          border: new Border.all(color: Colors.red[100]),
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(2),
+      );
+    } else {
+      return SizedBox();
+    }
+  }
+
+  static Widget _ddl(Event task) {
+    if (task.ddl != null) {
+      String formatDdl = ddlFormat.formatDate(
+          task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
+      return Container(
+        // constraints: BoxConstraints(maxHeight: 1000),
+        //alignment: Alignment.centerLeft,
+        child:
+            // if(task.ddl!=null){
+            Text(formatDdl,
+                style: TextStyle(color: Colors.black87, fontSize: 12)),
+        decoration: BoxDecoration(
+          border: new Border.all(color: Colors.red[100]),
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(2),
+        // }
+      );
+    } else {
+      return SizedBox(width: 0.1);
+    }
+  }
 }
 
 class FloatingRaisedButton extends StatelessWidget {
@@ -291,13 +362,8 @@ int getWeekNum(LocalDate date) {
   }
 }
 
-extension Conversion on DateTime{
-  LocalDateTime toLocalDateTime(){
-    return LocalDateTime(
-        this.year,
-        this.month,
-        this.day,
-        0,0,0
-    );
+extension Conversion on DateTime {
+  LocalDateTime toLocalDateTime() {
+    return LocalDateTime(this.year, this.month, this.day, 0, 0, 0);
   }
 }
