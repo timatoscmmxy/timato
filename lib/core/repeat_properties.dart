@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import 'package:rrule/rrule.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:time_machine/time_machine.dart';
+import 'package:timato/ui/basics.dart';
 
 class RepeatProeprties{
   final RecurrenceRule rule;
@@ -15,8 +16,16 @@ class RepeatProeprties{
     return nextOccurrence;
   }
 
+  static RepeatProeprties fromString(String str){
+    var attributes = str.split(',');
+    return RepeatProeprties(
+      rule: RecurrenceRule.fromString(attributes[0]),
+      start: DateTime.parse(attributes[1]).toLocalDateTime()
+    );
+  }
+
   @override
   String toString(){
-    return '$rule, start: ${formatDate(start)}';
+    return '$rule,${dateOnly(start.toDateTimeLocal())}';
   }
 }
