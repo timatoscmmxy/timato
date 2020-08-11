@@ -21,7 +21,7 @@ class TagEntity {
   }
 }
 
-void updateTag(String tag) async {
+void updateTag(String tag, int usedTimerNum) async {
   Database db = await DatabaseHelper.database;
   var tags;
   tags = await db.query(TagEntity.tagTable,
@@ -32,11 +32,11 @@ void updateTag(String tag) async {
     await db.insert(TagEntity.tagTable, {
       TagEntity.colDate: dateOnly(DateTime.now()).toString(),
       TagEntity.colTag: tag,
-      TagEntity.colNum: 1
+      TagEntity.colNum: usedTimerNum
     });
   } else {
     var tagRow = tags[0];
-    await db.update(TagEntity.tagTable, {TagEntity.colNum: tagRow[TagEntity.colNum]},
+    await db.update(TagEntity.tagTable, {TagEntity.colNum: tagRow[TagEntity.colNum] + usedTimerNum},
         where:
             "${TagEntity.colDate} = \"${tagRow[TagEntity.colDate]}\" and ${TagEntity.colTag} = \"${tag ?? 'is null'}\"");
   }
