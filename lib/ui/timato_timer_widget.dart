@@ -82,7 +82,6 @@ class TimatoTimerWidget extends StatelessWidget {
     _buttonColor.value = Colors.white;
     _buttonIcon.value = Icons.play_arrow;
     _buttonStatus.value = ButtonStatus.normal;
-
     _timerNum = clockNum ?? -1;
     usedTimerNum = ValueNotifier(event.usedTimerNum);
     _relaxTime = relaxLength;
@@ -96,7 +95,12 @@ class TimatoTimerWidget extends StatelessWidget {
         leading: IconButton(
           color: ConstantHelper.tomatoColor,
           icon: Icon(Icons.keyboard_backspace),
-          onPressed: () { _timer.stop(); Navigator.pop(context);},
+          onPressed: () {
+            _timer.stop();
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+              return TodayList();
+            }));
+          },
         ),
         title: Text(
           event.taskName,
@@ -147,7 +151,7 @@ class TimatoTimerWidget extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.check, color: Colors.black38),
                   onPressed: () async {
-                    var data = await  WarningDialog.show(
+                    var data = await WarningDialog.show(
                         title: 'Mark as completed?',
                         text: 'Are you sure to mark this task as completed?',
                         context: context,
@@ -167,13 +171,13 @@ class TimatoTimerWidget extends StatelessWidget {
                           insertCompletedEvent(event);
                           deleteEvent(event.id);
                         });
-                        if(data){
-                          // Navigator.pushReplacement(context,
-                          //     MaterialPageRoute(builder: (_) {
-                          //   return TodayList();
-                          // }));
-                          Navigator.pop(context, true);
-                        }
+                    if (data) {
+                      // Navigator.pushReplacement(context,
+                      //     MaterialPageRoute(builder: (_) {
+                      //   return TodayList();
+                      // }));
+                      Navigator.pop(context, true);
+                    }
                   },
                 ),
               ],

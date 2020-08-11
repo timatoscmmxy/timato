@@ -41,7 +41,7 @@ class AddEvent extends StatefulWidget {
   @override
   AddEventState createState() => AddEventState();
 
-  static showAddEvent(context, AddEventCallback callback) async{
+  static showAddEvent(int isToday,context, AddEventCallback callback) async {
     Event newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
@@ -52,24 +52,26 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    
+
     getEventList().then((data) {
       // setState(() {
-        eventsList = data;
+      eventsList = data;
       // });
     });
-    if(eventsList.length==0){
-      newEvent.taskOrder=0;
-    }else{
-    newEvent.taskOrder = eventsList.last.taskOrder+1;}
+    if (eventsList.length == 0) {
+      newEvent.taskOrder = 0;
+    } else {
+      newEvent.taskOrder = eventsList.last.taskOrder + 1;
+    }
+    newEvent.isTodayList=isToday;
     await insertEvent(newEvent);
 
-    if(callback==null) return;
+    if (callback == null) return;
 
     callback.call(newEvent);
   }
 
-  static showAddUnplannedEvent(context) async{
+  static showAddUnplannedEvent(context) async {
     Event newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
@@ -81,26 +83,27 @@ class AddEvent extends StatefulWidget {
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
     getEventList().then((data) {
-        eventsList = data;
+      eventsList = data;
     });
-    if(eventsList.length==0){
-      newEvent.taskOrder=0;
-    }else{
-    newEvent.taskOrder = eventsList.last.taskOrder+1;}
+    if (eventsList.length == 0) {
+      newEvent.taskOrder = 0;
+    } else {
+      newEvent.taskOrder = eventsList.last.taskOrder + 1;
+    }
     // newEvent.isTodayList = 1;
     // newEvent.isUnplanned = 1;
     getTodayEventList().then((data) {
-        todayEventList = data;
+      todayEventList = data;
     });
-    if(todayEventList.length==0){
-      newEvent.todayOrder=0;
-    }else{
-    newEvent.todayOrder = todayEventList.last.todayOrder+1;}
+    if (todayEventList.length == 0) {
+      newEvent.todayOrder = 0;
+    } else {
+      newEvent.todayOrder = todayEventList.last.todayOrder + 1;
+    }
     newEvent.isTodayList = 1;
     newEvent.isUnplanned = 1;
     await insertEvent(newEvent);
   }
-  
 }
 
 // ignore: must_be_immutable
@@ -192,11 +195,10 @@ class AddEventState extends State<AddEvent> {
                   child: IconButton(
                     icon: calendarIcon,
                     onPressed: () async {
-                      dynamic dateTimeReturn = await DateTimeSelector.show(context, newEvent.ddl);
-                      if (dateTimeReturn is DateTime){
-                        newEvent.ddl =
-                            dateTimeReturn ??
-                                newEvent.ddl;
+                      dynamic dateTimeReturn =
+                          await DateTimeSelector.show(context, newEvent.ddl);
+                      if (dateTimeReturn is DateTime) {
+                        newEvent.ddl = dateTimeReturn ?? newEvent.ddl;
                         setState(() {
                           if (newEvent.ddl != null) {
                             calendarIcon = Icon(
@@ -205,8 +207,9 @@ class AddEventState extends State<AddEvent> {
                             );
                           }
                         });
-                      } else if (dateTimeReturn is RepeatProeprties){
-                        newEvent.ddl = dateTimeReturn.nextOccurrence().toDateTimeLocal();
+                      } else if (dateTimeReturn is RepeatProeprties) {
+                        newEvent.ddl =
+                            dateTimeReturn.nextOccurrence().toDateTimeLocal();
                         newEvent.repeatProperties = dateTimeReturn;
                         setState(() {
                           if (newEvent.ddl != null) {
@@ -279,7 +282,7 @@ class AddEventState extends State<AddEvent> {
   }
 }
 
-class DateTimeSelector extends StatefulWidget{
+class DateTimeSelector extends StatefulWidget {
   final DateTime selected;
 
   DateTimeSelector({DateTime selected})
@@ -293,8 +296,8 @@ class DateTimeSelector extends StatefulWidget{
     result = await showDialog(
         context: context,
         builder: (_) => DateTimeSelector(
-          selected: date,
-        ),
+              selected: date,
+            ),
         barrierDismissible: true);
     return result;
   }
@@ -318,75 +321,76 @@ class DateTimeSelectorState extends State<DateTimeSelector> {
       visible: _isVisible,
       child: Dialog(
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            CalendarDatePicker(
+              lastDate: DateTime(9999, 12, 31),
+              initialDate: dateSelected,
+              firstDate: dateOnly(DateTime.now()),
+              onDateChanged: (DateTime date) => dateSelected = date,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+            ),
+            Container(
+              child: ListTile(
+                leading: Icon(Icons.repeat),
+                title: Text('Repeat'),
+                onTap: () async {
+                  setState(() => this._isVisible = false);
+                  RepeatProeprties repeatProperties =
+                      await SetRepeatProperties.show(context, dateSelected);
+                  Navigator.pop(context, repeatProperties);
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+            ),
+            Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                CalendarDatePicker(
-                  lastDate: DateTime(9999, 12, 31),
-                  initialDate: dateSelected,
-                  firstDate: dateOnly(DateTime.now()),
-                  onDateChanged: (DateTime date) => dateSelected = date,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                Expanded(
+                  child: Container(),
                 ),
                 Container(
-                  child: ListTile(
-                    leading: Icon(Icons.repeat),
-                    title: Text('Repeat'),
-                    onTap: () async {
-                      setState(() => this._isVisible = false);
-                      RepeatProeprties repeatProperties = await SetRepeatProperties.show(context, dateSelected);
-                      Navigator.pop(context, repeatProperties);
+                  child: FlatButton(
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.black38,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context, null);
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Expanded(
-                      child: Container(),
-                    ),
-                    Container(
-                      child: FlatButton(
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            color: Colors.black38,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context, null);
-                        },
+                Container(
+                  child: FlatButton(
+                    child: Text(
+                      'OK',
+                      style: TextStyle(
+                        color: ConstantHelper.tomatoColor,
                       ),
                     ),
-                    Container(
-                      child: FlatButton(
-                        child: Text(
-                          'OK',
-                          style: TextStyle(
-                            color: ConstantHelper.tomatoColor,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context, dateSelected);
-                        },
-                      ),
-                    )
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: Container(),
+                    onPressed: () {
+                      Navigator.pop(context, dateSelected);
+                    },
+                  ),
                 )
               ],
             ),
-          )),
+            Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Container(),
+            )
+          ],
+        ),
+      )),
     );
   }
 }
@@ -1159,7 +1163,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
             ),
           ),
           onPressed: () {
-            RepeatProeprties repeatProeprties = RepeatProeprties(rule: this.toRecurrenceRule(), start: start.toLocalDateTime());
+            RepeatProeprties repeatProeprties = RepeatProeprties(
+                rule: this.toRecurrenceRule(), start: start.toLocalDateTime());
             Navigator.pop(context, repeatProeprties);
           },
         ),

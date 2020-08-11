@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:date_format/date_format.dart' as ddlFormat;
+// import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
@@ -14,9 +14,25 @@ import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/event_list.dart';
 import 'dart:developer' as developer;
 
+// List<Event> subtasksList=[];
 class MyTask extends StatefulWidget {
+  _MyTaskState _state;
   @override
-  _MyTaskState createState() => new _MyTaskState();
+  _MyTaskState createState() {
+    _state = new _MyTaskState();
+    return _state;
+  }
+
+  // ScrollController controller;
+
+  void refreshState() {
+    getEventList().then((data) {
+      if (_state == null || !_state.mounted) return;
+      _state.setState(() {
+        eventsList = data;
+      });
+    });
+  }
 }
 
 class _MyTaskState extends State<MyTask> {
@@ -77,7 +93,7 @@ class _MyTaskState extends State<MyTask> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          AddEvent.showAddEvent(context, (e) {
+          AddEvent.showAddEvent(0,context, (e) {
             getEventList().then(
               (data) {
                 setState(() {
@@ -85,16 +101,7 @@ class _MyTaskState extends State<MyTask> {
                 });
               },
             );
-            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-            //   return MyTask();
-            // }));
           });
-          // getEventList().then((data) {
-          //   setState(() {
-          //     eventsList = data;
-          //   });
-          // });
-          //TODO: when add a new event, update its taskOrder
         },
         child: Icon(Icons.add, color: ConstantHelper.tomatoColor),
         backgroundColor: Colors.white,
@@ -103,15 +110,17 @@ class _MyTaskState extends State<MyTask> {
     );
   }
 
-  void _subtasksListHelper(Event task) async {
-    subtasksList = await getSubevent(task);
-  }
+  // void _subtasksListHelper(Event task) async {
+  //   subtasksList = await getSubevent(task);
+  // }
 
   ///Builds a list of events that is reorderable
   Widget _list() {
     return ReorderableListView(
+      // scrollController: controller,
       // scrollController: ScrollController(),
       children: eventsList.map((task) {
+        // List<Event>subtasksList=[];
         if (task.isUnplanned == 1) {
           return Container(
               key: task.key,
@@ -161,7 +170,8 @@ class _MyTaskState extends State<MyTask> {
                         ],
                       ))));
         } else {
-          _subtasksListHelper(task);
+          // List<Event>subtasksList=[];
+          //   _subtasksListHelper(task);
           return Slidable(
               key: task.key,
               actionPane: SlidableDrawerActionPane(),
@@ -199,12 +209,15 @@ class _MyTaskState extends State<MyTask> {
                                     },
                                   );
                                   // int count = todayEventList.last.todayOrder+1;
-                                  if(todayEventList.length==0){
-                                    task.todayOrder=0;
-                                  }else{
-                                    developer.log('taskname'+todayEventList.last.taskName);
+                                  if (todayEventList.length == 0) {
+                                    task.todayOrder = 0;
+                                  } else {
+                                    developer.log('taskname' +
+                                        todayEventList.last.taskName);
                                     // developer.log('todayorder'+todayEventList.last.);
-                                  task.todayOrder = todayEventList.last.todayOrder+1;}
+                                    task.todayOrder =
+                                        todayEventList.last.todayOrder + 1;
+                                  }
                                   task.isTodayList = 1;
                                   updateEvent(task);
                                   getTodayEventList().then(
@@ -258,14 +271,22 @@ class _MyTaskState extends State<MyTask> {
                     color: ConstantHelper.tomatoColor,
                     iconWidget: IconButton(
                       icon: Icon(Icons.receipt, color: Colors.white),
-                      onPressed: () => {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      onPressed: () async {
+                        var needRefresh = await Navigator.push(context,
+                            MaterialPageRoute(builder: (_) {
                           return EventList(task: task, page: "mainList");
-                        }))
+                        }));
+                        if (needRefresh != null && needRefresh) {
+                          getEventList().then((data) {
+                            setState(() {
+                              eventsList = data;
+                            });
+                          });
+                        }
                       },
                     ))
               ],
-              child: ListExpan(task: task, subtasksList: subtasksList));
+              child: ListExpan(task: task));
         }
       }).toList(),
       onReorder: _onReorder,
@@ -276,7 +297,14 @@ class _MyTaskState extends State<MyTask> {
   void _onReorder(int oldIndex, int newIndex) {
     developer.log('new index' + newIndex.toString());
     // setState(() {
-    if (oldIndex < newIndex) {
+    if (newIndex >= eventsList.length) {
+      eventsList[oldIndex].taskOrder = eventsList.last.taskOrder;
+      updateEvent(eventsList[oldIndex]);
+      for (int i = oldIndex + 1; i < eventsList.length; i++) {
+        eventsList[i].taskOrder -= 1;
+        updateEvent(eventsList[i]);
+      }
+    } else if (oldIndex < newIndex) {
       eventsList[oldIndex].taskOrder = newIndex;
       updateEvent(eventsList[oldIndex]);
       for (int i = oldIndex + 1; i <= newIndex; i++) {
@@ -301,22 +329,42 @@ class _MyTaskState extends State<MyTask> {
 }
 
 class ListExpan extends StatefulWidget {
-  ListExpan({Key key, this.task, this.subtasksList}) : super(key: key);
+  ListExpan({Key key, this.task}) : super(key: key);
 
   final Event task;
-  List<Event> subtasksList;
+  // List<Event> subtasksList;
   @override
-  _ListExpanState createState() =>
-      _ListExpanState(task: task, subtasksList: subtasksList);
+  _ListExpanState createState() => _ListExpanState(task: task);
 }
 
 class _ListExpanState extends State<ListExpan> {
-  _ListExpanState({this.task, this.subtasksList});
+  _ListExpanState({this.task});
 
   final Event task;
-  List<Event> subtasksList;
+
+  List<Event> subtasksList = [];
+
+  @override
+  void initState() {
+    _subtasksListHelper(task);
+  }
+
+  void _subtasksListHelper(Event task) async {
+    subtasksList = await getSubevent(task);
+    if (this.mounted) setState(() {});
+  }
+
+  double _height(Event task){
+    if(this.task.tag==null &&this.task.ddl==null){
+      return 30;
+    }else{
+      return 50;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    //  _subtasksListHelper(task);
     return _buildTiles(task);
   }
 
@@ -335,6 +383,8 @@ class _ListExpanState extends State<ListExpan> {
               Container(
                   height: (50.0 * subtasksList.length),
                   child: ListView(
+                      primary: false,
+                      // dragStartBehavior: ,
                       physics: new NeverScrollableScrollPhysics(),
                       children: subtasksList.map((subtask) {
                         return Slidable(
@@ -356,9 +406,11 @@ class _ListExpanState extends State<ListExpan> {
                                           action: (context) {
                                             deleteEvent(subtask.id);
                                             getSubevent(task).then((data) {
-                                              setState(() {
-                                                subtasksList = data;
-                                              });
+                                              if (this.mounted) {
+                                                setState(() {
+                                                  subtasksList = data;
+                                                });
+                                              }
                                             });
                                           })
                                     },
@@ -377,17 +429,25 @@ class _ListExpanState extends State<ListExpan> {
     return Container(
       key: task.key,
       margin: EdgeInsets.all(5.0),
-      height: 50,
+      height: _height(task),
       width: 40,
       color: Colors.white,
       child: new Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-                // constraints: BoxConstraints(maxHeight: 1000),
-                padding: EdgeInsets.only(top: 3.9),
-                child: Icon(Icons.brightness_1,
-                    color: ConstantHelper.priorityColor(task))),
+              // constraints: BoxConstraints(maxHeight: 1000),
+              padding: EdgeInsets.only(top: 3.9),
+              child: Container(
+                height: 20,
+                width: 20,
+                decoration: BoxDecoration(
+                  color: ConstantHelper.priorityColor(task),
+                  border: new Border.all(color: Colors.black38, width: 0.5),
+                  borderRadius: new BorderRadius.circular((20.0)),
+                ),
+              ),
+            ),
             new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -406,82 +466,81 @@ class _ListExpanState extends State<ListExpan> {
                   ]),
 
                   ///Contains [tag] and [ddl]
-                  tagDdl(task)
-                  // new Row(
-                  //   children: <Widget>[
-                  //     SizedBox(width: 5),
-                  //     _tag(task),
-                  //     SizedBox(
-                  //       width: 5,
-                  //       height: 1,
-                  //     ),
-                  //     _ddl(task)
-                  //   ],
-                  // )
+                  ConstantHelper.tagDdl(task)
                 ]),
           ]),
     );
   }
 
-  Widget tagDdl(Event task) {
-    developer.log('tag' + task.tag);
-    if (task.tag == null && task.ddl == null) {
-      return SizedBox();
-    } else {
-      return new Row(
-        children: <Widget>[
-          SizedBox(width: 5),
-          _tag(task),
-          SizedBox(
-            width: 5,
-            height: 1,
-          ),
-          _ddl(task)
-        ],
-      );
-    }
-  }
+  // Widget tagDdl(Event task) {
+  //   if (task.tag == null && task.ddl == null) {
+  //     return SizedBox();
+  //   } else if (task.tag == null) {
+  //     return new Row(
+  //       children: <Widget>[SizedBox(width: 5), _ddl(task)],
+  //     );
+  //   } else if (task.ddl == null) {
+  //     return new Row(
+  //       children: <Widget>[
+  //         SizedBox(width: 5),
+  //         _tag(task),
+  //       ],
+  //     );
+  //   } else {
+  //     return new Row(
+  //       children: <Widget>[
+  //         SizedBox(width: 5),
+  //         _tag(task),
+  //         SizedBox(
+  //           width: 5,
+  //           height: 1,
+  //         ),
+  //         _ddl(task)
+  //       ],
+  //     );
+  //   }
+  // }
 
-  Widget _tag(Event task) {
-    if (task.tag != null) {
-      return Container(
-        child: Text(task.tag,
-            style: TextStyle(color: Colors.black87, fontSize: 12)),
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-        ),
-        padding: EdgeInsets.all(2),
-      );
-    } else {
-      return SizedBox();
-    }
-  }
+  // Widget _tag(Event task) {
+  //   if (task.tag != null) {
+  //     return Container(
+  //       child: Text(task.tag,
+  //           style: TextStyle(color: Colors.black87, fontSize: 12)),
+  //       decoration: BoxDecoration(
+  //         shape: BoxShape.rectangle,
+  //         borderRadius: BorderRadius.circular(10),
+  //         color: Colors.white,
+  //       ),
+  //       padding: EdgeInsets.all(2),
+  //     );
+  //   } else {
+  //     return SizedBox();
+  //   }
+  // }
 
-  Widget _ddl(Event task) {
-    if (task.ddl != null) {
-      String formatDdl = ddlFormat.formatDate(
-          task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
-      return Container(
-        // constraints: BoxConstraints(maxHeight: 1000),
-        //alignment: Alignment.centerLeft,
-        child:
-            // if(task.ddl!=null){
-            Text(formatDdl,
-                style: TextStyle(color: Colors.black87, fontSize: 12)),
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-        ),
-        padding: EdgeInsets.all(2),
-        // }
-      );
-    } else {
-      return SizedBox(width: 0.1);
-    }
-  }
+  // Widget _ddl(Event task) {
+  //   if (task.ddl != null) {
+  //     String formatDdl = ddlFormat.formatDate(
+  //         task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
+  //     return Container(
+  //       // constraints: BoxConstraints(maxHeight: 1000),
+  //       //alignment: Alignment.centerLeft,
+  //       child:
+  //           // if(task.ddl!=null){
+  //           Text(formatDdl,
+  //               style: TextStyle(color: Colors.black87, fontSize: 12)),
+  //       decoration: BoxDecoration(
+  //         shape: BoxShape.rectangle,
+  //         borderRadius: BorderRadius.circular(10),
+  //         color: Colors.white,
+  //       ),
+  //       padding: EdgeInsets.all(2),
+  //       // }
+  //     );
+  //   } else {
+  //     return SizedBox(width: 0.1);
+  //   }
+  // }
 
   ///Build each [Subevent] on subevent's list
   Widget _subevent(Event subtask) {
