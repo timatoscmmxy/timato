@@ -23,7 +23,7 @@ abstract class AbstractEvent implements Comparable {
   int numClock;
 
   ///A category that the [Event] belongs to
-  String tag = 'daily task';
+  String tag;
 
   ///The date that the event is completed
   String completedDate;
@@ -77,7 +77,7 @@ abstract class AbstractEvent implements Comparable {
     this.taskName = taskName;
     this.ddl = null;
     this.duration = duration;
-    this.tag ='daily task';
+    this.tag = tag;
     this.eventPriority = eventPriority;
     this.key = UniqueKey();
     this.completedDate = completedDate;
@@ -182,7 +182,7 @@ class Event extends AbstractEvent {
     this.id = map["id"];
     this.key = Key(map["key"]);
     this.taskName = map["task_name"];
-    this.tag = map["tag"??""];
+    this.tag = map["tag"];
     this.eventPriority = ConstantHelper
         .priorityEnum[ConstantHelper.priorityIntString[map["priority"]]];
     try{
@@ -192,13 +192,13 @@ class Event extends AbstractEvent {
     //   this.completedDate = DateTime.parse(map["completedDate"]);
     // } catch (e){}
     this.duration = map["duration"];
-    this.isUnplanned = map["isUnplanned"??0];
-    this.isTodayList = map["isTodayList"??0];
+    this.isUnplanned = map["isUnplanned"]??0;
+    this.isTodayList = map["isTodayList"]??0;
     // this.isCompleted = map["isCompleted"??""];
     this.whichTask = map["whichTask"];
     this.taskOrder = map["taskOrder"];
     this.todayOrder = map["todayOrder"];
-    this.usedTimerNum = map["usedTimerNum"];
+    this.usedTimerNum = map["usedTimerNum"]??0;
   }
 
   ///Database implementation
@@ -219,7 +219,7 @@ class Event extends AbstractEvent {
       'whichTask': whichTask, 
       'taskOrder': taskOrder,
       'todayOrder': todayOrder,
-      'usedTimerNum': usedTimerNum,
+      'usedTimerNum': usedTimerNum??0,
       // 'subeventsList': subeventsList
     };
   }

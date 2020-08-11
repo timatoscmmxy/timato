@@ -14,6 +14,7 @@ import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/today_task_list.dart';
+import 'package:timato/core/event_repository.dart';
 
 enum ButtonStatus { normal, next, end }
 
@@ -157,6 +158,7 @@ class TimatoTimerWidget extends StatelessWidget {
                         text: 'Are you sure to mark this task as completed?',
                         context: context,
                         action: (context) {
+                          _timer.stop();
                           // event.isCompleted = 1;
                           DateTime completedDate = DateTime(DateTime.now().year,
                               DateTime.now().month, DateTime.now().day);
@@ -257,11 +259,13 @@ class StartButton extends StatelessWidget {
         } else if (status.value == ButtonStatus.next) {
           ++TimatoTimerWidget.usedTimerNum.value;
           ++event.usedTimerNum;
+          updateEvent(event);
           timer.stop();
           timer.restore();
         } else if (status.value == ButtonStatus.end) {
           ++TimatoTimerWidget.usedTimerNum.value;
           ++event.usedTimerNum;
+          updateEvent(event);
           timer.stop();
           timer.restore();
         }

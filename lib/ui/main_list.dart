@@ -80,7 +80,7 @@ class _MyTaskState extends State<MyTask> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         child: Container(
-            height: 39.0,
+            height: 50.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,

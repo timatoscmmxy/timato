@@ -26,7 +26,7 @@ void updateTag(String tag, int usedTimerNum) async {
   var tags;
   tags = await db.query(TagEntity.tagTable,
       where:
-          "${TagEntity.colDate} = ${dateOnly(DateTime.now()).toString()} and ${TagEntity.colTag} = ${tag ?? 'is null'}");
+          "${TagEntity.colDate} = \"${dateOnly(DateTime.now()).toString()}\" and ${TagEntity.colTag} ${tag == null ? "is null" : "=\"$tag\""}");
 
   if (tags.length == 0) {
     await db.insert(TagEntity.tagTable, {
@@ -36,9 +36,10 @@ void updateTag(String tag, int usedTimerNum) async {
     });
   } else {
     var tagRow = tags[0];
-    await db.update(TagEntity.tagTable, {TagEntity.colNum: tagRow[TagEntity.colNum] + usedTimerNum},
+    await db.update(TagEntity.tagTable,
+        {TagEntity.colNum: tagRow[TagEntity.colNum] + usedTimerNum},
         where:
-            "${TagEntity.colDate} = \"${tagRow[TagEntity.colDate]}\" and ${TagEntity.colTag} = \"${tag ?? 'is null'}\"");
+            "${TagEntity.colDate} = \"${tagRow[TagEntity.colDate]}\" and ${TagEntity.colTag} ${tag == null ? "is null" : "=\"$tag\""}");
   }
 }
 
@@ -50,55 +51,69 @@ Future<List<int>> getWeekTimerNum() async {
     List<Map<String, dynamic>> tags = await db.query(TagEntity.tagTable,
         columns: [TagEntity.colNum],
         where: "${TagEntity.colDate} = \"${today.toString()}\"");
-    int sum = tags.fold(0, (previousValue, element) => previousValue??0 + element[TagEntity.colNum]);
+    int sum = tags.fold(
+        0,
+        (previousValue, element) =>
+            (previousValue as int) + element[TagEntity.colNum]);
     result.insert(0, sum);
+    today = today.add(Duration(days:-1));
   }
   return result;
 }
 
-Future<Map<String, int>> getTodayTagTimerNum() async{
+Future<Map<String, int>> getTodayTagTimerNum() async {
   Database db = await DatabaseHelper.database;
   DateTime today = dateOnly(DateTime.now());
-  Map<String,int> result = {};
+  Map<String, int> result = {};
   List<Map<String, dynamic>> tags = await db.query(TagEntity.tagTable,
       columns: [TagEntity.colNum, TagEntity.colTag],
       where: "${TagEntity.colDate} = \"${today.toString()}\"");
-  for (var tagRow in tags){
-    result.addAll({tagRow[TagEntity.colTag] : tagRow[TagEntity.colNum]});
+  for (var tagRow in tags) {
+    if(tagRow[TagEntity.colTag]!=null){
+    result.addAll({tagRow[TagEntity.colTag]: tagRow[TagEntity.colNum]});}
   }
   return result;
 }
 
-Future<Map<String, int>> getWeekTagTimerNum() async{
+Future<Map<String, int>> getWeekTagTimerNum() async {
   Database db = await DatabaseHelper.database;
   List<Map<String, dynamic>> tags = [];
   DateTime today = dateOnly(DateTime.now());
-  Map<String,int> result = {};
+  Map<String, int> result = {};
   for (int i = 0; i < 7; ++i) {
     tags.addAll(await db.query(TagEntity.tagTable,
-        columns: [TagEntity.colNum],
+        columns: [TagEntity.colNum, TagEntity.colTag],
         where: "${TagEntity.colDate} = \"${today.toString()}\""));
+        today = today.add(Duration(days:-1));
   }
-  for (var tagRow in tags){
+  print(tags);
+  for (var tagRow in tags) {
     String key = tagRow[TagEntity.colTag];
-    if (result.containsKey(key)){
+    if(key!=null){
+    if (result.containsKey(key)) {
       result.update(key, (value) => value + tagRow[TagEntity.colNum]);
+    }else{
+      result[key]=tagRow[TagEntity.colNum];
+    }
     }
   }
   return result;
 }
 
-Future<int> getTodayTimerNum() async{
+Future<int> getTodayTimerNum() async {
   Database db = await DatabaseHelper.database;
   DateTime today = dateOnly(DateTime.now());
   List<Map<String, dynamic>> tags = await db.query(TagEntity.tagTable,
       columns: [TagEntity.colNum],
       where: "${TagEntity.colDate} = \"${today.toString()}\"");
-  return  tags.fold(0, (previousValue, element) => previousValue??0 + element[TagEntity.colNum]);
-
+  int result = tags.fold(
+      0,
+      (previousValue, element) =>
+          (previousValue as int) + element[TagEntity.colNum]);
+  return result;
 }
 
-printDatabase() async{
+printDatabase() async {
   Database db = await DatabaseHelper.database;
   print(await db.query(TagEntity.tagTable));
 }

@@ -78,7 +78,7 @@ class _TodayListState extends State<TodayList> {
         bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         child: Container(
-            height: 39.0,
+            height: 50.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -155,7 +155,7 @@ class _TodayListState extends State<TodayList> {
                                 int timerLength = timerData[0];
                                 int relaxLength = timerData[1];
                                 int currentClockNum = await task.clockNum;
-                                var needRefresh = await Navigator.push(context,
+                                var needRefresh = await Navigator.pushReplacement(context,
                                     MaterialPageRoute(builder: (_) {
                                   return TimatoTimerWidget(
                                       timerLength: timerLength,
