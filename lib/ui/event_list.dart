@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
+import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/core/db.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
@@ -453,8 +454,10 @@ class _RepeatTimeState extends State<RepeatTime> {
         // SizedBox(width: 12),
         IconButton(
             icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
-            onPressed: () {
-              //TODO:
+            onPressed: () async{
+              RepeatProeprties repeatPrrperties = await SetRepeatProperties.show(context, task.ddl??dateOnly(DateTime.now()));
+              task.repeatProperties = repeatPrrperties;
+              updateEvent(this.task);
             }),
         // Text(ddlFormat.formatDate(task.RepeatProeprties.nextOccurrence(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
       ],
