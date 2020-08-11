@@ -20,79 +20,79 @@ import 'package:timato/ui/today_task_list.dart';
 
 import 'core/event_repository.dart';
 
-//void main() async{
-// runApp(MaterialApp(
-//     home: TodayList()
-//   ));
-//}
+void main() async{
+ runApp(MaterialApp(
+     home: TodayList()
+   ));
+}
 // void main() => runApp(MyApp1());
 
-  void main() async{
-    WidgetsFlutterBinding.ensureInitialized();
-    notificationInit();
-    await initPreferences();
-
-    var timerData = await getTimerData();
-    var pref = await SharedPreferences.getInstance();
-    runApp(MyApp(pref));
-
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarBrightness: Brightness.dark,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarDividerColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-  }
-
-  initPreferences() async{
-    const DEFAULT_TIMER_LENGTH = 25*60;
-    const DEFAULT_RELAX_LENGTH = 5*60;
-
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-
-    if (pref.get("firstLaunch") == null){
-      pref.setBool("firstLaunch", true);
-      pref.setInt("timerLength", DEFAULT_TIMER_LENGTH);
-      pref.setInt("relaxLength", DEFAULT_RELAX_LENGTH);
-    }
-  }
-
-  class MyApp extends StatelessWidget {
-    // This widget is the root of your application.
-  //  final timerLength;
-  //  final relaxLength;
-    final _pref;
-    MyApp(this._pref);
-
-    @override
-    Widget build(BuildContext context) {
-      return MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          brightness: Brightness.light,
-          primaryColor: Colors.white,
-          scaffoldBackgroundColor: Colors.white,
-        ),
-        home: TimatoTimerWidget(
-          event: Event(taskName: '写timato_timer_widget.dart'),
-          timerLength: 10,
-          relaxLength: 10,
-        ),
-//           home: StatsPage(
-// //            tagTimerNumsToday: {'a':5, 'b':3, 'c':2},
-//             tagTimerNumsToday: {},
-//             tagTimerNumsWeek: {'English':15, 'Chinese':13, 'Maths':5},
-//             weekDayTimerNums: [5,2,0,0,6,3,4],
-//             timerNumsToday: 2,
-//             timerNumsWeek: 300,
-//           ),
-      );
-    }
-  }
+//  void main() async{
+//    WidgetsFlutterBinding.ensureInitialized();
+//    notificationInit();
+//    await initPreferences();
+//
+//    var timerData = await getTimerData();
+//    var pref = await SharedPreferences.getInstance();
+//    runApp(MyApp(pref));
+//
+//    SystemChrome.setSystemUIOverlayStyle(
+//      const SystemUiOverlayStyle(
+//        statusBarColor: Colors.white,
+//        statusBarBrightness: Brightness.dark,
+//        statusBarIconBrightness: Brightness.dark,
+//        systemNavigationBarColor: Colors.white,
+//        systemNavigationBarDividerColor: Colors.black,
+//        systemNavigationBarIconBrightness: Brightness.dark,
+//      ),
+//    );
+//  }
+//
+//  initPreferences() async{
+//    const DEFAULT_TIMER_LENGTH = 25*60;
+//    const DEFAULT_RELAX_LENGTH = 5*60;
+//
+//    final SharedPreferences pref = await SharedPreferences.getInstance();
+//
+//    if (pref.get("firstLaunch") == null){
+//      pref.setBool("firstLaunch", true);
+//      pref.setInt("timerLength", DEFAULT_TIMER_LENGTH);
+//      pref.setInt("relaxLength", DEFAULT_RELAX_LENGTH);
+//    }
+//  }
+//
+//  class MyApp extends StatelessWidget {
+//    // This widget is the root of your application.
+//  //  final timerLength;
+//  //  final relaxLength;
+//    final _pref;
+//    MyApp(this._pref);
+//
+//    @override
+//    Widget build(BuildContext context) {
+//      return MaterialApp(
+//        title: 'Flutter Demo',
+//        theme: ThemeData(
+//          brightness: Brightness.light,
+//          primaryColor: Colors.white,
+//          scaffoldBackgroundColor: Colors.white,
+//        ),
+//        home: TimatoTimerWidget(
+//          event: Event(taskName: '写timato_timer_widget.dart'),
+//          timerLength: 10,
+//          relaxLength: 10,
+//        ),
+////           home: StatsPage(
+//// //            tagTimerNumsToday: {'a':5, 'b':3, 'c':2},
+////             tagTimerNumsToday: {},
+////             tagTimerNumsWeek: {'English':15, 'Chinese':13, 'Maths':5},
+////             weekDayTimerNums: [5,2,0,0,6,3,4],
+////             timerNumsToday: 2,
+////             timerNumsWeek: 300,
+////           ),
+//      );
+//    }
+//  }
  // //      home: Settings(_pref)
  //     );
 //    }

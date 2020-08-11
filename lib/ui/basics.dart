@@ -1,7 +1,9 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:timato/core/tag_repository.dart';
 import 'package:timato/ui/completed_list.dart';
+import 'package:timato/ui/stats_page.dart';
 
 import 'package:time_machine/time_machine.dart';
 
@@ -222,13 +224,22 @@ class SideBar extends StatelessWidget {
           }),
       ListTile(
           title: Text("Your Stats"),
-          onTap: () {
-            // if(pageName == 'Completed'){
-            //   Navigator.pop(context);
-            // }else{
-            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-            //   return CompletedList();
-            // }));}
+          onTap: () async{
+            var weekDayTimerNums = await getWeekTimerNum();
+            var timerNumsToday = await getTodayTimerNum();
+            var timerNumsWeek = weekDayTimerNums.fold(0, (previousValue, element) => previousValue + element);
+            var tagTimerNumsToday = await getTodayTagTimerNum();
+            var tagTimerNumsWeek = await getWeekTagTimerNum();
+
+            Navigator.push(context, MaterialPageRoute(builder: (_) {
+               return StatsPage(
+                 timerNumsWeek: timerNumsWeek,
+                 tagTimerNumsToday: tagTimerNumsToday,
+                 timerNumsToday: timerNumsToday,
+                 tagTimerNumsWeek: tagTimerNumsWeek,
+                 weekDayTimerNums: weekDayTimerNums,
+               );
+             }));
           }),
     ]));
   }

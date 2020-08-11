@@ -38,7 +38,7 @@ void updateTag(String tag) async {
     var tagRow = tags[0];
     await db.update(TagEntity.tagTable, {TagEntity.colNum: tagRow[TagEntity.colNum]},
         where:
-            "${TagEntity.colDate} = ${tagRow[TagEntity.colDate]} and ${TagEntity.colTag} = ${tag ?? 'is null'}");
+            "${TagEntity.colDate} = \"${tagRow[TagEntity.colDate]}\" and ${TagEntity.colTag} = \"${tag ?? 'is null'}\"");
   }
 }
 
@@ -49,8 +49,8 @@ Future<List<int>> getWeekTimerNum() async {
   for (int i = 0; i < 7; ++i) {
     List<Map<String, dynamic>> tags = await db.query(TagEntity.tagTable,
         columns: [TagEntity.colNum],
-        where: "${TagEntity.colDate} = ${today.toString()}");
-    int sum = tags.fold(0, (previousValue, element) => previousValue + element[TagEntity.colNum]);
+        where: "${TagEntity.colDate} = \"${today.toString()}\"");
+    int sum = tags.fold(0, (previousValue, element) => previousValue??0 + element[TagEntity.colNum]);
     result.insert(0, sum);
   }
   return result;
@@ -62,7 +62,7 @@ Future<Map<String, int>> getTodayTagTimerNum() async{
   Map<String,int> result = {};
   List<Map<String, dynamic>> tags = await db.query(TagEntity.tagTable,
       columns: [TagEntity.colNum, TagEntity.colTag],
-      where: "${TagEntity.colDate} = ${today.toString()}");
+      where: "${TagEntity.colDate} = \"${today.toString()}\"");
   for (var tagRow in tags){
     result.addAll({tagRow[TagEntity.colTag] : tagRow[TagEntity.colNum]});
   }
@@ -71,13 +71,13 @@ Future<Map<String, int>> getTodayTagTimerNum() async{
 
 Future<Map<String, int>> getWeekTagTimerNum() async{
   Database db = await DatabaseHelper.database;
-  List<Map<String, dynamic>> tags;
+  List<Map<String, dynamic>> tags = [];
   DateTime today = dateOnly(DateTime.now());
   Map<String,int> result = {};
   for (int i = 0; i < 7; ++i) {
     tags.addAll(await db.query(TagEntity.tagTable,
         columns: [TagEntity.colNum],
-        where: "${TagEntity.colDate} = ${today.toString()}"));
+        where: "${TagEntity.colDate} = \"${today.toString()}\""));
   }
   for (var tagRow in tags){
     String key = tagRow[TagEntity.colTag];
@@ -86,6 +86,16 @@ Future<Map<String, int>> getWeekTagTimerNum() async{
     }
   }
   return result;
+}
+
+Future<int> getTodayTimerNum() async{
+  Database db = await DatabaseHelper.database;
+  DateTime today = dateOnly(DateTime.now());
+  List<Map<String, dynamic>> tags = await db.query(TagEntity.tagTable,
+      columns: [TagEntity.colNum],
+      where: "${TagEntity.colDate} = \"${today.toString()}\"");
+  return  tags.fold(0, (previousValue, element) => previousValue??0 + element[TagEntity.colNum]);
+
 }
 
 printDatabase() async{
