@@ -45,6 +45,7 @@ class _CompletedListState extends State<CompletedList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: new AppBar(
+          elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
           title: new Text("Completed Tasks",
               style: TextStyle(color: ConstantHelper.tomatoColor)),

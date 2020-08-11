@@ -145,6 +145,11 @@ class AddEventState extends State<AddEvent> {
             child: Container(
               child: TextField(
                 decoration: InputDecoration(
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
                   hintText: widget._textHint,
                 ),
                 autofocus: true,
@@ -266,7 +271,7 @@ class AddEventState extends State<AddEvent> {
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
-                  child: doneButton,
+                  child: SafeArea(child: doneButton),
                 ),
               ],
             ),

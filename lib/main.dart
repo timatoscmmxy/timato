@@ -27,7 +27,14 @@ void main() async {
   notificationInit();
   await initPreferences();
 
-  runApp(MaterialApp(home:TodayList()));
+  runApp(MaterialApp(
+      home:TodayList(),
+      theme: ThemeData(
+        brightness: Brightness.light,
+        primaryColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+  ));
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

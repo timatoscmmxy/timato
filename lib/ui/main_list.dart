@@ -67,6 +67,7 @@ class _MyTaskState extends State<MyTask> {
     final size = MediaQuery.of(context).size;
     return new Scaffold(
       appBar: new AppBar(
+          elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
           title: new Text("My Tasks",
               style: TextStyle(color: ConstantHelper.tomatoColor)),

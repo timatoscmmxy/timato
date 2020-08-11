@@ -53,6 +53,7 @@ class _TodayListState extends State<TodayList> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: new AppBar(
+            elevation: 0,
             iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
             title: new Text("Today's Tasks",
                 style: TextStyle(color: ConstantHelper.tomatoColor)),
