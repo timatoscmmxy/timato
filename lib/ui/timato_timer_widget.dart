@@ -8,6 +8,7 @@ import 'package:timato/core/event_repository.dart';
 import 'package:date_format/date_format.dart' as ddlFormat;
 
 import 'package:timato/core/notifications.dart';
+import 'package:timato/core/tag_repository.dart';
 import 'package:timato/core/timato_timer.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
@@ -168,6 +169,7 @@ class TimatoTimerWidget extends StatelessWidget {
                             ddlFormat.dd
                           ]);
                           //TODO
+                          updateTag(event.tag, event.usedTimerNum);
                           insertCompletedEvent(event);
                           deleteEvent(event.id);
                         });

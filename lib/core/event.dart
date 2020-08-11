@@ -72,7 +72,8 @@ abstract class AbstractEvent implements Comparable {
       int isUnplanned,
       int whichTask,
       int taskOrder,
-      int todayOrder}) {
+      int todayOrder,
+      int usedTimerNum}) {
     this.taskName = taskName;
     this.ddl = null;
     this.duration = duration;
@@ -85,6 +86,7 @@ abstract class AbstractEvent implements Comparable {
     this.whichTask = whichTask;
     this.taskOrder = taskOrder;
     this.todayOrder = todayOrder;
+    this.usedTimerNum = usedTimerNum;
   }
 
   ///List of all the subevent this [Event] has
@@ -159,7 +161,8 @@ class Event extends AbstractEvent {
       int isUnplanned,
       int whichTask,
       int taskOrder,
-      int todayOrder})
+      int todayOrder,
+      int usedTimerNum})
       : super(
           taskName: taskName,
           ddl: ddl,
@@ -172,6 +175,7 @@ class Event extends AbstractEvent {
           whichTask: whichTask,
           taskOrder: taskOrder,
           todayOrder: todayOrder,
+          usedTimerNum: usedTimerNum
         );
 
   Event.fromMapObject(Map<String, dynamic> map) {
@@ -194,6 +198,7 @@ class Event extends AbstractEvent {
     this.whichTask = map["whichTask"];
     this.taskOrder = map["taskOrder"];
     this.todayOrder = map["todayOrder"];
+    this.usedTimerNum = map["usedTimerNum"];
   }
 
   ///Database implementation
@@ -214,6 +219,7 @@ class Event extends AbstractEvent {
       'whichTask': whichTask, 
       'taskOrder': taskOrder,
       'todayOrder': todayOrder,
+      'usedTimerNum': usedTimerNum,
       // 'subeventsList': subeventsList
     };
   }

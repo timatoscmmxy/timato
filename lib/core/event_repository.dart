@@ -20,23 +20,24 @@ class EventEntity {
   static final String colWhichTask = 'whichTask';
   static final String colTaskOrder = 'taskOrder';
   static final String colTodayOrder = 'todayOrder';
+  static final String colUsedTimerNum = 'usedTimerNum';
 
   static void createEventTable(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
             '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, '+
             '$colUnplanned INTEGER, $colToday INTEGER, $colWhichTask INTEGER, '+
-            '$colTaskOrder INTEGER, $colTodayOrder INTEGER)');
+            '$colTaskOrder INTEGER, $colTodayOrder INTEGER, $colUsedTimerNum INTEGER)');
   }
 
   static upgradeDb(Database db, int oldVersion, int newVersion) async {
-    if (newVersion == 9) {
+    if (newVersion == 11) {
       await db.execute('DROP TABLE $eventTable');
       await db.execute(
           'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
               '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, '+
               '$colUnplanned INTEGER, $colToday INTEGER, $colWhichTask INTEGER, '+
-              '$colTaskOrder INTEGER, $colTodayOrder INTEGER)');
+              '$colTaskOrder INTEGER, $colTodayOrder INTEGER, $colUsedTimerNum INTEGER)');
     }
   }
 
