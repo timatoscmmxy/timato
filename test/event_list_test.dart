@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timato/ui/basics.dart';
 
-import 'package:timato/ui/event_list.dart';
+import 'package:timato/ui/event_detail_page.dart';
 
 void main() {
   testWidgets('Event List Test', (WidgetTester tester) async {

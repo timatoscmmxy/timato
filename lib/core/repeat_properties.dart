@@ -17,7 +17,10 @@ class RepeatProeprties{
   }
 
   static RepeatProeprties fromString(String str){
-    var attributes = str.split(',');
+    if(str==null){
+      return null;
+    }
+    var attributes = str.split('/');
     return RepeatProeprties(
       rule: RecurrenceRule.fromString(attributes[0]),
       start: DateTime.parse(attributes[1]).toLocalDateTime()
@@ -26,6 +29,6 @@ class RepeatProeprties{
 
   @override
   String toString(){
-    return '$rule,${dateOnly(start.toDateTimeLocal())}';
+    return '$rule/${dateOnly(start.toDateTimeLocal())}';
   }
 }

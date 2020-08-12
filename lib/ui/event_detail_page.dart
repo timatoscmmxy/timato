@@ -104,7 +104,7 @@ class _EventListState extends State<EventList> {
           ]),
       body: _eventDetail(task),
       floatingActionButton: _button(page),
-      resizeToAvoidBottomPadding: false,
+      // resizeToAvoidBottomPadding: false,
     );
   }
 
@@ -167,7 +167,8 @@ class _EventListState extends State<EventList> {
 ///Event page contains all the details that delong to the [Event]
 ///Including: [taskName], [id], [ddl], [eventPriority], [subeventsList]
 Widget _eventDetail(Event task) {
-  return ListView(children: <Widget>[
+  return ListView(
+    children: <Widget>[
     SizedBox(height:10),
     TextName(task: task),
     TaskTag(task: task),
@@ -179,7 +180,8 @@ Widget _eventDetail(Event task) {
     RepeatTime(task: task),
     // SizedBox(height: 10),
     SubtaskList(task: task)
-  ]);
+  ]
+  );
 }
 
 ///Builds the part for [taskName]
@@ -311,7 +313,7 @@ class _TaskDateState extends State<TaskDate> {
         } else {
           return "select a date";
         }
-      })()),
+      })(),style: TextStyle(color: Colors.black54)),
     ]));
   }
 }
@@ -387,6 +389,12 @@ class _TaskDurationState extends State<TaskDuration> {
   _TaskDurationState(this.task);
   final Event task;
 
+  String _duration(Event task) {
+    if(task.duration!=null && task.duration!=''){
+      return task.duration.toString();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -401,7 +409,7 @@ class _TaskDurationState extends State<TaskDuration> {
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 4,
-            initialValue: task.duration.toString(),
+            initialValue: _duration(task),
             decoration: const InputDecoration(
                 hintText: 'It might take',
                 suffixText: 'minutes',
@@ -410,6 +418,8 @@ class _TaskDurationState extends State<TaskDuration> {
             // onChanged: (text)
             onChanged: (String text) {
               if (text == '') {
+                task.duration=null;
+                updateEvent(task);
                 return;
               }
               int val;
@@ -446,6 +456,16 @@ class RepeatTime extends StatefulWidget {
 class _RepeatTimeState extends State<RepeatTime> {
   _RepeatTimeState(this.task);
   final Event task;
+
+  Widget _repeatProperties(Event task){
+    if(task.repeatProperties==null){
+      return Text("Choose a repeat property", style:TextStyle(color:Colors.black54));
+            }else{
+              return Text("next occurrence: "+ddlFormat.formatDate(task.repeatProperties.nextOccurrence().toDateTimeLocal(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
+        
+        );}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -458,9 +478,14 @@ class _RepeatTimeState extends State<RepeatTime> {
               RepeatProeprties repeatPrrperties = await SetRepeatProperties.show(context, task.ddl??dateOnly(DateTime.now()));
               task.repeatProperties = repeatPrrperties;
               updateEvent(this.task);
+              if(repeatPrrperties!=null){
+                setState(() {
+                  
+                });
+              }
             }),
-        // Text(ddlFormat.formatDate(task.RepeatProeprties.nextOccurrence(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
-      ],
+            _repeatProperties(task)
+        ],
     ));
   }
 }
@@ -567,7 +592,9 @@ class _SubtaskListState extends State<SubtaskList> {
       Container(
         height: 35,
         width: 326,
-        child: TextField(
+        child: 
+        TextField(
+          // autofocus: true,
             // keyboardType: TextInputType.multiline,
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
