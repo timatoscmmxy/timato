@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,15 +17,6 @@ import 'package:timato/ui/event_detail_page.dart';
 import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 
-// void _getTodayList() {
-//   getEventList().then((data) {
-//     eventsList = data;
-//   });
-//   for(int i = 0; i<eventsList.length; i++){
-//     eventsList[i]
-//   }
-// }
-
 class TodayList extends StatefulWidget {
   _TodayListState _state;
 
@@ -38,7 +27,6 @@ class TodayList extends StatefulWidget {
   }
 
   void refreshState() {
-    //TODO: _getTodayList
     getTodayEventList().then((data) {
       if (_state == null || !_state.mounted) return;
       _state.setState(() {
@@ -62,31 +50,31 @@ class _TodayListState extends State<TodayList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: new AppBar(
-            elevation: 0,
-            iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-            title: new Text("Today's Tasks",
-                style: TextStyle(color: ConstantHelper.tomatoColor)),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(Icons.settings, color: ConstantHelper.tomatoColor),
-                  onPressed: () async {
-                    SharedPreferences pref =
-                        await SharedPreferences.getInstance();
-                    Navigator.push(context, MaterialPageRoute(builder: (_) {
-                      return Settings(pref);
-                    }));
-                  })
-            ],
-            backgroundColor: Colors.white),
-        body: new Container(
-          decoration: new BoxDecoration(
-            color: Colors.white,
-          ),
-          child: _todayList(),
+      appBar: new AppBar(
+          elevation: 0,
+          iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
+          title: new Text("Today's Tasks",
+              style: TextStyle(color: ConstantHelper.tomatoColor)),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.settings, color: ConstantHelper.tomatoColor),
+                onPressed: () async {
+                  SharedPreferences pref =
+                      await SharedPreferences.getInstance();
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return Settings(pref);
+                  }));
+                })
+          ],
+          backgroundColor: Colors.white),
+      body: new Container(
+        decoration: new BoxDecoration(
+          color: Colors.white,
         ),
-        drawer: new SideBar('TodayList'),
-        bottomNavigationBar: BottomAppBar(
+        child: _todayList(),
+      ),
+      drawer: new SideBar('TodayList'),
+      bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         child: Container(
             height: 50.0,
@@ -102,7 +90,7 @@ class _TodayListState extends State<TodayList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          AddEvent.showAddEvent(1,context, (e) {
+          AddEvent.showAddEvent(1, context, (e) {
             getTodayEventList().then(
               (data) {
                 setState(() {
@@ -115,7 +103,8 @@ class _TodayListState extends State<TodayList> {
         child: Icon(Icons.add, color: ConstantHelper.tomatoColor),
         backgroundColor: Colors.white,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,);
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
   }
 
   Widget _todayList() {
@@ -143,17 +132,11 @@ class _TodayListState extends State<TodayList> {
                                           context: context,
                                           action: (context) {
                                             deleteEvent(task.id);
-                                            
-                                              // context
-                                              //     .findAncestorWidgetOfExactType<
-                                              //         TodayList>()
-                                              //     .refreshState();
-                                              getTodayEventList().then((data) {
-                                                setState(() {
-                                                  todayEventList = data;
-                                                });
+                                            getTodayEventList().then((data) {
+                                              setState(() {
+                                                todayEventList = data;
                                               });
-                                            // });
+                                            });
                                           })
                                     })),
                         IconSlideAction(
@@ -169,14 +152,14 @@ class _TodayListState extends State<TodayList> {
                                 var needRefresh = await Navigator.push(context,
                                     MaterialPageRoute(builder: (_) {
                                   return TimatoTimerWidget(
-                                      timerLength: timerLength,
-                                      relaxLength: relaxLength,
-                                      event: task,
-                                      clockNum: currentClockNum,
-                                    );
+                                    timerLength: timerLength,
+                                    relaxLength: relaxLength,
+                                    event: task,
+                                    clockNum: currentClockNum,
+                                  );
                                 }));
 
-                                if (needRefresh != null && needRefresh) {
+                                if (needRefresh != null) {
                                   getTodayEventList().then((data) {
                                     setState(() {
                                       todayEventList = data;
@@ -194,10 +177,10 @@ class _TodayListState extends State<TodayList> {
                                 SizedBox(width: 15),
                                 Icon(Icons.warning,
                                     color: ConstantHelper.tomatoColor),
-                                SizedBox(width: 5),
+                                SizedBox(width: 8),
                                 Text(task.taskName,
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 16,
                                       color: Colors.black87,
                                     ))
                               ],
@@ -275,7 +258,6 @@ class TaskTileState extends State<TaskTile> {
   }
 
   Widget build(BuildContext context) {
-    //
     return Container(
         key: task.key,
         child: InkWell(
@@ -284,9 +266,7 @@ class TaskTileState extends State<TaskTile> {
                   await Navigator.push(context, MaterialPageRoute(builder: (_) {
                 return EventList(task: task, page: "todayList");
               }));
-              // developer.log(needRefresh);
               if (needRefresh != null && needRefresh) {
-                // developer.log(needRefresh);
                 context
                     .findAncestorWidgetOfExactType<TodayList>()
                     .refreshState();
@@ -305,8 +285,8 @@ class TaskTileState extends State<TaskTile> {
                             IconSlideAction(
                                 color: ConstantHelper.tomatoColor,
                                 iconWidget: IconButton(
-                                    icon: Icon(Icons.cancel,
-                                        color: Colors.white),
+                                    icon:
+                                        Icon(Icons.cancel, color: Colors.white),
                                     onPressed: () => {
                                           WarningDialog.show(
                                               title: 'Remove this task?',
@@ -329,8 +309,6 @@ class TaskTileState extends State<TaskTile> {
                                   icon: Icon(Icons.play_circle_outline,
                                       color: Colors.white),
                                   onPressed: () async {
-                                    // task.duration =
-                                    // int.parse(unplannedDuration);
                                     List<int> timerData = await getTimerData();
                                     int timerLength = timerData[0];
                                     int relaxLength = timerData[1];
@@ -339,10 +317,11 @@ class TaskTileState extends State<TaskTile> {
                                         await Navigator.push(context,
                                             MaterialPageRoute(builder: (_) {
                                       return TimatoTimerWidget(
-                                          timerLength: timerLength,
-                                          relaxLength: relaxLength,
-                                          event: task,
-                                          clockNum: currentClockNum,);
+                                        timerLength: timerLength,
+                                        relaxLength: relaxLength,
+                                        event: task,
+                                        clockNum: currentClockNum,
+                                      );
                                     }));
 
                                     if (needRefresh != null && needRefresh) {
@@ -362,7 +341,7 @@ class TaskTileState extends State<TaskTile> {
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       SizedBox(
-                                        width: 10,
+                                        width: 20,
                                       ),
                                       Container(
                                         padding: EdgeInsets.only(top: 3.9),
@@ -397,25 +376,19 @@ class TaskTileState extends State<TaskTile> {
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                         color: Colors.black87,
-                                                        //fontWeight: FontWeight.bold
                                                       )))
                                             ]),
 
                                             ///Contains [tag] and [ddl]
-
                                             ConstantHelper.tagDdl(task),
                                           ]),
                                     ]),
                                 _sublist(task),
-                                // SizedBox(height: 4),
-                                // Divider(color: Colors.grey[350],height:1)
                               ]))),
                       Divider(color: Colors.grey[350], height: 1)
                     ],
                   ))
             ])));
-
-    // );
   }
 
   Widget _sublist(Event task) {
@@ -430,8 +403,6 @@ class TaskTileState extends State<TaskTile> {
           ),
           Container(
             padding: EdgeInsets.only(top: 5),
-            child: Icon(Icons.subject,
-                size: 20, color: ConstantHelper.tomatoColor),
           ),
           Container(
               width: MediaQuery.of(context).size.width - 71,
@@ -444,7 +415,13 @@ class TaskTileState extends State<TaskTile> {
                       key: subtask.key,
                       child: new Row(
                         children: <Widget>[
-                          SizedBox(width: 15),
+                          SizedBox(width: 30),
+                          Icon(
+                            Icons.fiber_manual_record,
+                            color: Colors.red[100],
+                            size: 10,
+                          ),
+                          SizedBox(width: 5),
                           Container(
                               height: 30,
                               child: new Column(children: <Widget>[
@@ -452,7 +429,7 @@ class TaskTileState extends State<TaskTile> {
                                   height: 6,
                                 ),
                                 Text(subtask.taskName,
-                                    style: TextStyle(fontSize: 16),
+                                    style: TextStyle(fontSize: 15),
                                     textAlign: TextAlign.center)
                               ]))
                         ],
@@ -463,60 +440,4 @@ class TaskTileState extends State<TaskTile> {
       );
     }
   }
-
-  // Widget tagDdl(Event task) {
-  //   if (task.tag == null && task.ddl == null) {
-  //     return SizedBox();
-  //   } else {
-  //     return new Row(
-  //       children: <Widget>[
-  //         SizedBox(width: 5),
-  //         _tag(task),
-  //         SizedBox(
-  //           width: 5,
-  //           height: 1,
-  //         ),
-  //         _ddl(task)
-  //       ],
-  //     );
-  //   }
-  // }
-
-  // Widget _tag(Event task) {
-  //   if (task.tag != null) {
-  //     return Container(
-  //       child: Text(task.tag,
-  //           style: TextStyle(color: Colors.black87, fontSize: 12)),
-  //       decoration: BoxDecoration(
-  //         shape: BoxShape.rectangle,
-  //         borderRadius: BorderRadius.circular(10),
-  //         color: Colors.white,
-  //       ),
-  //       padding: EdgeInsets.all(2),
-  //     );
-  //   } else {
-  //     return SizedBox(
-  //       width: 0.1,
-  //     );
-  //   }
-  // }
-
-  // Widget _ddl(Event task) {
-  //   if (task.ddl != null) {
-  //     String formatDdl = ddlFormat.formatDate(
-  //         task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
-  //     return Container(
-  //       child: Text(formatDdl,
-  //           style: TextStyle(color: Colors.black87, fontSize: 12)),
-  //       decoration: BoxDecoration(
-  //         shape: BoxShape.rectangle,
-  //         borderRadius: BorderRadius.circular(10),
-  //         color: Colors.white,
-  //       ),
-  //       padding: EdgeInsets.all(2),
-  //     );
-  //   } else {
-  //     return SizedBox(width: 0.1);
-  //   }
-  // }
 }

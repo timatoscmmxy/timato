@@ -8,7 +8,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:timato/core/repeat_properties.dart';
 import 'package:timato/ui/basics.dart';
 
-
 abstract class AbstractEvent implements Comparable {
   ///Event's name
   String taskName;
@@ -30,10 +29,6 @@ abstract class AbstractEvent implements Comparable {
 
   ///The [Event]'s priority level
   Priority eventPriority = Priority.NONE;
-
-  // get eventPriorityInt {
-  //   return ConstantHelper.priorityLevel(eventPriority);
-  // }
 
   ///Indicates whether the event is done
   int isCompleted = 0;
@@ -91,11 +86,6 @@ abstract class AbstractEvent implements Comparable {
     this.repeatProperties = repeatProperties;
   }
 
-  ///List of all the subevent this [Event] has
-  ///
-  ///This list includes sample subevent
-
-  ///Number of clocks each event needs
   get clockNum async {
     if (duration == null) {
       return null;
@@ -123,12 +113,6 @@ abstract class AbstractEvent implements Comparable {
     }
   }
 
-  // ///Number of clocks needed
-  // int numClock;
-
-  // int duration = 0;
-
-  ///Returns the event that has higher priority
   AbstractEvent higherPriority(AbstractEvent other) {
     if (ConstantHelper.priorityLevel[this.eventPriority] >=
         ConstantHelper.priorityLevel[other.eventPriority]) {
@@ -142,14 +126,6 @@ abstract class AbstractEvent implements Comparable {
 ///A event that user adds onto the list
 class Event extends AbstractEvent {
   int id;
-
-  // final List subeventsList = <Subevent> [];
-  ///List of all the subevent this [Event] has
-  ///
-  ///This list includes sample subevent
-  // final List subeventsList = <Event>[
-  //   new Event(taskName: 'sub1', eventPriority: Priority.MIDDLE),new Event(taskName: 'sub2', eventPriority: Priority.MIDDLE)
-  // ];
 
   Event(
       {@required String taskName,
@@ -192,13 +168,9 @@ class Event extends AbstractEvent {
     try{
       this.ddl = DateTime.parse(map["deadline"]);
     } catch (e){}
-    // try{
-    //   this.completedDate = DateTime.parse(map["completedDate"]);
-    // } catch (e){}
     this.duration = map["duration"];
     this.isUnplanned = map["isUnplanned"]??0;
     this.isTodayList = map["isTodayList"]??0;
-    // this.isCompleted = map["isCompleted"??""];
     this.whichTask = map["whichTask"];
     this.taskOrder = map["taskOrder"];
     this.todayOrder = map["todayOrder"];
@@ -211,7 +183,6 @@ class Event extends AbstractEvent {
   ///Converts an [Event] into a Map
   Map<String, dynamic> toMap() {
     return {
-      //TODO: add completedDate into the table
       'id': id,
       'key': key.toString(),
       'task_name': taskName,
@@ -226,16 +197,11 @@ class Event extends AbstractEvent {
       'todayOrder': todayOrder,
       'usedTimerNum': usedTimerNum??0,
       'repeatProperties': repeatProperties?.toString(),
-      // 'subeventsList': subeventsList
     };
   }
 
   Event.fromMapObjectCompleted(Map<String, dynamic> map) {
     this.id = map["id"];
-    // this.key = Key(map["key"]);
-    // try{
-    //   this.completedDate = DateTime.parse(map["completedDate"]);
-    // } catch (e){}
     this.completedDate = map["completedDate"];
     this.taskName = map["task_name"];
     this.tag = map["tag"]??"";
@@ -244,36 +210,20 @@ class Event extends AbstractEvent {
     try{
       this.ddl = DateTime.parse(map["deadline"]);
     } catch (e){}
-    // try{
-    //   this.completedDate = DateTime.parse(map["completedDate"]);
-    // } catch (e){}
-    // this.duration = map["duration"]??"";
     this.isUnplanned = map["isUnplanned"??""];
-    // this.isTodayList = map["isTodayList"??""];
-    // this.isCompleted = map["isCompleted"??""];
     this.whichTask = map["whichTask"??""];
-    // this.taskOrder = map["taskOrder"??""];
-    // this.todayOrder = map["todayOrder"??""];
   }
 
   Map<String, dynamic> toMapCompleted() {
     return {
-      //TODO: add completedDate into the table
       'id': id,
-      // 'key': key.toString(),
       'completedDate': completedDate,
       'task_name': taskName,
       'tag': tag,
       'priority': ConstantHelper.priorityLevel[eventPriority],
       'deadline': ddl.toString(),
-      // 'duration': duration,
       'isUnplanned': isUnplanned,
-      // 'isTodayList':isTodayList,
-      // 'isCompleted': isCompleted,
-      'whichTask': whichTask, 
-      // 'taskOrder': taskOrder,
-      // 'todayOrder': todayOrder,
-      // 'subeventsList': subeventsList
+      'whichTask': whichTask,
     };
   }
 }

@@ -5,24 +5,16 @@ import 'dart:async';
 import 'db.dart';
 import 'event.dart';
 
-import 'dart:developer' as developer;
-
 class CompletedEntity {
   static final String completedTable = 'completed_table';
   static final String colId = 'id';
-  // static final String colKey = 'key';
   static final String colCompletedDate = 'completedDate';
   static final String colTaskName = 'task_name';
   static final String colTag = 'tag';
   static final String colPriority = 'priority';
   static final String colDDL = 'deadline';
-  // static final String colDuration = 'duration';
   static final String colUnplanned = 'isUnplanned';
-  // static final String colToday = 'isTodayList';
-  // static final String colCompleted = 'isCompleted';
   static final String colWhichTask = 'whichTask';
-  // static final String colTaskOrder = 'taskOrder';
-  // static final String colTodayOrder = 'todayOrder';
 
   static void createCompletedTable(Database db, int newVersion) async {
     await db.execute(
@@ -40,9 +32,6 @@ class CompletedEntity {
               '$colUnplanned INTEGER,  $colWhichTask INTEGER)');
     }
   }
-// static void dropDb(Database db) async {
-//   await db.execute('DROP TABLE $eventTable');
-// }
 }
 
 Future<int> insertCompletedEvent(Event event) async {
@@ -57,22 +46,16 @@ Future<List<Event>> getTodayCompletedList() async {
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   String todayString = ddlFormat.formatDate(
       today, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
-  developer.log(todayString.length.toString());
-  // developer.log();
   Database db = await DatabaseHelper.database;
   var todayCompletedMapList = await db.rawQuery(
-      "SELECT * FROM ${CompletedEntity.completedTable} WHERE ${CompletedEntity.colCompletedDate} = '$todayString'"
-      );
-  int count = todayCompletedMapList
-      .length; // Count the number of map entries in db table
+      "SELECT * FROM ${CompletedEntity.completedTable} WHERE ${CompletedEntity.colCompletedDate} = '$todayString'");
+  int count = todayCompletedMapList.length;
 
   List<Event> todayCompletedList = List<Event>();
-  // For loop to create a 'Event List' from a 'Map List'
   for (int i = 0; i < count; i++) {
     todayCompletedList
         .add(Event.fromMapObjectCompleted(todayCompletedMapList[i]));
   }
-  developer.log('completed' + todayCompletedList.toString());
   return todayCompletedList;
 }
 
@@ -88,12 +71,10 @@ Future<List<Event>> getYesterdayCompletedList() async {
       .length; // Count the number of map entries in db table
 
   List<Event> yesterdayCompletedList = List<Event>();
-  // For loop to create a 'Event List' from a 'Map List'
   for (int i = 0; i < count; i++) {
     yesterdayCompletedList
         .add(Event.fromMapObjectCompleted(yesterdayCompletedMapList[i]));
   }
-  developer.log('yesterday completed' + yesterdayCompletedList.toString());
   return yesterdayCompletedList;
 }
 
@@ -113,12 +94,10 @@ Future<List<Event>> getBeforeYesterdayCompletedList() async {
       .length; // Count the number of map entries in db table
 
   List<Event> beforeYesterdayCompletedList = List<Event>();
-  // For loop to create a 'Event List' from a 'Map List'
   for (int i = 0; i < count; i++) {
     beforeYesterdayCompletedList
         .add(Event.fromMapObjectCompleted(beforeYesterdayCompletedMapList[i]));
   }
-
   return beforeYesterdayCompletedList;
 }
 

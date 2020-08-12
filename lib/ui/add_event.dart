@@ -11,11 +11,6 @@ import 'package:time_machine/time_machine.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/basics.dart';
 
-//TODO
-// List<Event> todayEventList = [];
-// List<Event> eventsList = [];
-// List<Event> subtasksList=[];
-
 DateTime dateOnly(DateTime date) {
   return DateTime(date.year, date.month, date.day);
 }
@@ -41,7 +36,7 @@ class AddEvent extends StatefulWidget {
   @override
   AddEventState createState() => AddEventState();
 
-  static showAddEvent(int isToday,context, AddEventCallback callback) async {
+  static showAddEvent(int isToday, context, AddEventCallback callback) async {
     Event newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
@@ -52,24 +47,19 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    if(newEvent!=null){
-
-    getEventList().then((data) {
-      // setState(() {
-      eventsList = data;
-      // });
-    });
-    if (eventsList.length == 0) {
-      newEvent.taskOrder = 0;
-    } else {
-      newEvent.taskOrder = eventsList.last.taskOrder + 1;
-    }
-    newEvent.isTodayList=isToday;
-    await insertEvent(newEvent);
-
-    if (callback == null) return;
-
-    callback.call(newEvent);
+    if (newEvent != null) {
+      getEventList().then((data) {
+        eventsList = data;
+      });
+      if (eventsList.length == 0) {
+        newEvent.taskOrder = 0;
+      } else {
+        newEvent.taskOrder = eventsList.last.taskOrder + 1;
+      }
+      newEvent.isTodayList = isToday;
+      await insertEvent(newEvent);
+      if (callback == null) return;
+      callback.call(newEvent);
     }
   }
 
@@ -84,33 +74,30 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    if(newEvent!=null){
-    getEventList().then((data) {
-      eventsList = data;
-    });
-    if (eventsList.length == 0) {
-      newEvent.taskOrder = 0;
-    } else {
-      newEvent.taskOrder = eventsList.last.taskOrder + 1;
-    }
-    // newEvent.isTodayList = 1;
-    // newEvent.isUnplanned = 1;
-    getTodayEventList().then((data) {
-      todayEventList = data;
-    });
-    if (todayEventList.length == 0) {
-      newEvent.todayOrder = 0;
-    } else {
-      newEvent.todayOrder = todayEventList.last.todayOrder + 1;
-    }
-    newEvent.isTodayList = 1;
-    newEvent.isUnplanned = 1;
-    await insertEvent(newEvent);
+    if (newEvent != null) {
+      getEventList().then((data) {
+        eventsList = data;
+      });
+      if (eventsList.length == 0) {
+        newEvent.taskOrder = 0;
+      } else {
+        newEvent.taskOrder = eventsList.last.taskOrder + 1;
+      }
+      getTodayEventList().then((data) {
+        todayEventList = data;
+      });
+      if (todayEventList.length == 0) {
+        newEvent.todayOrder = 0;
+      } else {
+        newEvent.todayOrder = todayEventList.last.todayOrder + 1;
+      }
+      newEvent.isTodayList = 1;
+      newEvent.isUnplanned = 1;
+      await insertEvent(newEvent);
     }
   }
 }
 
-// ignore: must_be_immutable
 class AddEventState extends State<AddEvent> {
   Event newEvent;
   Icon calendarIcon;
@@ -194,95 +181,103 @@ class AddEventState extends State<AddEvent> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(bottom: 5),
-            child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: constraints.maxWidth / 100),
-                    child: IconButton(
-                      icon: calendarIcon,
-                      onPressed: () async {
-                        dynamic dateTimeReturn =
-                        await DateTimeSelector.show(context, newEvent.ddl);
-                        if (dateTimeReturn is DateTime) {
-                          newEvent.ddl = dateTimeReturn ?? newEvent.ddl;
-                          setState(() {
-                            if (newEvent.ddl != null) {
-                              calendarIcon = Icon(
-                                Icons.event_available,
-                                color: ConstantHelper.tomatoColor,
-                              );
+              padding: EdgeInsets.only(bottom: 5),
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: constraints.maxWidth / 100),
+                        child: IconButton(
+                          icon: calendarIcon,
+                          onPressed: () async {
+                            dynamic dateTimeReturn =
+                                await DateTimeSelector.show(
+                                    context, newEvent.ddl);
+                            if (dateTimeReturn is DateTime) {
+                              newEvent.ddl = dateTimeReturn ?? newEvent.ddl;
+                              setState(() {
+                                if (newEvent.ddl != null) {
+                                  calendarIcon = Icon(
+                                    Icons.event_available,
+                                    color: ConstantHelper.tomatoColor,
+                                  );
+                                }
+                              });
+                            } else if (dateTimeReturn is RepeatProeprties) {
+                              newEvent.ddl = dateTimeReturn
+                                  .nextOccurrence()
+                                  .toDateTimeLocal();
+                              newEvent.repeatProperties = dateTimeReturn;
+                              setState(() {
+                                if (newEvent.ddl != null) {
+                                  calendarIcon = Icon(
+                                    Icons.event_available,
+                                    color: ConstantHelper.tomatoColor,
+                                  );
+                                }
+                              });
                             }
-                          });
-                        } else if (dateTimeReturn is RepeatProeprties) {
-                          newEvent.ddl =
-                              dateTimeReturn.nextOccurrence().toDateTimeLocal();
-                          newEvent.repeatProperties = dateTimeReturn;
-                          setState(() {
-                            if (newEvent.ddl != null) {
-                              calendarIcon = Icon(
-                                Icons.event_available,
-                                color: ConstantHelper.tomatoColor,
-                              );
-                            }
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.timer,
-                        color: ConstantHelper.tomatoColor,
+                          },
+                        ),
                       ),
-                      onPressed: () async {
-                        newEvent.duration = await SetDuration.show(context);
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: constraints.maxWidth / 100),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.info_outline,
-                        color: ConstantHelper.tomatoColor,
+                      Padding(
+                        padding: EdgeInsets.all(5),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.timer,
+                            color: ConstantHelper.tomatoColor,
+                          ),
+                          onPressed: () async {
+                            newEvent.duration = await SetDuration.show(context);
+                          },
+                        ),
                       ),
-                      onPressed: () async {
-                        newEvent.tag = await SetTag.show(context);
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(5),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.low_priority,
-                        color: ConstantHelper.tomatoColor,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: constraints.maxWidth / 100),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.info_outline,
+                            color: ConstantHelper.tomatoColor,
+                          ),
+                          onPressed: () async {
+                            newEvent.tag = await SetTag.show(context);
+                          },
+                        ),
                       ),
-                      onPressed: () async {
-                        newEvent.eventPriority = await SetPriority.show(
-                            context, newEvent.eventPriority) ??
-                            newEvent.eventPriority;
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: constraints.maxWidth / 100),
-                    child: SafeArea(child: doneButton),
-                  ),
-                ],
-              );
-            },
-            )
-          ),
+                      Padding(
+                        padding: EdgeInsets.all(5),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.low_priority,
+                            color: ConstantHelper.tomatoColor,
+                          ),
+                          onPressed: () async {
+                            newEvent.eventPriority = await SetPriority.show(
+                                    context, newEvent.eventPriority) ??
+                                newEvent.eventPriority;
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: constraints.maxWidth / 100),
+                        child: SafeArea(child: doneButton),
+                      ),
+                    ],
+                  );
+                },
+              )),
           Padding(
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -321,7 +316,6 @@ class DateTimeSelectorState extends State<DateTimeSelector> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     this.dateSelected = widget.selected;
     this._isVisible = true;
@@ -673,11 +667,6 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
           weekStart: DayOfWeek.monday);
     } else if (frequency == Frequency.monthly) {
       if (byWeekdaysInMonth) {
-//        return RecurrenceRule(
-//            frequency: frequency,
-//            interval: interval,
-//            byWeeks: {week},
-//            byWeekDays: {weekDay});
         return RecurrenceRule.fromString(
             'RRULE:FREQ=MONTHLY;INTERVAL=$interval;BYDAY=$week${ConstantHelper.dayOfWeekToRFC[weekDay.day]};WKST=MO');
       } else {
@@ -697,7 +686,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
     }
   }
 
-  Widget weekDayButton(String text, ByWeekDayEntry value, BoxConstraints constraints) {
+  Widget weekDayButton(
+      String text, ByWeekDayEntry value, BoxConstraints constraints) {
     bool selected;
     Color backgroundColor;
     Color textColor;
@@ -711,10 +701,10 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
       textColor = Colors.black;
     }
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth/50),
+      padding: EdgeInsets.symmetric(horizontal: constraints.maxWidth / 50),
       child: Container(
-        height: constraints.maxWidth/10,
-        width: constraints.maxWidth/10,
+        height: constraints.maxWidth / 10,
+        width: constraints.maxWidth / 10,
         child: FloatingActionButton(
           backgroundColor: backgroundColor,
           child: Text(
@@ -760,23 +750,29 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
     if (frequency == Frequency.weekly) {
       return Container(
           padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-          child: SafeArea(
-            child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+          child: SafeArea(child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  weekDayButton('M', ByWeekDayEntry(DayOfWeek.monday), constraints),
-                  weekDayButton('T', ByWeekDayEntry(DayOfWeek.tuesday), constraints),
-                  weekDayButton('W', ByWeekDayEntry(DayOfWeek.wednesday), constraints),
-                  weekDayButton('T', ByWeekDayEntry(DayOfWeek.thursday), constraints),
-                  weekDayButton('F', ByWeekDayEntry(DayOfWeek.friday), constraints),
-                  weekDayButton('S', ByWeekDayEntry(DayOfWeek.saturday), constraints),
-                  weekDayButton('S', ByWeekDayEntry(DayOfWeek.sunday), constraints),
+                  weekDayButton(
+                      'M', ByWeekDayEntry(DayOfWeek.monday), constraints),
+                  weekDayButton(
+                      'T', ByWeekDayEntry(DayOfWeek.tuesday), constraints),
+                  weekDayButton(
+                      'W', ByWeekDayEntry(DayOfWeek.wednesday), constraints),
+                  weekDayButton(
+                      'T', ByWeekDayEntry(DayOfWeek.thursday), constraints),
+                  weekDayButton(
+                      'F', ByWeekDayEntry(DayOfWeek.friday), constraints),
+                  weekDayButton(
+                      'S', ByWeekDayEntry(DayOfWeek.saturday), constraints),
+                  weekDayButton(
+                      'S', ByWeekDayEntry(DayOfWeek.sunday), constraints),
                 ],
               );
             },
-            )
-          ));
+          )));
     } else if (frequency == Frequency.monthly) {
       return Container(
         child: Column(

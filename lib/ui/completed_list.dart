@@ -8,10 +8,7 @@ import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 
-import 'dart:developer' as developer;
-
 List<String> title = ['Today', 'Yesterday', 'Before Yesterday'];
-// List<Event> completed=[];
 Map<Key, Function> refreshFunc = Map<Key, Function>();
 
 class CompletedList extends StatefulWidget {
@@ -37,7 +34,6 @@ class _CompletedListState extends State<CompletedList> {
     refreshFunc.forEach((key, value) {
       value();
     });
-
     super.setState(fn);
   }
 
@@ -59,7 +55,6 @@ class _CompletedListState extends State<CompletedList> {
                       context: context,
                       action: (context) async {
                         await deleteAllCompleted();
-                        // _completed();
                         setState(() {});
                       });
                 })
@@ -101,14 +96,12 @@ class _DateTileState extends State<DateTile> {
     if (completed == null) {
       return 0;
     } else {
-      developer.log("what is the length" + completed.length.toString());
       return completed.length;
     }
   }
 
   @override
   void initState() {
-    developer.log("initState");
     refreshFunc[_key] = this.refreshState;
     refreshState();
   }
@@ -120,12 +113,10 @@ class _DateTileState extends State<DateTile> {
   }
 
   void refreshState() {
-    // developer.log(date);
     findCompleted(date);
   }
 
   Future<void> findCompleted(String date) async {
-    // List<Event> completed=[];
     if (date == "Today") {
       completed = await getTodayCompletedList();
     } else if (date == "Yesterday") {
@@ -138,9 +129,7 @@ class _DateTileState extends State<DateTile> {
 
   @override
   Widget build(BuildContext context) {
-    // findCompleted(date);
     return Slidable(
-        // key: task.key,
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 0.25,
         secondaryActions: <Widget>[
@@ -157,12 +146,6 @@ class _DateTileState extends State<DateTile> {
                         context: context,
                         action: (context) async {
                           await deleteToday();
-                          // getTodayCompletedList().then((todayList) {
-                          //   completed = todayList;
-                          //   context
-                          //       .findAncestorWidgetOfExactType<CompletedList>()
-                          //       .refreshState();
-                          // });
                           context
                               .findAncestorWidgetOfExactType<CompletedList>()
                               .refreshState();
@@ -175,12 +158,9 @@ class _DateTileState extends State<DateTile> {
                         context: context,
                         action: (context) async {
                           await deleteYesterday();
-                          // getYesterdayCompletedList().then((yesterdayList) {
-                          //   completed = yesterdayList;
                           context
                               .findAncestorWidgetOfExactType<CompletedList>()
                               .refreshState();
-                          // });
                         });
                   } else {
                     var data = WarningDialog.show(
@@ -190,40 +170,32 @@ class _DateTileState extends State<DateTile> {
                         context: context,
                         action: (context) async {
                           await deleteBeforeYesterday();
-                          // getBeforeYesterdayCompletedList()
-                          //     .then((beforeYesterdayList) {
-                          //   completed = beforeYesterdayList;
                           context
                               .findAncestorWidgetOfExactType<CompletedList>()
                               .refreshState();
-                          // });
                         });
                   }
-                  // setState(() {
-                  //   completed.clear();
-                  // });
                 },
               )),
         ],
         child: ExpansionTile(
           title: Container(
-              // height: 40,
               child: new Row(children: <Widget>[
-            SizedBox(width: 12),
-            // IconButton(icon: Icon(Icons.delete,color: ConstantHelper.tomatoColor,), onPressed: null),
+            Icon(
+              Icons.fiber_manual_record,
+              color: ConstantHelper.tomatoColor,
+              size: 10,
+            ),
+            SizedBox(width: 8),
             Text(date,
                 style: TextStyle(
-                    fontSize: 15,
-                    color: ConstantHelper.tomatoColor,
-                    fontWeight: FontWeight.bold))
+                  fontSize: 17,
+                  color: ConstantHelper.tomatoColor,
+                ))
           ])),
-          onExpansionChanged: (value) {
-            // developer.log("onExpansionChanged");
-          },
-          // developer.log(completed.toString());
+          onExpansionChanged: (value) {},
           children: <Widget>[
             Container(
-                // height: (35.0 * 2),
                 height: (35.0 * findLength(completed)),
                 child: ListView(
                     // key:task
@@ -232,29 +204,18 @@ class _DateTileState extends State<DateTile> {
                       return Container(
                           height: 35,
                           child: new Row(children: <Widget>[
-                            SizedBox(width: 30),
-                            // Icon(Icons.brightness_1,
-                            //     color: ConstantHelper.priorityColor(
-                            //         completedTask)),
+                            SizedBox(width: 25),
+                            Icon(
+                              Icons.fiber_manual_record,
+                              color: Colors.red[100],
+                              size: 10,
+                            ),
+                            SizedBox(width: 5),
                             Text(completedTask.taskName,
-                                style: TextStyle(fontSize: 14))
+                                style: TextStyle(fontSize: 15))
                           ]));
-                      // _completedTask(completedTask);
                     }).toList()))
           ],
         ));
   }
-
-  // Widget _completedTask(Event completedTask) {
-  //   developer.log('!!!' + completed.toString());
-  //   return Container(
-  //       height: 50,
-  //       child:
-  //       // new Row(children: <Widget>[
-  //         // SizedBox(width: 15),
-  //         Text(completedTask.taskName, style: TextStyle(fontSize: 12))
-  //       // ]
-  //       );
-  //       // );
-  // }
 }

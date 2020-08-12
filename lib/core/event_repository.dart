@@ -1,5 +1,4 @@
 import 'package:sqflite/sqflite.dart';
-import 'dart:developer' as developer;
 
 import 'dart:async';
 import 'db.dart';
@@ -16,7 +15,6 @@ class EventEntity {
   static final String colDuration = 'duration';
   static final String colUnplanned = 'isUnplanned';
   static final String colToday = 'isTodayList';
-  // static final String colCompleted = 'isCompleted';
   static final String colWhichTask = 'whichTask';
   static final String colTaskOrder = 'taskOrder';
   static final String colTodayOrder = 'todayOrder';
@@ -26,8 +24,8 @@ class EventEntity {
   static void createEventTable(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-            '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, '+
-            '$colUnplanned INTEGER, $colToday INTEGER, $colWhichTask INTEGER, '+
+            '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, ' +
+            '$colUnplanned INTEGER, $colToday INTEGER, $colWhichTask INTEGER, ' +
             '$colTaskOrder INTEGER, $colTodayOrder INTEGER, $colUsedTimerNum INTEGER, $colRepeatProperties TEXT)');
   }
 
@@ -36,22 +34,16 @@ class EventEntity {
       await db.execute('DROP TABLE $eventTable');
       await db.execute(
           'CREATE TABLE $eventTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colKey TEXT, ' +
-              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, '+
-              '$colUnplanned INTEGER, $colToday INTEGER, $colWhichTask INTEGER, '+
+              '$colTaskName TEXT, $colTag TEXT, $colPriority INTEGER, $colDDL TEXT, $colDuration INTEGER, ' +
+              '$colUnplanned INTEGER, $colToday INTEGER, $colWhichTask INTEGER, ' +
               '$colTaskOrder INTEGER, $colTodayOrder INTEGER, $colUsedTimerNum INTEGER, $colRepeatProperties TEXT)');
     }
   }
-
-// static void dropDb(Database db) async {
-//   await db.execute('DROP TABLE $eventTable');
-// }
 }
 
 // Fetch Operation: Get all event objects from database
 Future<List<Map<String, dynamic>>> getEventMapList() async {
   Database db = await DatabaseHelper.database;
-
-//		var result = await db.rawQuery('SELECT * FROM $eventTable order by $colPriority ASC');
   var result = await db.query(EventEntity.eventTable,
       where: '${EventEntity.colWhichTask} is NULL',
       orderBy: '${EventEntity.colTaskOrder} ASC');
@@ -60,10 +52,9 @@ Future<List<Map<String, dynamic>>> getEventMapList() async {
 
 Future<List<Map<String, dynamic>>> getTodayEventMapList() async {
   Database db = await DatabaseHelper.database;
-
-//		var result = await db.rawQuery('SELECT * FROM $eventTable order by $colPriority ASC');
   var result = await db.query(EventEntity.eventTable,
-      where: '${EventEntity.colToday} =?', whereArgs: [1],
+      where: '${EventEntity.colToday} =?',
+      whereArgs: [1],
       orderBy: '${EventEntity.colTodayOrder} ASC');
   return result;
 }
@@ -109,8 +100,8 @@ Future<int> getCount() async {
 
 Future<int> getTodayCount() async {
   Database db = await DatabaseHelper.database;
-  List<Map<String, dynamic>> x =
-      await db.rawQuery('SELECT COUNT (*) from ${EventEntity.eventTable} WHERE ${EventEntity.colToday}=?',
+  List<Map<String, dynamic>> x = await db.rawQuery(
+      'SELECT COUNT (*) from ${EventEntity.eventTable} WHERE ${EventEntity.colToday}=?',
       [1]);
   int result = Sqflite.firstIntValue(x);
   return result;
@@ -127,21 +118,19 @@ Future<List<Event>> getEventList() async {
   for (int i = 0; i < count; i++) {
     eventList.add(Event.fromMapObject(eventMapList[i]));
   }
-  developer.log(eventList.toString());
   return eventList;
 }
 
 Future<List<Event>> getTodayEventList() async {
-  var todayEventMapList = await getTodayEventMapList(); // Get 'Map List' from database
+  var todayEventMapList =
+      await getTodayEventMapList(); // Get 'Map List' from database
   int count =
       todayEventMapList.length; // Count the number of map entries in db table
-
   List<Event> todayEventList = List<Event>();
   // For loop to create a 'Event List' from a 'Map List'
   for (int i = 0; i < count; i++) {
     todayEventList.add(Event.fromMapObject(todayEventMapList[i]));
   }
-  // developer.log(todayEventList.toString());
   return todayEventList;
 }
 
@@ -152,13 +141,11 @@ Future<List<Event>> getUnpannedThing() async {
       [1]);
   int count = unplannedThingMapList
       .length; // Count the number of map entries in db table
-
   List<Event> unplannedThingList = List<Event>();
   // For loop to create a 'Event List' from a 'Map List'
   for (int i = 0; i < count; i++) {
     unplannedThingList.add(Event.fromMapObject(unplannedThingMapList[i]));
   }
-
   return unplannedThingList;
 }
 
@@ -172,6 +159,5 @@ Future<List<Event>> getSubevent(Event task) async {
   for (int i = 0; i < count; i++) {
     subeventList.add(Event.fromMapObject(subeventMapList[i]));
   }
-developer.log('subeventlistt'+subeventList.toString());
   return subeventList;
 }

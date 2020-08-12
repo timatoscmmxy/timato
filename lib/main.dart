@@ -26,19 +26,20 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   notificationInit();
   getEventList().then((data) {
-        eventsList = data;
-    });
+    eventsList = data;
+  });
   await initPreferences();
   await initTodaylist();
   await _updateDdl();
 
   runApp(MaterialApp(
-      home:TodayList(),
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primaryColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white,
-      ),
+    home: TodayList(),
+    theme: ThemeData(
+      brightness: Brightness.light,
+      primaryColor: Colors.white,
+      scaffoldBackgroundColor: Colors.white,
+      accentColor: ConstantHelper.tomatoColor,
+    ),
   ));
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -67,17 +68,17 @@ initPreferences() async {
   }
 }
 
-initTodaylist() async{
+initTodaylist() async {
   final SharedPreferences pref = await SharedPreferences.getInstance();
 
   DateTime lastLogin = DateTime.parse(pref.getString("lastLogin"));
   DateTime today = dateOnly(DateTime.now());
-  if(today.isAfter(lastLogin)){
-    getTodayEventList().then((data){
-        todayEventList = data;
+  if (today.isAfter(lastLogin)) {
+    getTodayEventList().then((data) {
+      todayEventList = data;
     });
-    for(int i = 0; i<todayEventList.length; i++){
-      todayEventList[i].isTodayList=0;
+    for (int i = 0; i < todayEventList.length; i++) {
+      todayEventList[i].isTodayList = 0;
       updateEvent(todayEventList[i]);
     }
   }

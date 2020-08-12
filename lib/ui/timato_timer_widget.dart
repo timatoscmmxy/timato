@@ -89,16 +89,6 @@ class TimatoTimerWidget extends StatelessWidget {
     _relaxTime = relaxLength;
   }
 
-  // void _returnTo(String page,BuildContext context){
-  //   if(page == "todayList"){
-  //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-  //             return TodayList();
-  //     }));
-  //   }else{
-  //     Navigator.pop(context);
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,10 +100,6 @@ class TimatoTimerWidget extends StatelessWidget {
           onPressed: () {
             _timer.stop();
             Navigator.pop(context, false);
-            // _returnTo(page,context);
-            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-            //   return TodayList();
-            // }));
           },
         ),
         title: Text(
@@ -171,7 +157,6 @@ class TimatoTimerWidget extends StatelessWidget {
                         context: context,
                         action: (context) {
                           _timer.stop();
-                          // event.isCompleted = 1;
                           DateTime completedDate = DateTime(DateTime.now().year,
                               DateTime.now().month, DateTime.now().day);
                           event.completedDate = ddlFormat.formatDate(

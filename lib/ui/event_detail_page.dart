@@ -15,14 +15,7 @@ import 'package:timato/core/db.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
 import 'package:timato/core/repeat_properties.dart';
-import 'dart:developer' as developer;
-
 import 'package:timato/ui/today_task_list.dart';
-
-//TODO
-// List<Event> todayEventList = [];
-// List<Event> eventsList = [];
-// List<Event> subtasksList=[];
 
 List<Event> subtasksList = [];
 
@@ -40,9 +33,6 @@ class _EventListState extends State<EventList> {
   _EventListState({this.task, this.page});
   final Event task;
   final String page;
-  // List<Event> subtasksList=[];
-
-  // List<Event> subeventsList = [];
 
   @override
   void initState() {
@@ -50,30 +40,29 @@ class _EventListState extends State<EventList> {
     getSubevent(task).then((data) {
       setState(() {
         subtasksList = data;
-        developer.log(subtasksList.toString());
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
           backgroundColor: Colors.white,
           leading: IconButton(
               icon: Icon(Icons.arrow_back, color: ConstantHelper.tomatoColor),
               onPressed: () {
-                if(this.task.taskName==''){
+                if (this.task.taskName == '') {
                   Fluttertoast.showToast(
-              msg: "Task's name cannot be empty",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              backgroundColor: Colors.white,
-              textColor: ConstantHelper.tomatoColor,
-              fontSize: 16);
-                }else{
-                Navigator.pop(context,true);
+                      msg: "Task's name cannot be empty",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.CENTER,
+                      backgroundColor: Colors.white,
+                      textColor: ConstantHelper.tomatoColor,
+                      fontSize: 16);
+                } else {
+                  Navigator.pop(context, true);
                 }
               }),
           actions: <Widget>[
@@ -97,14 +86,12 @@ class _EventListState extends State<EventList> {
                         });
                       });
                       Navigator.pop(context, true);
-                      // changePage(page);
                     })
               },
             ),
           ]),
       body: _eventDetail(task),
-      floatingActionButton: _button(page),
-      // resizeToAvoidBottomPadding: false,
+      floatingActionButton: keyboardIsOpened ? null : _button(page),
     );
   }
 
@@ -167,21 +154,17 @@ class _EventListState extends State<EventList> {
 ///Event page contains all the details that delong to the [Event]
 ///Including: [taskName], [id], [ddl], [eventPriority], [subeventsList]
 Widget _eventDetail(Event task) {
-  return ListView(
-    children: <Widget>[
-    SizedBox(height:10),
+  return ListView(children: <Widget>[
+    SizedBox(height: 12),
     TextName(task: task),
     TaskTag(task: task),
     TaskDate(task: task),
     TaskPriority(task: task),
     SizedBox(height: 10),
     TaskDuration(task: task),
-    // SizedBox(height: 10),
     RepeatTime(task: task),
-    // SizedBox(height: 10),
     SubtaskList(task: task)
-  ]
-  );
+  ]);
 }
 
 ///Builds the part for [taskName]
@@ -201,7 +184,7 @@ class _TextNameState extends State<TextName> {
   Widget build(BuildContext context) {
     return Container(
         child: TextFormField(
-      //TODO: choose a better way
+      style: TextStyle(fontSize: 17),
       onChanged: (text) {
         this.task.taskName = text;
         updateEvent(task);
@@ -239,14 +222,12 @@ class _TaskTagState extends State<TaskTag> {
         child: Row(children: <Widget>[
       SizedBox(width: 12),
       Icon(Icons.label_outline, color: ConstantHelper.tomatoColor),
-      // SizedBox(width: 12),
       Container(
           width: 166,
           child: TextFormField(
             onChanged: (text) {
               if (text != '') {
                 this.task.tag = text;
-                //TODO: store
                 updateEvent(task);
                 print('$this.task.tag');
               }
@@ -255,7 +236,6 @@ class _TaskTagState extends State<TaskTag> {
             maxLength: 10,
             initialValue: this.task.tag,
             style: TextStyle(fontSize: 14),
-            // this.task.taskName,
             decoration: const InputDecoration(
               hintText: 'enter a tag',
               counterText: '',
@@ -265,14 +245,6 @@ class _TaskTagState extends State<TaskTag> {
           ))
     ]));
   }
-
-  // String _tagString(Event task) {
-  //   if (this.task.tag != null) {
-  //     return this.task.tag.toString();
-  //   } else {
-  //     return "enter a tag";
-  //   }
-  // }
 }
 
 ///Builds the part for [ddl]
@@ -313,7 +285,7 @@ class _TaskDateState extends State<TaskDate> {
         } else {
           return "select a date";
         }
-      })(),style: TextStyle(color: Colors.black54)),
+      })(), style: TextStyle(color: Colors.black54)),
     ]));
   }
 }
@@ -340,14 +312,13 @@ class _TaskPriorityState extends State<TaskPriority> {
         SizedBox(width: 13),
         Container(
           height: 20,
-          width:20,
+          width: 20,
           decoration: BoxDecoration(
-            color:ConstantHelper.priorityColor(task),
-            border:new Border.all(color: Colors.black38,width:0.5),
-            borderRadius: new BorderRadius.circular((20.0)), 
+            color: ConstantHelper.priorityColor(task),
+            border: new Border.all(color: Colors.black38, width: 0.5),
+            borderRadius: new BorderRadius.circular((20.0)),
           ),
         ),
-        // Icon(Icons.brightness_1, color: ConstantHelper.priorityColor(task)),
         SizedBox(width: 12),
         DropdownButton<String>(
           value: ConstantHelper.priorityString[this.task.eventPriority],
@@ -390,7 +361,7 @@ class _TaskDurationState extends State<TaskDuration> {
   final Event task;
 
   String _duration(Event task) {
-    if(task.duration!=null && task.duration!=''){
+    if (task.duration != null && task.duration != '') {
       return task.duration.toString();
     }
   }
@@ -405,7 +376,6 @@ class _TaskDurationState extends State<TaskDuration> {
       Container(
           width: 166,
           child: TextFormField(
-            // keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 4,
@@ -415,10 +385,9 @@ class _TaskDurationState extends State<TaskDuration> {
                 suffixText: 'minutes',
                 counterText: '',
                 border: InputBorder.none),
-            // onChanged: (text)
             onChanged: (String text) {
               if (text == '') {
-                task.duration=null;
+                task.duration = null;
                 updateEvent(task);
                 return;
               }
@@ -434,12 +403,7 @@ class _TaskDurationState extends State<TaskDuration> {
               this.task.duration = int.parse(text);
               updateEvent(this.task);
               print('$this.task.duration');
-              // _onChange(val);
             },
-            // {
-            //   this.task.duration = int.parse(text);
-            //   print('$this.task.duration');
-            // },
           ))
     ]));
   }
@@ -457,13 +421,16 @@ class _RepeatTimeState extends State<RepeatTime> {
   _RepeatTimeState(this.task);
   final Event task;
 
-  Widget _repeatProperties(Event task){
-    if(task.repeatProperties==null){
-      return Text("Choose a repeat property", style:TextStyle(color:Colors.black54));
-            }else{
-              return Text("next occurrence: "+ddlFormat.formatDate(task.repeatProperties.nextOccurrence().toDateTimeLocal(), [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd])
-        
-        );}
+  Widget _repeatProperties(Event task) {
+    if (task.repeatProperties == null) {
+      return Text("Choose a repeat property",
+          style: TextStyle(color: Colors.black54));
+    } else {
+      return Text("next occurrence: " +
+          ddlFormat.formatDate(
+              task.repeatProperties.nextOccurrence().toDateTimeLocal(),
+              [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]));
+    }
   }
 
   @override
@@ -474,18 +441,18 @@ class _RepeatTimeState extends State<RepeatTime> {
         // SizedBox(width: 12),
         IconButton(
             icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
-            onPressed: () async{
-              RepeatProeprties repeatPrrperties = await SetRepeatProperties.show(context, task.ddl??dateOnly(DateTime.now()));
+            onPressed: () async {
+              RepeatProeprties repeatPrrperties =
+                  await SetRepeatProperties.show(
+                      context, task.ddl ?? dateOnly(DateTime.now()));
               task.repeatProperties = repeatPrrperties;
               updateEvent(this.task);
-              if(repeatPrrperties!=null){
-                setState(() {
-                  
-                });
+              if (repeatPrrperties != null) {
+                setState(() {});
               }
             }),
-            _repeatProperties(task)
-        ],
+        _repeatProperties(task)
+      ],
     ));
   }
 }
@@ -497,7 +464,6 @@ class _RepeatTimeState extends State<RepeatTime> {
 class SubtaskList extends StatefulWidget {
   SubtaskList({Key key, this.task}) : super(key: key);
   final Event task;
-  // final List<Event> subtasksList;
   @override
   _SubtaskListState createState() => _SubtaskListState(task: task);
 }
@@ -505,8 +471,6 @@ class SubtaskList extends StatefulWidget {
 class _SubtaskListState extends State<SubtaskList> {
   _SubtaskListState({this.task});
   final Event task;
-
-  // final List<Event> subtasksList;
 
   int _subLength(List<Event> subtasksList) {
     int subLength;
@@ -520,11 +484,9 @@ class _SubtaskListState extends State<SubtaskList> {
 
   @override
   void initState() {
-    // TODO: implement initState
     getSubevent(task).then((data) {
       setState(() {
         subtasksList = data;
-        developer.log(subtasksList.toString());
       });
     });
   }
@@ -532,7 +494,6 @@ class _SubtaskListState extends State<SubtaskList> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    developer.log(_subLength(subtasksList).toString());
     return Container(
         height: 35.0 * (_subLength(subtasksList) + 1) + 20 + 22,
         child: Row(
@@ -557,7 +518,6 @@ class _SubtaskListState extends State<SubtaskList> {
     return Column(children: <Widget>[
       SizedBox(height: 22),
       Container(
-          //color: Colors.white70,
           height: 35.0 * (_subLength(subtasksList)),
           width: 326,
           child: ListView(
@@ -568,10 +528,6 @@ class _SubtaskListState extends State<SubtaskList> {
                   actionPane: SlidableDrawerActionPane(),
                   actionExtentRatio: 0.25,
                   secondaryActions: <Widget>[
-                    // IconSlideAction(
-                    //     color: ConstantHelper.tomatoColor,
-                    //     icon: Icons.add
-                    //     ),
                     IconSlideAction(
                         color: ConstantHelper.tomatoColor,
                         iconWidget: IconButton(
@@ -592,10 +548,7 @@ class _SubtaskListState extends State<SubtaskList> {
       Container(
         height: 35,
         width: 326,
-        child: 
-        TextField(
-          // autofocus: true,
-            // keyboardType: TextInputType.multiline,
+        child: TextField(
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
@@ -603,12 +556,9 @@ class _SubtaskListState extends State<SubtaskList> {
                 Event sub = new Event(taskName: text);
                 sub.whichTask = task.id;
                 insertEvent(sub);
-                // sub.whichTask =
-                // this.task.subeventsList.add(sub);
                 getSubevent(task).then((data) {
                   setState(() {
                     subtasksList = data;
-                    developer.log(subtasksList.toString());
                   });
                 });
               }
@@ -639,7 +589,6 @@ class SublistDetail extends StatefulWidget {
 class _SublistDetailState extends State<SublistDetail> {
   _SublistDetailState(this.subtask);
   final Event subtask;
-  // var _checkValue = false;
 
   @override
   Widget build(BuildContext context) {
@@ -648,13 +597,6 @@ class _SublistDetailState extends State<SublistDetail> {
         width: 326,
         child: Row(
           children: <Widget>[
-            // Checkbox(
-            //     value: _checkValue,
-            //     onChanged: (value) {
-            //       setState(() {
-            //         _checkValue = value;
-            //       });
-            //     }),
             Container(
                 width: 200,
                 height: 35,

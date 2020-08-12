@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 
 import 'package:path/path.dart';
 
@@ -26,7 +25,6 @@ class DatabaseHelper {
     // String path = directory.path + '/core/timato.db';
     String path = join(await getDatabasesPath(), 'timato.db');
 
-    developer.log(path);
     // Open/create the database at a given path
     var database = await openDatabase(path,
         version: 12, onCreate: _createDb, onUpgrade: _upgradeDb);
@@ -43,6 +41,6 @@ class DatabaseHelper {
   static void _upgradeDb(Database db, int oldVersion, int newVersion) async {
     EventEntity.upgradeDb(db, oldVersion, newVersion);
     TagEntity.upgradeDb(db, oldVersion, newVersion);
-    CompletedEntity.upgradeDb(db, oldVersion,newVersion);
+    CompletedEntity.upgradeDb(db, oldVersion, newVersion);
   }
 }

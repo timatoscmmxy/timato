@@ -14,8 +14,6 @@ import 'package:timato/ui/today_task_list.dart';
 
 List<Event> todayEventList = [];
 List<Event> eventsList = [];
-// List<Event> completed = [];
-
 typedef AddEventCallback = void Function(Event context);
 
 ///Splits priotity into three levels
@@ -147,12 +145,8 @@ class ConstantHelper {
       String formatDdl = ddlFormat.formatDate(
           task.ddl, [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]);
       return Container(
-        // constraints: BoxConstraints(maxHeight: 1000),
-        //alignment: Alignment.centerLeft,
-        child:
-            // if(task.ddl!=null){
-            Text(formatDdl,
-                style: TextStyle(color: Colors.black87, fontSize: 12)),
+        child: Text(formatDdl,
+            style: TextStyle(color: Colors.black87, fontSize: 12)),
         decoration: BoxDecoration(
           border: new Border.all(color: Colors.red[100]),
           shape: BoxShape.rectangle,
@@ -160,7 +154,6 @@ class ConstantHelper {
           color: Colors.white,
         ),
         padding: EdgeInsets.all(2),
-        // }
       );
     } else {
       return SizedBox(width: 0.1);
@@ -295,22 +288,23 @@ class SideBar extends StatelessWidget {
           }),
       ListTile(
           title: Text("Your Stats"),
-          onTap: () async{
+          onTap: () async {
             var weekDayTimerNums = await getWeekTimerNum();
             var timerNumsToday = await getTodayTimerNum();
-            var timerNumsWeek = weekDayTimerNums.fold(0, (previousValue, element) => previousValue + element);
+            var timerNumsWeek = weekDayTimerNums.fold(
+                0, (previousValue, element) => previousValue + element);
             var tagTimerNumsToday = await getTodayTagTimerNum();
             var tagTimerNumsWeek = await getWeekTagTimerNum();
 
             Navigator.push(context, MaterialPageRoute(builder: (_) {
-               return StatsPage(
-                 timerNumsWeek: timerNumsWeek,
-                 tagTimerNumsToday: tagTimerNumsToday,
-                 timerNumsToday: timerNumsToday,
-                 tagTimerNumsWeek: tagTimerNumsWeek,
-                 weekDayTimerNums: weekDayTimerNums,
-               );
-             }));
+              return StatsPage(
+                timerNumsWeek: timerNumsWeek,
+                tagTimerNumsToday: tagTimerNumsToday,
+                timerNumsToday: timerNumsToday,
+                tagTimerNumsWeek: tagTimerNumsWeek,
+                weekDayTimerNums: weekDayTimerNums,
+              );
+            }));
           }),
     ]));
   }
