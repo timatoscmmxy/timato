@@ -12,7 +12,7 @@ class RepeatProeprties{
   RepeatProeprties({@required this.rule, @required this.start});
 
   LocalDateTime nextOccurrence(){
-    LocalDateTime nextOccurrence = rule.getInstances(start: start).firstWhere((element) => element >= start);
+    LocalDateTime nextOccurrence = rule.getInstances(start: start).firstWhere((element) => element >= dateOnly(DateTime.now()).toLocalDateTime());
     return nextOccurrence;
   }
 
