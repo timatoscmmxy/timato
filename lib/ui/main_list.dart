@@ -6,13 +6,24 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
+import 'package:timato/core/repeat_properties.dart';
 import 'package:timato/ui/add_event.dart';
 // import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/today_task_list.dart';
-import 'package:timato/ui/event_list.dart';
+import 'package:timato/ui/event_detail_page.dart';
 import 'dart:developer' as developer;
+
+Future<void> _updateDdl() {
+  for (int i = 0; i < eventsList.length; i++) {
+    if (eventsList[i].repeatProperties != null) {
+      eventsList[i].ddl =
+          eventsList[i].repeatProperties.nextOccurrence().toDateTimeLocal();
+      updateEvent(eventsList[i]);
+    }
+  }
+}
 
 // List<Event> subtasksList=[];
 class MyTask extends StatefulWidget {
@@ -53,6 +64,21 @@ class _MyTaskState extends State<MyTask> {
         eventsList = data;
       });
     });
+    // for(int i = 0; i < eventsList.length; i++){
+    //   if(eventsList[i].repeatProperties != null){
+    //     eventsList[i].ddl = eventsList[i].repeatProperties.nextOccurrence().toDateTimeLocal();
+    //     updateEvent(eventsList[i]);
+    //   }
+    // }
+    // _updateDdl().then( {
+    //   getEventList().then((data) {
+    //     setState(() {
+    //       eventsList = data;
+    //     });
+    //   })
+    // }
+    // );
+
     developer.log(eventsList.toString());
     // getEventList().then((data) {
     //   setState(() {
@@ -94,7 +120,7 @@ class _MyTaskState extends State<MyTask> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          AddEvent.showAddEvent(0,context, (e) {
+          AddEvent.showAddEvent(0, context, (e) {
             getEventList().then(
               (data) {
                 setState(() {
@@ -355,10 +381,10 @@ class _ListExpanState extends State<ListExpan> {
     if (this.mounted) setState(() {});
   }
 
-  double _height(Event task){
-    if(this.task.tag==null &&this.task.ddl==null){
+  double _height(Event task) {
+    if (this.task.tag == null && this.task.ddl == null) {
       return 30;
-    }else{
+    } else {
       return 50;
     }
   }

@@ -73,12 +73,12 @@ class TimatoTimerWidget extends StatelessWidget {
     }
   }
 
-  TimatoTimerWidget(
-      {@required int timerLength,
-      @required int relaxLength,
-      @required AbstractEvent event,
-      int clockNum})
-      : this._timer = TimatoTimer(timerLength, _onData),
+  TimatoTimerWidget({
+    @required int timerLength,
+    @required int relaxLength,
+    @required AbstractEvent event,
+    int clockNum,
+  })  : this._timer = TimatoTimer(timerLength, _onData),
         this.event = event {
     _textColor.value = Colors.black;
     _buttonColor.value = Colors.white;
@@ -88,6 +88,16 @@ class TimatoTimerWidget extends StatelessWidget {
     usedTimerNum = ValueNotifier(event.usedTimerNum);
     _relaxTime = relaxLength;
   }
+
+  // void _returnTo(String page,BuildContext context){
+  //   if(page == "todayList"){
+  //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+  //             return TodayList();
+  //     }));
+  //   }else{
+  //     Navigator.pop(context);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +109,11 @@ class TimatoTimerWidget extends StatelessWidget {
           icon: Icon(Icons.keyboard_backspace),
           onPressed: () {
             _timer.stop();
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-              return TodayList();
-            }));
+            Navigator.pop(context, false);
+            // _returnTo(page,context);
+            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+            //   return TodayList();
+            // }));
           },
         ),
         title: Text(
@@ -170,16 +182,16 @@ class TimatoTimerWidget extends StatelessWidget {
                             '-',
                             ddlFormat.dd
                           ]);
-                          //TODO
                           updateTag(event.tag, event.usedTimerNum);
                           insertCompletedEvent(event);
-                          deleteEvent(event.id);
+                          if (event.repeatProperties == null) {
+                            deleteEvent(event.id);
+                          } else {
+                            event.isTodayList = 0;
+                            updateEvent(event);
+                          }
                         });
                     if (data) {
-                      // Navigator.pushReplacement(context,
-                      //     MaterialPageRoute(builder: (_) {
-                      //   return TodayList();
-                      // }));
                       Navigator.pop(context, true);
                     }
                   },

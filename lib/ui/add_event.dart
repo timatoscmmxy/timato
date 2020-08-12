@@ -52,6 +52,7 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
+    if(newEvent!=null){
 
     getEventList().then((data) {
       // setState(() {
@@ -69,6 +70,7 @@ class AddEvent extends StatefulWidget {
     if (callback == null) return;
 
     callback.call(newEvent);
+    }
   }
 
   static showAddUnplannedEvent(context) async {
@@ -82,6 +84,7 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
+    if(newEvent!=null){
     getEventList().then((data) {
       eventsList = data;
     });
@@ -103,6 +106,7 @@ class AddEvent extends StatefulWidget {
     newEvent.isTodayList = 1;
     newEvent.isUnplanned = 1;
     await insertEvent(newEvent);
+    }
   }
 }
 

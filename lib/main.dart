@@ -15,7 +15,7 @@ import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/stats_page.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 import 'package:timato/ui/main_list.dart';
-import 'package:timato/ui/event_list.dart';
+import 'package:timato/ui/event_detail_page.dart';
 import 'package:timato/core/event.dart';
 import 'package:timato/ui/today_task_list.dart';
 import 'package:timato/ui/basics.dart';
@@ -25,7 +25,12 @@ import 'core/event_repository.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   notificationInit();
+  getEventList().then((data) {
+        eventsList = data;
+    });
   await initPreferences();
+  await initTodaylist();
+  await _updateDdl();
 
   runApp(MaterialApp(
       home:TodayList(),
@@ -60,12 +65,6 @@ initPreferences() async {
     pref.setInt("relaxLength", DEFAULT_RELAX_LENGTH);
     pref.setString("lastLogin", dateOnly(DateTime.now()).toString());
   }
-
-  DateTime lastLogin = DateTime.parse(pref.getString("lastLogin"));
-  DateTime today = dateOnly(DateTime.now());
-  if(today.isAfter(lastLogin)){
-
-  }
 }
 
 initTodaylist() async{
@@ -83,4 +82,14 @@ initTodaylist() async{
     }
   }
   pref.setString("lastLogin", today.toString());
+}
+
+_updateDdl() {
+  for (int i = 0; i < eventsList.length; i++) {
+    if (eventsList[i].repeatProperties != null) {
+      eventsList[i].ddl =
+          eventsList[i].repeatProperties.nextOccurrence().toDateTimeLocal();
+      updateEvent(eventsList[i]);
+    }
+  }
 }

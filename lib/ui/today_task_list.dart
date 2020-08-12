@@ -15,9 +15,18 @@ import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/main_list.dart';
-import 'package:timato/ui/event_list.dart';
+import 'package:timato/ui/event_detail_page.dart';
 import 'package:timato/ui/settings_widget.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
+
+// void _getTodayList() {
+//   getEventList().then((data) {
+//     eventsList = data;
+//   });
+//   for(int i = 0; i<eventsList.length; i++){
+//     eventsList[i]
+//   }
+// }
 
 class TodayList extends StatefulWidget {
   _TodayListState _state;
@@ -29,6 +38,7 @@ class TodayList extends StatefulWidget {
   }
 
   void refreshState() {
+    //TODO: _getTodayList
     getTodayEventList().then((data) {
       if (_state == null || !_state.mounted) return;
       _state.setState(() {
@@ -156,13 +166,14 @@ class _TodayListState extends State<TodayList> {
                                 int timerLength = timerData[0];
                                 int relaxLength = timerData[1];
                                 int currentClockNum = await task.clockNum;
-                                var needRefresh = await Navigator.pushReplacement(context,
+                                var needRefresh = await Navigator.push(context,
                                     MaterialPageRoute(builder: (_) {
                                   return TimatoTimerWidget(
                                       timerLength: timerLength,
                                       relaxLength: relaxLength,
                                       event: task,
-                                      clockNum: currentClockNum);
+                                      clockNum: currentClockNum,
+                                    );
                                 }));
 
                                 if (needRefresh != null && needRefresh) {
@@ -294,7 +305,7 @@ class TaskTileState extends State<TaskTile> {
                             IconSlideAction(
                                 color: ConstantHelper.tomatoColor,
                                 iconWidget: IconButton(
-                                    icon: Icon(Icons.delete_sweep,
+                                    icon: Icon(Icons.cancel,
                                         color: Colors.white),
                                     onPressed: () => {
                                           WarningDialog.show(
@@ -331,7 +342,7 @@ class TaskTileState extends State<TaskTile> {
                                           timerLength: timerLength,
                                           relaxLength: relaxLength,
                                           event: task,
-                                          clockNum: currentClockNum);
+                                          clockNum: currentClockNum,);
                                     }));
 
                                     if (needRefresh != null && needRefresh) {

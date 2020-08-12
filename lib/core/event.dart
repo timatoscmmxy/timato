@@ -73,7 +73,8 @@ abstract class AbstractEvent implements Comparable {
       int whichTask,
       int taskOrder,
       int todayOrder,
-      int usedTimerNum}) {
+      int usedTimerNum,
+      RepeatProeprties repeatProperties,}) {
     this.taskName = taskName;
     this.ddl = null;
     this.duration = duration;
@@ -87,6 +88,7 @@ abstract class AbstractEvent implements Comparable {
     this.taskOrder = taskOrder;
     this.todayOrder = todayOrder;
     this.usedTimerNum = usedTimerNum;
+    this.repeatProperties = repeatProperties;
   }
 
   ///List of all the subevent this [Event] has
@@ -162,7 +164,8 @@ class Event extends AbstractEvent {
       int whichTask,
       int taskOrder,
       int todayOrder,
-      int usedTimerNum})
+      int usedTimerNum,
+      RepeatProeprties repeatProperties,})
       : super(
           taskName: taskName,
           ddl: ddl,
@@ -175,7 +178,8 @@ class Event extends AbstractEvent {
           whichTask: whichTask,
           taskOrder: taskOrder,
           todayOrder: todayOrder,
-          usedTimerNum: usedTimerNum
+          usedTimerNum: usedTimerNum,
+          repeatProperties: repeatProperties,
         );
 
   Event.fromMapObject(Map<String, dynamic> map) {
@@ -199,6 +203,7 @@ class Event extends AbstractEvent {
     this.taskOrder = map["taskOrder"];
     this.todayOrder = map["todayOrder"];
     this.usedTimerNum = map["usedTimerNum"]??0;
+    this.repeatProperties = RepeatProeprties.fromString(map["repeatProperties"]);
   }
 
   ///Database implementation
@@ -220,6 +225,7 @@ class Event extends AbstractEvent {
       'taskOrder': taskOrder,
       'todayOrder': todayOrder,
       'usedTimerNum': usedTimerNum??0,
+      'repeatProperties': repeatProperties?.toString(),
       // 'subeventsList': subeventsList
     };
   }
