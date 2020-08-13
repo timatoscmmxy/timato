@@ -5,7 +5,7 @@ final FlutterLocalNotificationsPlugin notifications =
 
 notificationInit() {
   var initializationSettingsAndroid =
-      AndroidInitializationSettings('launch_background');
+      AndroidInitializationSettings('@mipmap/ic_launcher');
   var initializationSettingsIOS = IOSInitializationSettings();
   var initSettings = InitializationSettings(
       initializationSettingsAndroid, initializationSettingsIOS);
