@@ -356,7 +356,7 @@ class DonutAutoLabelChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (tagTimerNumPairs.length == 0 || tagTimerNumPairs == null){
+    if (tagTimerNumPairs.length == 0 || tagTimerNumPairs == null || tagTimerNumPairs.values.fold(0, (previousValue, element) => previousValue + element) ==0){
       return FittedBox(
         child: Text(
           'You haven\'t finished any pomodoro timers with tagged tasks',
