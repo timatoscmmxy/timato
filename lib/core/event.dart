@@ -183,7 +183,6 @@ class Event extends AbstractEvent {
   ///Converts an [Event] into a Map
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'key': key.toString(),
       'task_name': taskName,
       'tag': tag,
@@ -216,7 +215,6 @@ class Event extends AbstractEvent {
 
   Map<String, dynamic> toMapCompleted() {
     return {
-      'id': id,
       'completedDate': completedDate,
       'task_name': taskName,
       'tag': tag,
