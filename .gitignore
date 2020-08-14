@@ -50,3 +50,4 @@ pubspec.lock
 .vscode/
 
 android/key.properties
+ios/build
