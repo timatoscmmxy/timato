@@ -34,6 +34,7 @@ void main() async {
 
   runApp(MaterialApp(
     home: TodayList(),
+    debugShowCheckedModeBanner: false,
     theme: ThemeData(
       brightness: Brightness.light,
       primaryColor: Colors.white,
