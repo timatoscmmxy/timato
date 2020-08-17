@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:timato/core/tag_repository.dart';
 import 'package:date_format/date_format.dart' as ddlFormat;
 import 'package:timato/ui/completed_list.dart';
@@ -14,12 +17,15 @@ import 'package:timato/ui/today_task_list.dart';
 
 List<Event> todayEventList = [];
 List<Event> eventsList = [];
+// Locale locale = Locale(language, '');
 typedef AddEventCallback = void Function(Event context);
 
 ///Splits priotity into three levels
 enum Priority { HIGH, MIDDLE, LOW, NONE }
 
 class ConstantHelper {
+  static List<String> twoLanguageList = ["English", "中文"];
+
   static final Map intToMonth = {
     1: 'Jan',
     2: 'Feb',
@@ -87,8 +93,6 @@ class ConstantHelper {
     1: 'Low',
     0: 'None'
   };
-  //Fake data for [tag]
-  static final List<String> tags = <String>['English', 'Chinese', 'None'];
 
   //List for priority level
   static final List<String> priorityList = ['High', 'Middle', 'Low', 'None'];
@@ -371,4 +375,89 @@ extension Conversion on DateTime {
   LocalDateTime toLocalDateTime() {
     return LocalDateTime(this.year, this.month, this.day, 0, 0, 0);
   }
+}
+
+class Language {
+  final int id;
+  final String name;
+  final String languageCode;
+
+  Language(this.id, this.name, this.languageCode);
+
+  static final Map<Language, String> languageString = {
+    Language(1, 'English', 'en'): 'English',
+    Language(2, '中文', 'zh'): '中文',
+  };
+
+  static final Map<Locale, String> localeString = {
+    Locale('en', ''): 'English',
+    Locale('zh', ''): '中文',
+  };
+
+  static final Map<String, Language> stringlanguage = {
+    'English': Language(1, 'English', 'en'),
+    '中文': Language(2, '中文', 'zh'),
+  };
+
+  static List<Language> languageList() {
+    return <Language>[
+      Language(1, 'English', 'en'),
+      Language(2, '中文', 'zh'),
+    ];
+  }
+}
+
+class TimatoLocalization {
+  TimatoLocalization(this.locale);
+
+  static TimatoLocalization of(BuildContext context) {
+    return Localizations.of<TimatoLocalization>(context, TimatoLocalization);
+  }
+
+  Map<String, String> _localizedValues;
+  Locale locale;
+
+  Future load() async {
+    String jsonStringValues =
+        await rootBundle.loadString("lib/language/${locale.languageCode}.json");
+
+    Map<String, dynamic> mappedJson = json.decode(jsonStringValues);
+
+    _localizedValues =
+        mappedJson.map((key, value) => MapEntry(key, value.toString()));
+  }
+
+  Future<Locale> setLocale(String languageCode) async {
+    this.locale = Locale(languageCode, "");
+    await load();
+
+    return this.locale;
+  }
+
+  String getTranslatedValue(String key) {
+    return _localizedValues[key];
+  }
+
+  static const LocalizationsDelegate<TimatoLocalization> delegate =
+      _TimatoLocalizationDelegate();
+}
+
+class _TimatoLocalizationDelegate
+    extends LocalizationsDelegate<TimatoLocalization> {
+  const _TimatoLocalizationDelegate();
+  @override
+  bool isSupported(Locale locale) {
+    // return ['en', 'zh'].contains(locale.languageCode);
+    return true;
+  }
+
+  @override
+  Future<TimatoLocalization> load(Locale locale) async {
+    TimatoLocalization localization = new TimatoLocalization(locale);
+    await localization.load();
+    return localization;
+  }
+
+  @override
+  bool shouldReload(_TimatoLocalizationDelegate old) => false;
 }

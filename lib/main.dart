@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,7 +33,33 @@ void main() async {
   await initTodaylist();
   await _updateDdl();
 
+  SharedPreferences pref =
+                      await SharedPreferences.getInstance();
+  String language = pref.getString('language') ?? 'zh';
+  Locale locale = Locale(language, '');
+
+  // Locale _locale;
+
   runApp(MaterialApp(
+    supportedLocales: [
+      const Locale('en', ''),
+      const Locale('zh', ''),
+    ],
+    locale: locale,
+    localizationsDelegates: [
+      TimatoLocalization.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    localeResolutionCallback: (deviceLocale, supportedLocales){
+      for(var locale in supportedLocales) {
+        if(locale.languageCode == deviceLocale.languageCode){
+          return deviceLocale;
+        }
+      }
+      return supportedLocales.first;
+    },
     home: TodayList(),
     debugShowCheckedModeBanner: false,
     theme: ThemeData(

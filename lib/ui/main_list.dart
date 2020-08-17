@@ -50,7 +50,7 @@ class _MyTaskState extends State<MyTask> {
       appBar: new AppBar(
           elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-          title: new Text("My Tasks",
+          title: new Text(TimatoLocalization.of(context).getTranslatedValue("main_page"),
               style: TextStyle(color: ConstantHelper.tomatoColor)),
           backgroundColor: Colors.white),
       body: Container(
