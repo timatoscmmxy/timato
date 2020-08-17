@@ -97,8 +97,9 @@ class _MyTaskState extends State<MyTask> {
       children: eventsList.map((task) {
         if (task.isUnplanned == 1) {
           return Container(
+              color: Colors.white,
               key: task.key,
-              height: 50,
+              height: 40,
               child: Slidable(
                   actionPane: SlidableDrawerActionPane(),
                   actionExtentRatio: 0.25,
@@ -314,7 +315,7 @@ class _ListExpanState extends State<ListExpan> {
 
   double _height(Event task) {
     if (this.task.tag == null && this.task.ddl == null) {
-      return 30;
+      return 40;
     } else {
       return 55;
     }
