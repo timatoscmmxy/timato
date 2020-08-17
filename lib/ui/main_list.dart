@@ -316,7 +316,7 @@ class _ListExpanState extends State<ListExpan> {
     if (this.task.tag == null && this.task.ddl == null) {
       return 30;
     } else {
-      return 50;
+      return 55;
     }
   }
 

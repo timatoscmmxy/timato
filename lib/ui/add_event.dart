@@ -47,6 +47,16 @@ class AddEvent extends StatefulWidget {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
+    if(isToday==1){
+      getTodayEventList().then((data) {
+        todayEventList = data;
+      });
+      if (todayEventList.length == 0) {
+        newEvent.todayOrder = 0;
+      } else {
+        newEvent.todayOrder = todayEventList.last.todayOrder + 1;
+      }
+    }
     if (newEvent != null) {
       getEventList().then((data) {
         eventsList = data;
