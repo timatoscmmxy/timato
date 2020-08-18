@@ -24,34 +24,52 @@ typedef AddEventCallback = void Function(Event context);
 enum Priority { HIGH, MIDDLE, LOW, NONE }
 
 class ConstantHelper {
+  // @override
+  // Widget build(BuildContext context){
   static List<String> twoLanguageList = ["English", "中文"];
 
-  static final Map intToMonth = {
-    1: 'Jan',
-    2: 'Feb',
-    3: 'Mar',
-    4: 'Apr',
-    5: 'May',
-    6: 'Jun',
-    7: 'Jul',
-    8: 'Aug',
-    9: 'Sep',
-    10: 'Oct',
-    11: 'Nov',
-    12: 'Dec'
-  };
+  // static List<String> title = [
+  //   TimatoLocalization.instance.getTranslatedValue('today'),
+  //   TimatoLocalization.instance.getTranslatedValue('yesterday'),
+  //   TimatoLocalization.instance.getTranslatedValue('before_yesterday')
+  // ];
 
-  static final Map dayOfWeekToRFC = {
-    DayOfWeek.monday: 'MO',
-    DayOfWeek.tuesday: 'TU',
-    DayOfWeek.wednesday: 'WE',
-    DayOfWeek.thursday: 'TH',
-    DayOfWeek.friday: 'FR',
-    DayOfWeek.saturday: 'SA',
-    DayOfWeek.sunday: 'SU',
-  };
+  // static final Map intToMonth = {
+  //   1: TimatoLocalization.instance.getTranslatedValue('month_jan_ab'),
+  //   2: TimatoLocalization.instance.getTranslatedValue('month_feb_ab'),
+  //   3: TimatoLocalization.instance.getTranslatedValue('month_mar_ab'),
+  //   4: TimatoLocalization.instance.getTranslatedValue('month_apr_ab'),
+  //   5: TimatoLocalization.instance.getTranslatedValue('month_may_ab'),
+  //   6: TimatoLocalization.instance.getTranslatedValue('month_june_ab'),
+  //   7: TimatoLocalization.instance.getTranslatedValue('month_july_ab'),
+  //   8: TimatoLocalization.instance.getTranslatedValue('month_aug_ab'),
+  //   9: TimatoLocalization.instance.getTranslatedValue('month_sept_ab'),
+  //   10: TimatoLocalization.instance.getTranslatedValue('month_oct_ab'),
+  //   11: TimatoLocalization.instance.getTranslatedValue('month_nov_ab'),
+  //   12: TimatoLocalization.instance.getTranslatedValue('month_dec_ab')
+  // };
+
+  // static final Map dayOfWeekToRFC = {
+  //   DayOfWeek.monday: TimatoLocalization.instance
+  //       .getTranslatedValue('weekDayButton_mon_ab'),
+  //   DayOfWeek.tuesday:
+  //       TimatoLocalization.instance.getTranslatedValue('weekDayButton_t_ab'),
+  //   DayOfWeek.wednesday: TimatoLocalization.instance
+  //       .getTranslatedValue('weekDayButton_wed_ab'),
+  //   DayOfWeek.thursday: TimatoLocalization.instance
+  //       .getTranslatedValue('weekDayButton_thur_ab'),
+  //   DayOfWeek.friday: TimatoLocalization.instance
+  //       .getTranslatedValue('weekDayButton_fri_ab'),
+  //   DayOfWeek.saturday: TimatoLocalization.instance
+  //       .getTranslatedValue('weekDayButton_sat_ab'),
+  //   DayOfWeek.sunday: TimatoLocalization.instance
+  //       .getTranslatedValue('weekDayButton_sun_ab'),
+  // };
 
   static final Color tomatoColor = Color.fromRGBO(255, 99, 71, 1);
+
+  //TODO:
+  // static BuildContext get context;
 
   ///Changes the color according to [eventPriority] of [Event]
   static Color priorityColor(AbstractEvent task) {
@@ -67,17 +85,25 @@ class ConstantHelper {
   }
 
   static final Map<String, Priority> priorityEnum = {
-    'High': Priority.HIGH,
-    'Middle': Priority.MIDDLE,
-    'Low': Priority.LOW,
-    'None': Priority.NONE
+    TimatoLocalization.instance.getTranslatedValue('priority_high'):
+        Priority.HIGH,
+    TimatoLocalization.instance.getTranslatedValue('priority_middle'):
+        Priority.MIDDLE,
+    TimatoLocalization.instance.getTranslatedValue('priority_low'):
+        Priority.LOW,
+    TimatoLocalization.instance.getTranslatedValue('priority_none'):
+        Priority.NONE
   };
 
   static final Map<Priority, String> priorityString = {
-    Priority.HIGH: 'High',
-    Priority.MIDDLE: 'Middle',
-    Priority.LOW: 'Low',
-    Priority.NONE: 'None'
+    Priority.HIGH:
+        TimatoLocalization.instance.getTranslatedValue('priority_high'),
+    Priority.MIDDLE:
+        TimatoLocalization.instance.getTranslatedValue('priority_middle'),
+    Priority.LOW:
+        TimatoLocalization.instance.getTranslatedValue('priority_low'),
+    Priority.NONE:
+        TimatoLocalization.instance.getTranslatedValue('priority_none')
   };
 
   static final Map<Priority, int> priorityLevel = {
@@ -88,14 +114,19 @@ class ConstantHelper {
   };
 
   static final Map<int, String> priorityIntString = {
-    3: 'High',
-    2: 'Middle',
-    1: 'Low',
-    0: 'None'
+    3: TimatoLocalization.instance.getTranslatedValue('priority_high'),
+    2: TimatoLocalization.instance.getTranslatedValue('priority_middle'),
+    1: TimatoLocalization.instance.getTranslatedValue('priority_low'),
+    0: TimatoLocalization.instance.getTranslatedValue('priority_none')
   };
 
   //List for priority level
-  static final List<String> priorityList = ['High', 'Middle', 'Low', 'None'];
+  static final List<String> priorityList = [
+    TimatoLocalization.instance.getTranslatedValue('priority_high'),
+    TimatoLocalization.instance.getTranslatedValue('priority_middle'),
+    TimatoLocalization.instance.getTranslatedValue('priority_low'),
+    TimatoLocalization.instance.getTranslatedValue('priority_none')
+  ];
 
   static Widget tagDdl(Event task) {
     if (task.tag == null && task.ddl == null) {
@@ -128,8 +159,14 @@ class ConstantHelper {
 
   static Widget _tag(Event task) {
     if (task.tag != null) {
+      // return LayoutBuilder(
+      //   builder: (context, constraints){
+          // if(constraints.maxWidth<150){
       return Container(
+        // width:100,
         child: Text(task.tag,
+        // overflow: TextOverflow.ellipsis,
+        //                   softWrap: false,
             style: TextStyle(color: Colors.black87, fontSize: 12)),
         decoration: BoxDecoration(
           border: new Border.all(color: Colors.red[100]),
@@ -139,6 +176,23 @@ class ConstantHelper {
         ),
         padding: EdgeInsets.all(2),
       );
+      // }else{
+      //   return Container(
+      //   width:150,
+      //   child: Text(task.tag,
+      //   overflow: TextOverflow.ellipsis,
+      //                     softWrap: false,
+      //       style: TextStyle(color: Colors.black87, fontSize: 12)),
+      //   decoration: BoxDecoration(
+      //     border: new Border.all(color: Colors.red[100]),
+      //     shape: BoxShape.rectangle,
+      //     borderRadius: BorderRadius.circular(10),
+      //     color: Colors.white,
+      //   ),
+      //   padding: EdgeInsets.all(2),
+      // );
+      // }
+      // });
     } else {
       return SizedBox();
     }
@@ -210,7 +264,7 @@ class WarningDialog extends StatelessWidget {
       actions: <Widget>[
         FlatButton(
           child: Text(
-            'Cancel',
+            TimatoLocalization.instance.getTranslatedValue('cancel'),
             style: TextStyle(color: Colors.black38),
           ),
           onPressed: () {
@@ -219,7 +273,7 @@ class WarningDialog extends StatelessWidget {
         ),
         FlatButton(
           child: Text(
-            'Confirm',
+            TimatoLocalization.instance.getTranslatedValue('confirm'),
             style: TextStyle(color: ConstantHelper.tomatoColor),
           ),
           onPressed: () {
@@ -252,10 +306,12 @@ class SideBar extends StatelessWidget {
     return Drawer(
         child: ListView(children: <Widget>[
       DrawerHeader(
-          child: Text('Timato, be productive with you'),
+          child:
+              Text(TimatoLocalization.instance.getTranslatedValue('slogan')),
           decoration: BoxDecoration(color: ConstantHelper.tomatoColor)),
       ListTile(
-          title: Text('My Tasks'),
+          title: Text(
+              TimatoLocalization.instance.getTranslatedValue('main_page')),
           onTap: () {
             if (pageName == 'MyTask') {
               Navigator.pop(context);
@@ -267,7 +323,8 @@ class SideBar extends StatelessWidget {
             }
           }),
       ListTile(
-          title: Text("Today's Tasks"),
+          title: Text(
+              TimatoLocalization.instance.getTranslatedValue('today_page')),
           onTap: () {
             if (pageName == 'TodayList') {
               Navigator.pop(context);
@@ -279,7 +336,8 @@ class SideBar extends StatelessWidget {
             }
           }),
       ListTile(
-          title: Text("Completed Task"),
+          title: Text(TimatoLocalization.instance
+              .getTranslatedValue('completed_page')),
           onTap: () {
             if (pageName == 'Completed') {
               Navigator.pop(context);
@@ -291,7 +349,8 @@ class SideBar extends StatelessWidget {
             }
           }),
       ListTile(
-          title: Text("Your Stats"),
+          title: Text(
+              TimatoLocalization.instance.getTranslatedValue('my_stats')),
           onTap: () async {
             var weekDayTimerNums = await getWeekTimerNum();
             var timerNumsToday = await getTodayTimerNum();
@@ -319,17 +378,18 @@ class TimerLengthAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Invalid number input',
+        TimatoLocalization.instance.getTranslatedValue('invalid_input'),
         style: TextStyle(fontSize: 14),
         softWrap: true,
         textAlign: TextAlign.left,
       ),
       titlePadding: EdgeInsets.all(10),
-      content: Text('Value input must be between 0 and 5940 minutes'),
+      content: Text(TimatoLocalization.instance
+          .getTranslatedValue('value_restriction')),
       actions: <Widget>[
         FlatButton(
           child: Text(
-            'OK',
+            TimatoLocalization.instance.getTranslatedValue('ok'),
             style: TextStyle(color: Colors.lightBlue),
           ),
           onPressed: () {
@@ -410,9 +470,11 @@ class Language {
 class TimatoLocalization {
   TimatoLocalization(this.locale);
 
-  static TimatoLocalization of(BuildContext context) {
-    return Localizations.of<TimatoLocalization>(context, TimatoLocalization);
-  }
+  // static TimatoLocalization of(BuildContext context) {
+  //   return Localizations.of<TimatoLocalization>(context, TimatoLocalization);
+  // }
+
+  static TimatoLocalization instance;
 
   Map<String, String> _localizedValues;
   Locale locale;
@@ -425,6 +487,8 @@ class TimatoLocalization {
 
     _localizedValues =
         mappedJson.map((key, value) => MapEntry(key, value.toString()));
+
+    TimatoLocalization.instance = this;
   }
 
   Future<Locale> setLocale(String languageCode) async {

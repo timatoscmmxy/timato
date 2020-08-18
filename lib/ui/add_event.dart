@@ -16,12 +16,26 @@ DateTime dateOnly(DateTime date) {
 }
 
 String formatDate(dynamic date) {
+  Map intToMonth = {
+    1: TimatoLocalization.instance.getTranslatedValue('month_jan_ab'),
+    2: TimatoLocalization.instance.getTranslatedValue('month_feb_ab'),
+    3: TimatoLocalization.instance.getTranslatedValue('month_mar_ab'),
+    4: TimatoLocalization.instance.getTranslatedValue('month_apr_ab'),
+    5: TimatoLocalization.instance.getTranslatedValue('month_may_ab'),
+    6: TimatoLocalization.instance.getTranslatedValue('month_june_ab'),
+    7: TimatoLocalization.instance.getTranslatedValue('month_july_ab'),
+    8: TimatoLocalization.instance.getTranslatedValue('month_aug_ab'),
+    9: TimatoLocalization.instance.getTranslatedValue('month_sept_ab'),
+    10: TimatoLocalization.instance.getTranslatedValue('month_oct_ab'),
+    11: TimatoLocalization.instance.getTranslatedValue('month_nov_ab'),
+    12: TimatoLocalization.instance.getTranslatedValue('month_dec_ab')
+  };
   if (date is DateTime) {
-    return '${ConstantHelper.intToMonth[date.month]} ${date.day}';
+    return '${intToMonth[date.month]} ${date.day}';
   } else if (date is LocalDate) {
-    return '${ConstantHelper.intToMonth[date.monthOfYear]} ${date.dayOfMonth}';
+    return '${intToMonth[date.monthOfYear]} ${date.dayOfMonth}';
   } else if (date is LocalDateTime) {
-    return '${ConstantHelper.intToMonth[date.monthOfYear]} ${date.dayOfMonth}';
+    return '${intToMonth[date.monthOfYear]} ${date.dayOfMonth}';
   } else {
     return null;
   }
@@ -40,21 +54,23 @@ class AddEvent extends StatefulWidget {
     Event newEvent = await showModalBottomSheet(
       context: context,
       builder: (_) => AddEvent(
-        'New event',
+        TimatoLocalization.instance.getTranslatedValue('new_event'),
         isPlanned: false,
       ),
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    if(isToday==1){
-      getTodayEventList().then((data) {
-        todayEventList = data;
-      });
-      if (todayEventList.length == 0) {
-        newEvent.todayOrder = 0;
-      } else {
-        newEvent.todayOrder = todayEventList.last.todayOrder + 1;
+    if (newEvent != null) {
+      if (isToday == 1) {
+        getTodayEventList().then((data) {
+          todayEventList = data;
+        });
+        if (todayEventList.length == 0) {
+          newEvent.todayOrder = 0;
+        } else {
+          newEvent.todayOrder = todayEventList.last.todayOrder + 1;
+        }
       }
     }
     if (newEvent != null) {
@@ -122,8 +138,8 @@ class AddEventState extends State<AddEvent> {
       color: ConstantHelper.tomatoColor,
     );
     doneButton = FlatButton(
-      child:
-          Text('Done', style: TextStyle(color: Colors.black26, fontSize: 18)),
+      child: Text(TimatoLocalization.instance.getTranslatedValue('done'),
+          style: TextStyle(color: Colors.black26, fontSize: 18)),
       onPressed: null,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(10.0))),
@@ -160,7 +176,9 @@ class AddEventState extends State<AddEvent> {
                   if (string == "") {
                     setState(() {
                       doneButton = FlatButton(
-                        child: Text('Done',
+                        child: Text(
+                            TimatoLocalization.instance
+                                .getTranslatedValue('done'),
                             style:
                                 TextStyle(color: Colors.black26, fontSize: 18)),
                         onPressed: null,
@@ -172,7 +190,9 @@ class AddEventState extends State<AddEvent> {
                   } else {
                     setState(() {
                       doneButton = FlatButton(
-                        child: Text('Done',
+                        child: Text(
+                            TimatoLocalization.instance
+                                .getTranslatedValue('done'),
                             style: TextStyle(
                                 color: ConstantHelper.tomatoColor,
                                 fontSize: 18)),
@@ -341,11 +361,15 @@ class DateTimeSelectorState extends State<DateTimeSelector> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            CalendarDatePicker(
-              lastDate: DateTime(9999, 12, 31),
-              initialDate: dateSelected,
-              firstDate: dateOnly(DateTime.now()),
-              onDateChanged: (DateTime date) => dateSelected = date,
+            Localizations.override(
+              context: context,
+              locale: TimatoLocalization.instance.locale,
+              child: CalendarDatePicker(
+                lastDate: DateTime(9999, 12, 31),
+                initialDate: dateSelected,
+                firstDate: dateOnly(DateTime.now()),
+                onDateChanged: (DateTime date) => dateSelected = date,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -353,7 +377,8 @@ class DateTimeSelectorState extends State<DateTimeSelector> {
             Container(
               child: ListTile(
                 leading: Icon(Icons.repeat),
-                title: Text('Repeat'),
+                title: Text(
+                    TimatoLocalization.instance.getTranslatedValue('repeat')),
                 onTap: () async {
                   setState(() => this._isVisible = false);
                   RepeatProeprties repeatProperties =
@@ -374,7 +399,7 @@ class DateTimeSelectorState extends State<DateTimeSelector> {
                 Container(
                   child: FlatButton(
                     child: Text(
-                      'Cancel',
+                      TimatoLocalization.instance.getTranslatedValue('cancel'),
                       style: TextStyle(
                         color: Colors.black38,
                       ),
@@ -387,7 +412,7 @@ class DateTimeSelectorState extends State<DateTimeSelector> {
                 Container(
                   child: FlatButton(
                     child: Text(
-                      'OK',
+                      TimatoLocalization.instance.getTranslatedValue('confirm'),
                       style: TextStyle(
                         color: ConstantHelper.tomatoColor,
                       ),
@@ -420,7 +445,8 @@ class SetTag extends StatelessWidget {
         child: TextField(
           autofocus: true,
           decoration: InputDecoration(
-            hintText: "Give your event an tag",
+            hintText:
+                TimatoLocalization.instance.getTranslatedValue('give_tag'),
           ),
           onChanged: (s) => tag = s,
         ),
@@ -428,7 +454,7 @@ class SetTag extends StatelessWidget {
       actions: <Widget>[
         FlatButton(
           child: Text(
-            'Cancel',
+            TimatoLocalization.instance.getTranslatedValue('cancel'),
             style: TextStyle(color: Colors.black38),
           ),
           onPressed: () {
@@ -437,7 +463,7 @@ class SetTag extends StatelessWidget {
         ),
         FlatButton(
           child: Text(
-            'Confirm',
+            TimatoLocalization.instance.getTranslatedValue('confirm'),
             style: TextStyle(color: ConstantHelper.tomatoColor),
           ),
           onPressed: () {
@@ -478,8 +504,10 @@ class _SetDurationState extends State<SetDuration> {
     controller = TextEditingController();
     confirmButton = FlatButton(
       child: Text(
-        'Confirm',
-        style: TextStyle(color: Colors.black38),
+        TimatoLocalization.instance.getTranslatedValue('confirm'),
+        style: TextStyle(
+          color: ConstantHelper.tomatoColor,
+        ),
       ),
       onPressed: null,
     );
@@ -498,7 +526,8 @@ class _SetDurationState extends State<SetDuration> {
           ],
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            hintText: "Expected time taken (in minutes)",
+            hintText:
+                TimatoLocalization.instance.getTranslatedValue('expect_time'),
             border: InputBorder.none,
             focusedBorder: InputBorder.none,
             enabledBorder: InputBorder.none,
@@ -511,7 +540,7 @@ class _SetDurationState extends State<SetDuration> {
               setState(() {
                 confirmButton = FlatButton(
                   child: Text(
-                    'Confirm',
+                    TimatoLocalization.instance.getTranslatedValue('confirm'),
                     style: TextStyle(color: Colors.black38),
                   ),
                   onPressed: null,
@@ -522,7 +551,7 @@ class _SetDurationState extends State<SetDuration> {
               setState(() {
                 confirmButton = FlatButton(
                   child: Text(
-                    'Confirm',
+                    TimatoLocalization.instance.getTranslatedValue('confirm'),
                     style: TextStyle(color: ConstantHelper.tomatoColor),
                   ),
                   onPressed: () => Navigator.pop(context, duration),
@@ -535,7 +564,7 @@ class _SetDurationState extends State<SetDuration> {
       actions: <Widget>[
         FlatButton(
           child: Text(
-            'Cancel',
+            TimatoLocalization.instance.getTranslatedValue('cancel'),
             style: TextStyle(color: Colors.black38),
           ),
           onPressed: () {
@@ -577,7 +606,7 @@ class _SetPriorityState extends State<SetPriority> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Choosing event priority',
+        TimatoLocalization.instance.getTranslatedValue('choose_priority'),
         style: TextStyle(fontSize: 20, color: ConstantHelper.tomatoColor),
         softWrap: true,
         textAlign: TextAlign.left,
@@ -591,19 +620,23 @@ class _SetPriorityState extends State<SetPriority> {
         items: [
           DropdownMenuItem<Priority>(
             value: Priority.HIGH,
-            child: Text('High'),
+            child: Text(TimatoLocalization.instance
+                .getTranslatedValue('priority_high')),
           ),
           DropdownMenuItem<Priority>(
             value: Priority.MIDDLE,
-            child: Text('Middle'),
+            child: Text(TimatoLocalization.instance
+                .getTranslatedValue('priority_middle')),
           ),
           DropdownMenuItem<Priority>(
             value: Priority.LOW,
-            child: Text('Low'),
+            child: Text(
+                TimatoLocalization.instance.getTranslatedValue('priority_low')),
           ),
           DropdownMenuItem<Priority>(
             value: Priority.NONE,
-            child: Text('None'),
+            child: Text(TimatoLocalization.instance
+                .getTranslatedValue('priority_none')),
           )
         ],
         value: priority,
@@ -611,7 +644,7 @@ class _SetPriorityState extends State<SetPriority> {
       actions: <Widget>[
         FlatButton(
           child: Text(
-            'Cancel',
+            TimatoLocalization.instance.getTranslatedValue('cancel'),
             style: TextStyle(color: Colors.black38),
           ),
           onPressed: () {
@@ -620,7 +653,7 @@ class _SetPriorityState extends State<SetPriority> {
         ),
         FlatButton(
           child: Text(
-            'Confirm',
+            TimatoLocalization.instance.getTranslatedValue('confirm'),
             style: TextStyle(color: ConstantHelper.tomatoColor),
           ),
           onPressed: () {
@@ -664,6 +697,22 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
   TextEditingController startController;
 
   RecurrenceRule toRecurrenceRule() {
+    Map dayOfWeekToRFC = {
+      DayOfWeek.monday: TimatoLocalization.instance
+          .getTranslatedValue('weekDayButton_mon_ab'),
+      DayOfWeek.tuesday:
+          TimatoLocalization.instance.getTranslatedValue('weekDayButton_t_ab'),
+      DayOfWeek.wednesday: TimatoLocalization.instance
+          .getTranslatedValue('weekDayButton_wed_ab'),
+      DayOfWeek.thursday: TimatoLocalization.instance
+          .getTranslatedValue('weekDayButton_thur_ab'),
+      DayOfWeek.friday: TimatoLocalization.instance
+          .getTranslatedValue('weekDayButton_fri_ab'),
+      DayOfWeek.saturday: TimatoLocalization.instance
+          .getTranslatedValue('weekDayButton_sat_ab'),
+      DayOfWeek.sunday: TimatoLocalization.instance
+          .getTranslatedValue('weekDayButton_sun_ab'),
+    };
     if (frequency == Frequency.daily) {
       return RecurrenceRule(
           frequency: frequency,
@@ -678,7 +727,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
     } else if (frequency == Frequency.monthly) {
       if (byWeekdaysInMonth) {
         return RecurrenceRule.fromString(
-            'RRULE:FREQ=MONTHLY;INTERVAL=$interval;BYDAY=$week${ConstantHelper.dayOfWeekToRFC[weekDay.day]};WKST=MO');
+            'RRULE:FREQ=MONTHLY;INTERVAL=$interval;BYDAY=$week${dayOfWeekToRFC[weekDay.day]};WKST=MO');
       } else {
         return RecurrenceRule(
             frequency: frequency,
@@ -749,7 +798,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
     result.add(DropdownMenuItem(
       value: -1,
       child: Padding(
-        child: Text('Last Day'),
+        child: Text(TimatoLocalization.instance.getTranslatedValue('last_day')),
         padding: EdgeInsets.all(5),
       ),
     ));
@@ -766,19 +815,40 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   weekDayButton(
-                      'M', ByWeekDayEntry(DayOfWeek.monday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_mon_one'),
+                      ByWeekDayEntry(DayOfWeek.monday),
+                      constraints),
                   weekDayButton(
-                      'T', ByWeekDayEntry(DayOfWeek.tuesday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_t_one'),
+                      ByWeekDayEntry(DayOfWeek.tuesday),
+                      constraints),
                   weekDayButton(
-                      'W', ByWeekDayEntry(DayOfWeek.wednesday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_wed_one'),
+                      ByWeekDayEntry(DayOfWeek.wednesday),
+                      constraints),
                   weekDayButton(
-                      'T', ByWeekDayEntry(DayOfWeek.thursday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_thur_one'),
+                      ByWeekDayEntry(DayOfWeek.thursday),
+                      constraints),
                   weekDayButton(
-                      'F', ByWeekDayEntry(DayOfWeek.friday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_fri_one'),
+                      ByWeekDayEntry(DayOfWeek.friday),
+                      constraints),
                   weekDayButton(
-                      'S', ByWeekDayEntry(DayOfWeek.saturday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_sat_one'),
+                      ByWeekDayEntry(DayOfWeek.saturday),
+                      constraints),
                   weekDayButton(
-                      'S', ByWeekDayEntry(DayOfWeek.sunday), constraints),
+                      TimatoLocalization.instance
+                          .getTranslatedValue('weekDayButton_sun_one'),
+                      ByWeekDayEntry(DayOfWeek.sunday),
+                      constraints),
                 ],
               );
             },
@@ -833,35 +903,40 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                             value: 1,
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('First'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('first')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: 2,
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Second'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('second')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: 3,
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Third'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('third')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: 4,
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Fourth'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('fourth')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: -1,
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Last'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('last')),
                             ),
                           ),
                         ],
@@ -887,49 +962,57 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                             value: ByWeekDayEntry(DayOfWeek.monday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Mon'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('weekDayButton_mon_two')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: ByWeekDayEntry(DayOfWeek.tuesday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Tue'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('weekDayButton_t_two')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: ByWeekDayEntry(DayOfWeek.wednesday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Wed'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('weekDayButton_wed_two')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: ByWeekDayEntry(DayOfWeek.thursday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Thu'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue(
+                                      'weekDayButton_thur_two')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: ByWeekDayEntry(DayOfWeek.friday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Fri'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('weekDayButton_fri_two')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: ByWeekDayEntry(DayOfWeek.saturday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Sat'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('weekDayButton_sat_two')),
                             ),
                           ),
                           DropdownMenuItem(
                             value: ByWeekDayEntry(DayOfWeek.sunday),
                             child: Padding(
                               padding: EdgeInsets.all(5),
-                              child: Text('Sun'),
+                              child: Text(TimatoLocalization.instance
+                                  .getTranslatedValue('weekDayButton_sun_two')),
                             ),
                           ),
                         ],
@@ -958,7 +1041,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
         child: Row(
           children: <Widget>[
             Padding(
-              child: Text('Start'),
+              child:
+                  Text(TimatoLocalization.instance.getTranslatedValue('start')),
               padding: EdgeInsets.only(right: 5),
             ),
             Expanded(
@@ -995,7 +1079,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
         child: Row(
           children: <Widget>[
             Padding(
-              child: Text('Start'),
+              child:
+                  Text(TimatoLocalization.instance.getTranslatedValue('start')),
               padding: EdgeInsets.only(right: 5),
             ),
             Expanded(
@@ -1032,7 +1117,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
         child: Row(
           children: <Widget>[
             Padding(
-              child: Text('Start'),
+              child:
+                  Text(TimatoLocalization.instance.getTranslatedValue('start')),
               padding: EdgeInsets.only(right: 5),
             ),
             Expanded(
@@ -1045,51 +1131,63 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                     value: month,
                     items: <DropdownMenuItem>[
                       DropdownMenuItem(
-                        child: Text('January'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_jan')),
                         value: 1,
                       ),
                       DropdownMenuItem(
-                        child: Text('February'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_feb')),
                         value: 2,
                       ),
                       DropdownMenuItem(
-                        child: Text('March'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_mar')),
                         value: 3,
                       ),
                       DropdownMenuItem(
-                        child: Text('April'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_apr')),
                         value: 4,
                       ),
                       DropdownMenuItem(
-                        child: Text('May'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_may')),
                         value: 5,
                       ),
                       DropdownMenuItem(
-                        child: Text('June'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_june')),
                         value: 6,
                       ),
                       DropdownMenuItem(
-                        child: Text('July'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_july')),
                         value: 7,
                       ),
                       DropdownMenuItem(
-                        child: Text('August'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_aug')),
                         value: 8,
                       ),
                       DropdownMenuItem(
-                        child: Text('September'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_sept')),
                         value: 9,
                       ),
                       DropdownMenuItem(
-                        child: Text('October'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_oct')),
                         value: 10,
                       ),
                       DropdownMenuItem(
-                        child: Text('November'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_nov')),
                         value: 11,
                       ),
                       DropdownMenuItem(
-                        child: Text('December'),
+                        child: Text(TimatoLocalization.instance
+                            .getTranslatedValue('month_dec')),
                         value: 12,
                       ),
                     ],
@@ -1153,7 +1251,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
     } else {
       return Container(
         child: Text(
-          'First occurrence will be ${formatDate(this.toRecurrenceRule().getInstances(start: LocalDateTime(start.year, start.month, start.day, 0, 0, 0)).first)}',
+          TimatoLocalization.instance.getTranslatedValue('first_occurrence') +
+              '${formatDate(this.toRecurrenceRule().getInstances(start: LocalDateTime(start.year, start.month, start.day, 0, 0, 0)).first)}',
           style: TextStyle(color: Colors.black38, fontSize: 10),
         ),
         alignment: Alignment.bottomLeft,
@@ -1167,7 +1266,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
       return Container(
         child: FlatButton(
             child: Text(
-              'OK',
+              TimatoLocalization.instance.getTranslatedValue('confirm'),
               style: TextStyle(
                 color: Colors.black38,
               ),
@@ -1178,7 +1277,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
       return Container(
         child: FlatButton(
           child: Text(
-            'OK',
+            TimatoLocalization.instance.getTranslatedValue('confirm'),
             style: TextStyle(
               color: ConstantHelper.tomatoColor,
             ),
@@ -1219,7 +1318,8 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
               child: Row(
                 children: <Widget>[
                   Padding(
-                    child: Text('Every'),
+                    child: Text(TimatoLocalization.instance
+                        .getTranslatedValue('every')),
                     padding: EdgeInsets.only(right: 5),
                   ),
                   Padding(
@@ -1266,19 +1366,23 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                     child: DropdownButton(
                       items: <DropdownMenuItem>[
                         DropdownMenuItem(
-                          child: Text('day'),
+                          child: Text(TimatoLocalization.instance
+                              .getTranslatedValue('day')),
                           value: Frequency.daily,
                         ),
                         DropdownMenuItem(
-                          child: Text('week'),
+                          child: Text(TimatoLocalization.instance
+                              .getTranslatedValue('week')),
                           value: Frequency.weekly,
                         ),
                         DropdownMenuItem(
-                          child: Text('month'),
+                          child: Text(TimatoLocalization.instance
+                              .getTranslatedValue('month')),
                           value: Frequency.monthly,
                         ),
                         DropdownMenuItem(
-                          child: Text('year'),
+                          child: Text(TimatoLocalization.instance
+                              .getTranslatedValue('year')),
                           value: Frequency.yearly,
                         ),
                       ],
@@ -1305,7 +1409,7 @@ class _SetRepeatPropertiesState extends State<SetRepeatProperties> {
                 Container(
                   child: FlatButton(
                     child: Text(
-                      'Cancel',
+                      TimatoLocalization.instance.getTranslatedValue('cancel'),
                       style: TextStyle(
                         color: Colors.black38,
                       ),

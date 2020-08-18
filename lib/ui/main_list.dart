@@ -50,7 +50,7 @@ class _MyTaskState extends State<MyTask> {
       appBar: new AppBar(
           elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-          title: new Text(TimatoLocalization.of(context).getTranslatedValue("main_page"),
+          title: new Text(TimatoLocalization.instance.getTranslatedValue("main_page"),
               style: TextStyle(color: ConstantHelper.tomatoColor)),
           backgroundColor: Colors.white),
       body: Container(
@@ -110,9 +110,9 @@ class _MyTaskState extends State<MyTask> {
                             icon: Icon(Icons.delete, color: Colors.white),
                             onPressed: () => {
                                   WarningDialog.show(
-                                      title: 'Delete this unplanned event?',
+                                      title: TimatoLocalization.instance.getTranslatedValue("delete_unplanned_title"),
                                       text:
-                                          'Are you sure to delete this unplanned event permanently?',
+                                          TimatoLocalization.instance.getTranslatedValue('delete_unplanned'),
                                       context: context,
                                       action: (context) {
                                         deleteEvent(task.id);
@@ -132,11 +132,16 @@ class _MyTaskState extends State<MyTask> {
                           Icon(Icons.warning,
                               color: ConstantHelper.tomatoColor),
                           SizedBox(width: 5),
-                          Text(task.taskName,
+                          Container(
+                            // width:200,
+                          child:Text(task.taskName,
+                          // maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
                               style: TextStyle(
                                 fontSize: 17,
                                 color: Colors.black87,
-                              ))
+                              )))
                         ],
                       ))));
         } else {
@@ -152,7 +157,7 @@ class _MyTaskState extends State<MyTask> {
                         onPressed: () {
                           if (task.isTodayList == 1) {
                             Fluttertoast.showToast(
-                                msg: "This task is on Today's Tasks already",
+                                msg: TimatoLocalization.instance.getTranslatedValue('already_today'),
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.CENTER,
                                 backgroundColor: Colors.white,
@@ -160,9 +165,9 @@ class _MyTaskState extends State<MyTask> {
                                 fontSize: 16);
                           } else {
                             var data = WarningDialog.show(
-                                title: "Add to today's tasks?",
+                                title: TimatoLocalization.instance.getTranslatedValue('add_today_title'),
                                 text:
-                                    "Are you sure to add this task to today's tasks?",
+                                    TimatoLocalization.instance.getTranslatedValue('add_today'),
                                 context: context,
                                 action: (context) {
                                   getTodayEventList().then(
@@ -195,7 +200,7 @@ class _MyTaskState extends State<MyTask> {
                                     },
                                   );
                                   Fluttertoast.showToast(
-                                      msg: "Added",
+                                      msg: TimatoLocalization.instance.getTranslatedValue('added'),
                                       toastLength: Toast.LENGTH_SHORT,
                                       gravity: ToastGravity.CENTER,
                                       backgroundColor: Colors.white,
@@ -210,8 +215,8 @@ class _MyTaskState extends State<MyTask> {
                       icon: Icon(Icons.delete, color: Colors.white),
                       onPressed: () => {
                         WarningDialog.show(
-                            title: 'Delete this task?',
-                            text: 'Are you sure to delete this task?',
+                            title: TimatoLocalization.instance.getTranslatedValue('delete_task_title'),
+                            text: TimatoLocalization.instance.getTranslatedValue('delete_task'),
                             context: context,
                             action: (context) {
                               deleteEvent(task.id);
@@ -327,7 +332,7 @@ class _ListExpanState extends State<ListExpan> {
   }
 
   Widget _buildTiles(Event task) {
-    print(subtasksList);
+    //(subtasksList);
     if (subtasksList.isEmpty) {
       return new Row(children: <Widget>[
         SizedBox(width: 16),
@@ -358,9 +363,9 @@ class _ListExpanState extends State<ListExpan> {
                                         Icon(Icons.delete, color: Colors.white),
                                     onPressed: () => {
                                       WarningDialog.show(
-                                          title: 'Delete this subtask?',
+                                          title: TimatoLocalization.instance.getTranslatedValue('delete_subtask_title'),
                                           text:
-                                              'Are you sure to delete this subtask?',
+                                              TimatoLocalization.instance.getTranslatedValue('delete_subtask'),
                                           context: context,
                                           action: (context) {
                                             deleteEvent(subtask.id);
@@ -410,13 +415,18 @@ class _ListExpanState extends State<ListExpan> {
                   new Row(children: <Widget>[
                     ///Contains [taskName]
                     Container(
+                      // width:230,
                         margin: EdgeInsets.all(5.0),
                         child: Text(task.taskName,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          // maxLines: 1,
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               fontSize: 17,
                               color: Colors.black87,
                             )))
+                            // )
                   ]),
 
                   ///Contains [tag] and [ddl]
@@ -444,9 +454,13 @@ class _ListExpanState extends State<ListExpan> {
           size: 10,
         ),
         Container(
+          // width:200,
             margin: EdgeInsets.all(5.0),
             child: Text(subtask.taskName,
+                overflow: TextOverflow.ellipsis,
+                          softWrap: false,
                 textAlign: TextAlign.left,
+                // maxLines: 1,
                 style: TextStyle(fontSize: 16, color: Colors.black87)))
       ]),
     );

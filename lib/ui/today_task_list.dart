@@ -53,7 +53,7 @@ class _TodayListState extends State<TodayList> {
       appBar: new AppBar(
           elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-          title: new Text("Today's Tasks",
+          title: new Text(TimatoLocalization.instance.getTranslatedValue('today_page'),
               style: TextStyle(color: ConstantHelper.tomatoColor)),
           actions: <Widget>[
             IconButton(
@@ -61,9 +61,14 @@ class _TodayListState extends State<TodayList> {
                 onPressed: () async {
                   SharedPreferences pref =
                       await SharedPreferences.getInstance();
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  var value = await Navigator.push(context, MaterialPageRoute(builder: (_) {
                     return Settings(pref);
                   }));
+                  if(value!=null&&value){
+                    setState(() {
+                      
+                    });
+                  }
                 })
           ],
           backgroundColor: Colors.white),
@@ -126,9 +131,9 @@ class _TodayListState extends State<TodayList> {
                                 icon: Icon(Icons.delete, color: Colors.white),
                                 onPressed: () => {
                                       WarningDialog.show(
-                                          title: 'Delete this unplanned event?',
+                                          title: TimatoLocalization.instance.getTranslatedValue('delete_unplanned_title'),
                                           text:
-                                              'Are you sure to delete this unplanned event permanently?',
+                                              TimatoLocalization.instance.getTranslatedValue('delete_unplanned'),
                                           context: context,
                                           action: (context) {
                                             deleteEvent(task.id);
@@ -289,9 +294,9 @@ class TaskTileState extends State<TaskTile> {
                                         Icon(Icons.cancel, color: Colors.white),
                                     onPressed: () => {
                                           WarningDialog.show(
-                                              title: 'Remove this task?',
+                                              title: TimatoLocalization.instance.getTranslatedValue('remove_task_title'),
                                               text:
-                                                  "Are you sure to remove this task from Today's Tasks?",
+                                                  TimatoLocalization.instance.getTranslatedValue('remove_task'),
                                               context: context,
                                               action: (context) {
                                                 task.isTodayList = 0;
@@ -428,9 +433,14 @@ class TaskTileState extends State<TaskTile> {
                                 SizedBox(
                                   height: 6,
                                 ),
-                                Text(subtask.taskName,
+                                Container(
+                                  width:200,
+                                child:Text(subtask.taskName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                          softWrap: false,
                                     style: TextStyle(fontSize: 15),
-                                    textAlign: TextAlign.center)
+                                    textAlign: TextAlign.center))
                               ]))
                         ],
                       ));

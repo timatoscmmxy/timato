@@ -40,13 +40,15 @@ class TimatoTimerWidget extends StatelessWidget {
 
   TimatoTimer _timer;
 
+  static BuildContext get context => null;
+
   static void _onData(int count) async {
     _time.value = _secondToString(count);
     if (count <= 0) {
       if (-count > _relaxTime) {
         if (_status == TimerStatus.relax) {
           await notifications.show(
-              0, "TimatoEvent", "Relax End!", notificationDetails);
+              0, "TimatoEvent", TimatoLocalization.instance.getTranslatedValue('relax_end'), notificationDetails);
           _status = TimerStatus.normal;
         }
         _textColor.value = Colors.deepOrange;
@@ -54,7 +56,7 @@ class TimatoTimerWidget extends StatelessWidget {
       } else {
         if (_status == TimerStatus.normal) {
           await notifications.show(
-              0, "TimatoEvent", "Relax Time!", notificationDetails);
+              0, "TimatoEvent", TimatoLocalization.instance.getTranslatedValue('relax_start'), notificationDetails);
           _status = TimerStatus.relax;
         }
         _textColor.value = Colors.lightGreen;
@@ -152,8 +154,8 @@ class TimatoTimerWidget extends StatelessWidget {
                   icon: Icon(Icons.check, color: Colors.black38),
                   onPressed: () async {
                     var data = await WarningDialog.show(
-                        title: 'Mark as completed?',
-                        text: 'Are you sure to mark this task as completed?',
+                        title: TimatoLocalization.instance.getTranslatedValue('mark_completed_title'),
+                        text: TimatoLocalization.instance.getTranslatedValue('mark_completed'),
                         context: context,
                         action: (context) {
                           _timer.stop();

@@ -38,7 +38,7 @@ class StatsPageState extends State<StatsPage>{
     if (tagDataByDay){
       return FlatButton(
         child: Text(
-          'Today',
+          TimatoLocalization.instance.getTranslatedValue('today'),
           style: TextStyle(
             color: ConstantHelper.tomatoColor.withOpacity(0.5),
               fontSize: 20,
@@ -55,7 +55,7 @@ class StatsPageState extends State<StatsPage>{
     } else{
       return FlatButton(
         child: Text(
-          'Week',
+          TimatoLocalization.instance.getTranslatedValue('cap_week'),
           style: TextStyle(
               color: ConstantHelper.tomatoColor.withOpacity(0.5),
               fontSize: 20,
@@ -90,7 +90,7 @@ class StatsPageState extends State<StatsPage>{
           color: ConstantHelper.tomatoColor,
         ),
         title: Text(
-          'Number of Pomodoro Timers',
+          TimatoLocalization.instance.getTranslatedValue('num_timer'),
           style: TextStyle(
             color: ConstantHelper.tomatoColor
           ),
@@ -124,7 +124,7 @@ class StatsPageState extends State<StatsPage>{
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.all(10),
                             child: Text(
-                              'Today',
+                              TimatoLocalization.instance.getTranslatedValue('today'),
                               style: TextStyle(
                                   color: ConstantHelper.tomatoColor,
                                   fontSize: 20,
@@ -170,7 +170,7 @@ class StatsPageState extends State<StatsPage>{
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.all(10),
                             child: Text(
-                              'This Week',
+                              TimatoLocalization.instance.getTranslatedValue('this_week'),
                               style: TextStyle(
                                   color: ConstantHelper.tomatoColor,
                                   fontSize: 20,
@@ -216,7 +216,7 @@ class StatsPageState extends State<StatsPage>{
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.all(10),
                             child: Text(
-                              'By Weekdays',
+                              TimatoLocalization.instance.getTranslatedValue('by_weekdays'),
                               style: TextStyle(
                                   color: ConstantHelper.tomatoColor,
                                   fontSize: 20,
@@ -259,7 +259,7 @@ class StatsPageState extends State<StatsPage>{
                                 alignment: Alignment.centerLeft,
                                 padding: EdgeInsets.all(10),
                                 child: Text(
-                                  'By Tags',
+                                  TimatoLocalization.instance.getTranslatedValue('by_tags'),
                                   style: TextStyle(
                                       color: ConstantHelper.tomatoColor,
                                       fontSize: 20,
@@ -359,7 +359,7 @@ class DonutAutoLabelChart extends StatelessWidget {
     if (tagTimerNumPairs.length == 0 || tagTimerNumPairs == null || tagTimerNumPairs.values.fold(0, (previousValue, element) => previousValue + element) ==0){
       return FittedBox(
         child: Text(
-          'You haven\'t finished any pomodoro timers with tagged tasks',
+          TimatoLocalization.instance.getTranslatedValue('no_tag'),
           style: TextStyle(
               color: Colors.black38
           ),

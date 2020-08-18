@@ -41,7 +41,7 @@ class _SettingsState extends State<Settings> {
         elevation: 0,
         backgroundColor: Colors.white,
         title: Text(
-          TimatoLocalization.of(context).getTranslatedValue("settings_title"),
+          TimatoLocalization.instance.getTranslatedValue("settings_title"),
           style: TextStyle(color: ConstantHelper.tomatoColor),
         ),
         leading: IconButton(
@@ -50,24 +50,24 @@ class _SettingsState extends State<Settings> {
             color: ConstantHelper.tomatoColor,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
         ),
       ),
       body: ListView(
         children: <Widget>[
           TextSetting(
-              'Timer Duration', timerLength, (val) => timerLength = val * 60),
+              TimatoLocalization.instance.getTranslatedValue('timer_duration'), timerLength, (val) => timerLength = val * 60),
           TextSetting(
-              'Relax Time', relaxLength, (val) => relaxLength = val * 60),
+              TimatoLocalization.instance.getTranslatedValue('relax_time'), relaxLength, (val) => relaxLength = val * 60),
           _language(),
           Divider(color: Colors.grey[400]),
         ],
       ),
-      floatingActionButton: FloatingRaisedButton('Done', () {
+      floatingActionButton: FloatingRaisedButton(TimatoLocalization.instance.getTranslatedValue('done'), () {
         _pref.setInt('timerLength', timerLength);
         _pref.setInt('relaxLength', relaxLength);
-        Navigator.pop(context);
+        Navigator.pop(context,true);
       }),
     );
   }
@@ -86,7 +86,7 @@ class _SettingsState extends State<Settings> {
     //     _temp = Locale(language.languageCode);
     // }
     // locale = _temp;
-    TimatoLocalization.of(context).setLocale(language.languageCode).then((data){
+    TimatoLocalization.instance.setLocale(language.languageCode).then((data){
       _pref.setString('language', language.languageCode);
       setState(() {});
     });
@@ -107,7 +107,7 @@ class _SettingsState extends State<Settings> {
           children: <Widget>[
             SizedBox(width: 15),
             Text(
-              "Language:",
+              TimatoLocalization.instance.getTranslatedValue('language'),
               style: TextStyle(
                 fontSize: 17,
                 color: Colors.black87,
@@ -115,7 +115,7 @@ class _SettingsState extends State<Settings> {
             ),
             SizedBox(width: 90),
             DropdownButton<String>(
-                value: Language.localeString[TimatoLocalization.of(context).locale],
+                value: Language.localeString[TimatoLocalization.instance.locale],
                 onChanged: (String language) {
                   _changeLanguage(language);
                 },
@@ -228,6 +228,72 @@ class _SettingsState extends State<Settings> {
 //   }
 // }
 
+// class TextSetting extends StatefulWidget {
+//   final String _text;
+//   final int _value;
+//   final void Function(int) _onChange;
+
+//   TextSetting(this._text, this._value, this._onChange);
+//   @override
+//   _TextSettingState createState() => _TextSettingState(this._text, this._value, this._onChange);
+// }
+
+// class _TextSettingState extends State<TextSetting> {
+//   final String _text;
+//   final int _value;
+//   final void Function(int) _onChange;
+
+//   _TextSettingState(this._text, this._value, this._onChange);
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       child: ListTile(
+//         title: Row(
+//           children: <Widget>[
+//             Expanded(
+//               child: Container(
+//                 child: Text(
+//                   '$_text: ',
+//                   style: TextStyle(),
+//                 ),
+//                 padding: EdgeInsets.all(10),
+//               ),
+//             ),
+//             Expanded(
+//               child: Container(
+//                   child: TextField(
+//                 decoration: InputDecoration(
+//                     hintText: TimatoLocalization.instance.getTranslatedValue('current')+'${_value ~/ 60}'+TimatoLocalization.instance.getTranslatedValue('minuets')),
+//                 onChanged: (String text) {
+//                   if (text == '') {
+//                     return;
+//                   }
+//                   int val;
+//                   try {
+//                     val = int.parse(text);
+//                   } catch (e) {
+//                     TimerLengthAlert.show(context);
+//                   }
+//                   if (val < 0 || val > 5940) {
+//                     TimerLengthAlert.show(context);
+//                   }
+//                   _onChange(val);
+//                 },
+//               )),
+//             )
+//           ],
+//         ),
+//         contentPadding: EdgeInsets.all(5),
+//       ),
+//       alignment: Alignment.center,
+//       decoration: BoxDecoration(
+//           border: Border(
+//               bottom: BorderSide(
+//                   color: Colors.black12, style: BorderStyle.solid, width: 1))),
+//     );
+//   }
+//   }
+// }
 class TextSetting extends StatelessWidget {
   final String _text;
   final int _value;
@@ -254,7 +320,7 @@ class TextSetting extends StatelessWidget {
               child: Container(
                   child: TextField(
                 decoration: InputDecoration(
-                    hintText: 'Current: ${_value ~/ 60} (minutes)'),
+                    hintText: TimatoLocalization.instance.getTranslatedValue('current')+'${_value ~/ 60}'+TimatoLocalization.instance.getTranslatedValue('minutes')),
                 onChanged: (String text) {
                   if (text == '') {
                     return;
