@@ -76,7 +76,7 @@ class TimatoTimer {
 
   /// Stop the timer
   void stop() {
-    _isolate.kill();
+    _isolate?.kill();
 //    if (_t == null) return;
 //    _t.cancel();
   }
