@@ -55,7 +55,7 @@ class AddEvent extends StatefulWidget {
       context: context,
       builder: (_) => AddEvent(
         TimatoLocalization.instance.getTranslatedValue('new_event'),
-        isPlanned: false,
+        isPlanned: true,
       ),
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
@@ -72,8 +72,6 @@ class AddEvent extends StatefulWidget {
           newEvent.todayOrder = todayEventList.last.todayOrder + 1;
         }
       }
-    }
-    if (newEvent != null) {
       getEventList().then((data) {
         eventsList = data;
       });
@@ -94,7 +92,7 @@ class AddEvent extends StatefulWidget {
       context: context,
       builder: (_) => AddEvent(
         'New unplanned event',
-        isPlanned: true,
+        isPlanned: false,
       ),
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
@@ -128,6 +126,27 @@ class AddEventState extends State<AddEvent> {
   Event newEvent;
   Icon calendarIcon;
   FlatButton doneButton;
+
+  Widget choosePriority(){
+    if (widget.isPlanned == false){
+      return Container();
+    } else{
+      return Padding(
+        padding: EdgeInsets.all(5),
+        child: IconButton(
+          icon: Icon(
+            Icons.low_priority,
+            color: ConstantHelper.tomatoColor,
+          ),
+          onPressed: () async {
+            newEvent.eventPriority = await SetPriority.show(
+                context, newEvent.eventPriority) ??
+                newEvent.eventPriority;
+          },
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -281,20 +300,7 @@ class AddEventState extends State<AddEvent> {
                           },
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.low_priority,
-                            color: ConstantHelper.tomatoColor,
-                          ),
-                          onPressed: () async {
-                            newEvent.eventPriority = await SetPriority.show(
-                                    context, newEvent.eventPriority) ??
-                                newEvent.eventPriority;
-                          },
-                        ),
-                      ),
+                      choosePriority(),
                       Expanded(
                         child: Container(),
                       ),
