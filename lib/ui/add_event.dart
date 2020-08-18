@@ -41,23 +41,23 @@ class AddEvent extends StatefulWidget {
       context: context,
       builder: (_) => AddEvent(
         'New event',
-        isPlanned: false,
+        isPlanned: true,
       ),
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15.0))),
     );
-    if(isToday==1){
-      getTodayEventList().then((data) {
-        todayEventList = data;
-      });
-      if (todayEventList.length == 0) {
-        newEvent.todayOrder = 0;
-      } else {
-        newEvent.todayOrder = todayEventList.last.todayOrder + 1;
-      }
-    }
     if (newEvent != null) {
+      if (isToday == 1) {
+        getTodayEventList().then((data) {
+          todayEventList = data;
+        });
+        if (todayEventList.length == 0) {
+          newEvent.todayOrder = 0;
+        } else {
+          newEvent.todayOrder = todayEventList.last.todayOrder + 1;
+        }
+      }
       getEventList().then((data) {
         eventsList = data;
       });
@@ -78,7 +78,7 @@ class AddEvent extends StatefulWidget {
       context: context,
       builder: (_) => AddEvent(
         'New unplanned event',
-        isPlanned: true,
+        isPlanned: false,
       ),
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
@@ -112,6 +112,27 @@ class AddEventState extends State<AddEvent> {
   Event newEvent;
   Icon calendarIcon;
   FlatButton doneButton;
+
+  Widget choosePriority(){
+    if (widget.isPlanned == false){
+      return Container();
+    } else{
+      return Padding(
+        padding: EdgeInsets.all(5),
+        child: IconButton(
+          icon: Icon(
+            Icons.low_priority,
+            color: ConstantHelper.tomatoColor,
+          ),
+          onPressed: () async {
+            newEvent.eventPriority = await SetPriority.show(
+                context, newEvent.eventPriority) ??
+                newEvent.eventPriority;
+          },
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -261,20 +282,7 @@ class AddEventState extends State<AddEvent> {
                           },
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.low_priority,
-                            color: ConstantHelper.tomatoColor,
-                          ),
-                          onPressed: () async {
-                            newEvent.eventPriority = await SetPriority.show(
-                                    context, newEvent.eventPriority) ??
-                                newEvent.eventPriority;
-                          },
-                        ),
-                      ),
+                      choosePriority(),
                       Expanded(
                         child: Container(),
                       ),
