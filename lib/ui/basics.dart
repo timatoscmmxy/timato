@@ -17,15 +17,12 @@ import 'package:timato/ui/today_task_list.dart';
 
 List<Event> todayEventList = [];
 List<Event> eventsList = [];
-// Locale locale = Locale(language, '');
 typedef AddEventCallback = void Function(Event context);
 
 ///Splits priotity into three levels
 enum Priority { HIGH, MIDDLE, LOW, NONE }
 
 class ConstantHelper {
-  // @override
-  // Widget build(BuildContext context){
   static List<String> twoLanguageList = ["English", "中文"];
 
   // static List<String> title = [
@@ -159,40 +156,39 @@ class ConstantHelper {
 
   static Widget _tag(Event task) {
     if (task.tag != null) {
-      // return LayoutBuilder(
-      //   builder: (context, constraints){
-          // if(constraints.maxWidth<150){
-      return Container(
-        // width:100,
-        child: Text(task.tag,
-        // overflow: TextOverflow.ellipsis,
-        //                   softWrap: false,
-            style: TextStyle(color: Colors.black87, fontSize: 12)),
-        decoration: BoxDecoration(
-          border: new Border.all(color: Colors.red[100]),
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-        ),
-        padding: EdgeInsets.all(2),
-      );
-      // }else{
-      //   return Container(
-      //   width:150,
-      //   child: Text(task.tag,
-      //   overflow: TextOverflow.ellipsis,
-      //                     softWrap: false,
-      //       style: TextStyle(color: Colors.black87, fontSize: 12)),
-      //   decoration: BoxDecoration(
-      //     border: new Border.all(color: Colors.red[100]),
-      //     shape: BoxShape.rectangle,
-      //     borderRadius: BorderRadius.circular(10),
-      //     color: Colors.white,
-      //   ),
-      //   padding: EdgeInsets.all(2),
-      // );
-      // }
-      // });
+      return LayoutBuilder(builder: (context, constraints) {
+        if (task.tag.length < 10) {
+          return Container(
+            // width:100,
+            child: Text(task.tag,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: TextStyle(color: Colors.black87, fontSize: 12)),
+            decoration: BoxDecoration(
+              border: new Border.all(color: Colors.red[100]),
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+            ),
+            padding: EdgeInsets.all(2),
+          );
+        } else {
+          return Container(
+            width: 80,
+            child: Text(task.tag,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: TextStyle(color: Colors.black87, fontSize: 12)),
+            decoration: BoxDecoration(
+              border: new Border.all(color: Colors.red[100]),
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+            ),
+            padding: EdgeInsets.all(2),
+          );
+        }
+      });
     } else {
       return SizedBox();
     }
@@ -306,12 +302,15 @@ class SideBar extends StatelessWidget {
     return Drawer(
         child: ListView(children: <Widget>[
       DrawerHeader(
-          child:
-              Text(TimatoLocalization.instance.getTranslatedValue('slogan')),
+          child: Text(
+            TimatoLocalization.instance.getTranslatedValue('slogan'),
+            style: TextStyle(fontSize: 16),
+          ),
           decoration: BoxDecoration(color: ConstantHelper.tomatoColor)),
       ListTile(
           title: Text(
-              TimatoLocalization.instance.getTranslatedValue('main_page')),
+              TimatoLocalization.instance.getTranslatedValue('main_page'),
+              style: TextStyle(fontSize: 16)),
           onTap: () {
             if (pageName == 'MyTask') {
               Navigator.pop(context);
@@ -324,7 +323,8 @@ class SideBar extends StatelessWidget {
           }),
       ListTile(
           title: Text(
-              TimatoLocalization.instance.getTranslatedValue('today_page')),
+              TimatoLocalization.instance.getTranslatedValue('today_page'),
+              style: TextStyle(fontSize: 16)),
           onTap: () {
             if (pageName == 'TodayList') {
               Navigator.pop(context);
@@ -336,8 +336,9 @@ class SideBar extends StatelessWidget {
             }
           }),
       ListTile(
-          title: Text(TimatoLocalization.instance
-              .getTranslatedValue('completed_page')),
+          title: Text(
+              TimatoLocalization.instance.getTranslatedValue('completed_page'),
+              style: TextStyle(fontSize: 16)),
           onTap: () {
             if (pageName == 'Completed') {
               Navigator.pop(context);
@@ -350,7 +351,8 @@ class SideBar extends StatelessWidget {
           }),
       ListTile(
           title: Text(
-              TimatoLocalization.instance.getTranslatedValue('my_stats')),
+              TimatoLocalization.instance.getTranslatedValue('my_stats'),
+              style: TextStyle(fontSize: 16)),
           onTap: () async {
             var weekDayTimerNums = await getWeekTimerNum();
             var timerNumsToday = await getTodayTimerNum();
@@ -369,6 +371,10 @@ class SideBar extends StatelessWidget {
               );
             }));
           }),
+      ListTile(
+          subtitle: Text(
+              TimatoLocalization.instance.getTranslatedValue('version'),
+              style: TextStyle(fontSize: 12, color: Colors.grey)))
     ]));
   }
 }
@@ -384,8 +390,8 @@ class TimerLengthAlert extends StatelessWidget {
         textAlign: TextAlign.left,
       ),
       titlePadding: EdgeInsets.all(10),
-      content: Text(TimatoLocalization.instance
-          .getTranslatedValue('value_restriction')),
+      content: Text(
+          TimatoLocalization.instance.getTranslatedValue('value_restriction')),
       actions: <Widget>[
         FlatButton(
           child: Text(
@@ -470,10 +476,6 @@ class Language {
 class TimatoLocalization {
   TimatoLocalization(this.locale);
 
-  // static TimatoLocalization of(BuildContext context) {
-  //   return Localizations.of<TimatoLocalization>(context, TimatoLocalization);
-  // }
-
   static TimatoLocalization instance;
 
   Map<String, String> _localizedValues;
@@ -511,7 +513,6 @@ class _TimatoLocalizationDelegate
   const _TimatoLocalizationDelegate();
   @override
   bool isSupported(Locale locale) {
-    // return ['en', 'zh'].contains(locale.languageCode);
     return true;
   }
 

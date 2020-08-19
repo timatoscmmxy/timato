@@ -7,6 +7,7 @@
   "delete_unplanned": "你确定要删除该计划外事件吗?",
   "add_today_title": "加入今日待办清单？",
   "add_today": "你确定要将该事件加入今日待办清单吗？",
+  "added": "已添加",
   "already_today": "该事件已经在今日待办清单上了",
   "delete_task_title": "删除该事件？",
   "delete_task": "你确定要删除该事件吗？",
@@ -109,7 +110,7 @@
   "language": "语言",
   "timer_duration": "番茄钟时长",
   "relax_time": "休息时长",
-  "current": "现在",
+  "current": "目前为",
   "cap_week": "周",
   "next_occurrence": "下次循环：",
   "num_timer": "我的数据",
@@ -123,5 +124,6 @@
   "mark_completed": "你确定要把该事件标记为已完成吗？",
   "remove_task_title": "移出该事件？",
   "remove_task": "你确定要把该事件移出今日待办清单吗？",
-  "settings_title":"设置"
+  "settings_title":"设置",
+  "version": "版本号: 0.0.2"
 }

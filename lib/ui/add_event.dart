@@ -127,10 +127,10 @@ class AddEventState extends State<AddEvent> {
   Icon calendarIcon;
   FlatButton doneButton;
 
-  Widget choosePriority(){
-    if (widget.isPlanned == false){
+  Widget choosePriority() {
+    if (widget.isPlanned == false) {
       return Container();
-    } else{
+    } else {
       return Padding(
         padding: EdgeInsets.all(5),
         child: IconButton(
@@ -139,9 +139,9 @@ class AddEventState extends State<AddEvent> {
             color: ConstantHelper.tomatoColor,
           ),
           onPressed: () async {
-            newEvent.eventPriority = await SetPriority.show(
-                context, newEvent.eventPriority) ??
-                newEvent.eventPriority;
+            newEvent.eventPriority =
+                await SetPriority.show(context, newEvent.eventPriority) ??
+                    newEvent.eventPriority;
           },
         ),
       );

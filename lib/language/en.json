@@ -84,7 +84,7 @@
   "weekDayButton_fri_two": "Fri",
   "weekDayButton_sat_two": "Sat",
   "weekDayButton_sun_two": "Sun",
-  "slogan": "Timato, be more productive with you",
+  "slogan": "Timato, \nbe more productive with you",
   "invalid_input": "Invalid number input",
   "value_restriction": "Value input must be between 0 and 5940 minutes",
   "today": "Today",
@@ -117,12 +117,13 @@
   "this_week": "This Week",
   "by_weekdays": "By Weekdays",
   "by_tags": "By Tags",
-  "no_tag": "You haven't finished any pomodoro timers with tagged tasks",
+  "no_tag": "Haven't finished any timers with tagged tasks",
   "relax_end": "Relax End!",
   "relax_start": "Relax Time!",
   "mark_completed_title": "Mark as completed?",
   "mark_completed": "Are you sure to mark this task as completed?",
   "remove_task_title": "Remove this task?",
   "remove_task": "Are you sure to remove this task from Today's Tasks?",
-  "settings_title":"Settings"
+  "settings_title":"Settings",
+  "version": "Version: 0.0.2"
 }

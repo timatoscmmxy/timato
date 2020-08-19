@@ -38,8 +38,6 @@ void main() async {
   String language = pref.getString('language') ?? 'zh';
   Locale locale = Locale(language, '');
 
-  // Locale _locale;
-
   runApp(MaterialApp(
     supportedLocales: [
       const Locale('en', ''),

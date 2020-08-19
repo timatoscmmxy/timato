@@ -8,14 +8,7 @@ import 'package:timato/core/event_repository.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 
-// List<String> title = [TimatoLocalization.instance.getTranslatedValue('today'), TimatoLocalization.instance.getTranslatedValue('yesterday'), TimatoLocalization.instance.getTranslatedValue('before_yesterday')];
 Map<Key, Function> refreshFunc = Map<Key, Function>();
-
-// List<String> title = [
-//     TimatoLocalization.instance.getTranslatedValue("today"),
-//     TimatoLocalization.instance.getTranslatedValue("yesterday"),
-//     TimatoLocalization.instance.getTranslatedValue("before_yesterday")
-//   ];
 
 class CompletedList extends StatefulWidget {
   _CompletedListState _state;
@@ -49,15 +42,18 @@ class _CompletedListState extends State<CompletedList> {
       appBar: new AppBar(
           elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-          title: new Text(TimatoLocalization.instance.getTranslatedValue('completed_page'),
+          title: new Text(
+              TimatoLocalization.instance.getTranslatedValue('completed_page'),
               style: TextStyle(color: ConstantHelper.tomatoColor)),
           actions: <Widget>[
             IconButton(
                 icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
                 onPressed: () async {
                   var data = WarningDialog.show(
-                      title: TimatoLocalization.instance.getTranslatedValue('empty_list_title'),
-                      text: TimatoLocalization.instance.getTranslatedValue('empty_list'),
+                      title: TimatoLocalization.instance
+                          .getTranslatedValue('empty_list_title'),
+                      text: TimatoLocalization.instance
+                          .getTranslatedValue('empty_list'),
                       context: context,
                       action: (context) async {
                         await deleteAllCompleted();
@@ -85,7 +81,7 @@ Widget _completed() {
   return ListView.builder(
     itemCount: 3,
     itemBuilder: (BuildContext context, int i) {
-      print('here'+title[i]);
+      print('here' + title[i]);
       return new DateTile(date: title[i]);
     },
   );
@@ -131,7 +127,8 @@ class _DateTileState extends State<DateTile> {
   Future<void> findCompleted(String date) async {
     if (date == TimatoLocalization.instance.getTranslatedValue('today')) {
       completed = await getTodayCompletedList();
-    } else if (date == TimatoLocalization.instance.getTranslatedValue('yesterday')) {
+    } else if (date ==
+        TimatoLocalization.instance.getTranslatedValue('yesterday')) {
       completed = await getYesterdayCompletedList();
     } else {
       completed = await getBeforeYesterdayCompletedList();
@@ -150,12 +147,14 @@ class _DateTileState extends State<DateTile> {
               iconWidget: IconButton(
                 icon: Icon(Icons.delete, color: Colors.white),
                 onPressed: () async {
-                  if (date == TimatoLocalization.instance.getTranslatedValue('today')) {
+                  if (date ==
+                      TimatoLocalization.instance.getTranslatedValue('today')) {
                     print("got here today");
                     WarningDialog.show(
-                        title: TimatoLocalization.instance.getTranslatedValue('empty_today_list_title'),
-                        text:
-                            TimatoLocalization.instance.getTranslatedValue('empty_today_list'),
+                        title: TimatoLocalization.instance
+                            .getTranslatedValue('empty_today_list_title'),
+                        text: TimatoLocalization.instance
+                            .getTranslatedValue('empty_today_list'),
                         context: context,
                         action: (context) async {
                           await deleteToday();
@@ -163,11 +162,14 @@ class _DateTileState extends State<DateTile> {
                               .findAncestorWidgetOfExactType<CompletedList>()
                               .refreshState();
                         });
-                  } else if (date == TimatoLocalization.instance.getTranslatedValue('yesterday')) {
+                  } else if (date ==
+                      TimatoLocalization.instance
+                          .getTranslatedValue('yesterday')) {
                     var data = WarningDialog.show(
-                        title: TimatoLocalization.instance.getTranslatedValue('empty_yesterday_list_title'),
-                        text:
-                            TimatoLocalization.instance.getTranslatedValue('empty_yesterday_list'),
+                        title: TimatoLocalization.instance
+                            .getTranslatedValue('empty_yesterday_list_title'),
+                        text: TimatoLocalization.instance
+                            .getTranslatedValue('empty_yesterday_list'),
                         context: context,
                         action: (context) async {
                           await deleteYesterday();
@@ -176,12 +178,14 @@ class _DateTileState extends State<DateTile> {
                               .refreshState();
                         });
                   } else {
-                    print(TimatoLocalization.instance.getTranslatedValue('today'));
+                    print(TimatoLocalization.instance
+                        .getTranslatedValue('today'));
                     print(date);
                     var data = WarningDialog.show(
-                        title: TimatoLocalization.instance.getTranslatedValue('empty_before_list_title'),
-                        text:
-                            TimatoLocalization.instance.getTranslatedValue('empty_before_list'),
+                        title: TimatoLocalization.instance
+                            .getTranslatedValue('empty_before_list_title'),
+                        text: TimatoLocalization.instance
+                            .getTranslatedValue('empty_before_list'),
                         context: context,
                         action: (context) async {
                           await deleteBeforeYesterday();

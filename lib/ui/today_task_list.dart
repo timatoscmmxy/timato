@@ -27,11 +27,11 @@ class TodayList extends StatefulWidget {
   }
 
   void refreshState() {
+    print("got hererererererer");
     getTodayEventList().then((data) {
+      print(_state);
       if (_state == null || !_state.mounted) return;
-      _state.setState(() {
-        todayEventList = data;
-      });
+      _state.refreshState();
     });
   }
 }
@@ -39,6 +39,10 @@ class TodayList extends StatefulWidget {
 class _TodayListState extends State<TodayList> {
   @override
   void initState() {
+    refreshState();
+  }
+
+  void refreshState() {
     getTodayEventList().then((data) {
       setState(() {
         todayEventList = data;
@@ -53,7 +57,8 @@ class _TodayListState extends State<TodayList> {
       appBar: new AppBar(
           elevation: 0,
           iconTheme: new IconThemeData(color: ConstantHelper.tomatoColor),
-          title: new Text(TimatoLocalization.instance.getTranslatedValue('today_page'),
+          title: new Text(
+              TimatoLocalization.instance.getTranslatedValue('today_page'),
               style: TextStyle(color: ConstantHelper.tomatoColor)),
           actions: <Widget>[
             IconButton(
@@ -61,13 +66,12 @@ class _TodayListState extends State<TodayList> {
                 onPressed: () async {
                   SharedPreferences pref =
                       await SharedPreferences.getInstance();
-                  var value = await Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  var value = await Navigator.push(context,
+                      MaterialPageRoute(builder: (_) {
                     return Settings(pref);
                   }));
-                  if(value!=null&&value){
-                    setState(() {
-                      
-                    });
+                  if (value != null && value) {
+                    setState(() {});
                   }
                 })
           ],
@@ -131,16 +135,16 @@ class _TodayListState extends State<TodayList> {
                                 icon: Icon(Icons.delete, color: Colors.white),
                                 onPressed: () => {
                                       WarningDialog.show(
-                                          title: TimatoLocalization.instance.getTranslatedValue('delete_unplanned_title'),
-                                          text:
-                                              TimatoLocalization.instance.getTranslatedValue('delete_unplanned'),
+                                          title: TimatoLocalization.instance
+                                              .getTranslatedValue(
+                                                  'delete_unplanned_title'),
+                                          text: TimatoLocalization.instance
+                                              .getTranslatedValue(
+                                                  'delete_unplanned'),
                                           context: context,
                                           action: (context) {
-                                            deleteEvent(task.id);
-                                            getTodayEventList().then((data) {
-                                              setState(() {
-                                                todayEventList = data;
-                                              });
+                                            deleteEvent(task.id).then((_) {
+                                              refreshState();
                                             });
                                           })
                                     })),
@@ -163,14 +167,7 @@ class _TodayListState extends State<TodayList> {
                                     clockNum: currentClockNum,
                                   );
                                 }));
-
-                                if (needRefresh != null) {
-                                  getTodayEventList().then((data) {
-                                    setState(() {
-                                      todayEventList = data;
-                                    });
-                                  });
-                                }
+                                refreshState();
                               },
                             ))
                       ],
@@ -183,11 +180,17 @@ class _TodayListState extends State<TodayList> {
                                 Icon(Icons.warning,
                                     color: ConstantHelper.tomatoColor),
                                 SizedBox(width: 8),
-                                Text(task.taskName,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black87,
-                                    ))
+                                Container(
+                                    width:
+                                        MediaQuery.of(context).size.width - 100,
+                                    child: Text(task.taskName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: false,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black87,
+                                        )))
                               ],
                             ),
                             SizedBox(
@@ -294,9 +297,12 @@ class TaskTileState extends State<TaskTile> {
                                         Icon(Icons.cancel, color: Colors.white),
                                     onPressed: () => {
                                           WarningDialog.show(
-                                              title: TimatoLocalization.instance.getTranslatedValue('remove_task_title'),
-                                              text:
-                                                  TimatoLocalization.instance.getTranslatedValue('remove_task'),
+                                              title: TimatoLocalization.instance
+                                                  .getTranslatedValue(
+                                                      'remove_task_title'),
+                                              text: TimatoLocalization.instance
+                                                  .getTranslatedValue(
+                                                      'remove_task'),
                                               context: context,
                                               action: (context) {
                                                 task.isTodayList = 0;
@@ -328,13 +334,10 @@ class TaskTileState extends State<TaskTile> {
                                         clockNum: currentClockNum,
                                       );
                                     }));
-
-                                    if (needRefresh != null && needRefresh) {
-                                      context
-                                          .findAncestorWidgetOfExactType<
-                                              TodayList>()
-                                          .refreshState();
-                                    }
+                                    context
+                                        .findAncestorWidgetOfExactType<
+                                            TodayList>()
+                                        .refreshState();
                                   },
                                 ))
                           ],
@@ -375,8 +378,16 @@ class TaskTileState extends State<TaskTile> {
                                             new Row(children: <Widget>[
                                               ///Contains [taskName]
                                               Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width -
+                                                      100,
                                                   margin: EdgeInsets.all(5.0),
                                                   child: Text(task.taskName,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      softWrap: false,
                                                       textAlign: TextAlign.left,
                                                       style: TextStyle(
                                                         fontSize: 16,
@@ -434,13 +445,15 @@ class TaskTileState extends State<TaskTile> {
                                   height: 6,
                                 ),
                                 Container(
-                                  width:200,
-                                child:Text(subtask.taskName,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                          softWrap: false,
-                                    style: TextStyle(fontSize: 15),
-                                    textAlign: TextAlign.center))
+                                    alignment: Alignment.centerLeft,
+                                    width:
+                                        MediaQuery.of(context).size.width - 125,
+                                    child: Text(subtask.taskName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: false,
+                                        style: TextStyle(fontSize: 15),
+                                        textAlign: TextAlign.center))
                               ]))
                         ],
                       ));
