@@ -104,7 +104,8 @@ class TimatoTimerWidget extends StatelessWidget {
         ),
         title: Text(
           event.taskName,
-          maxLines: null,
+          maxLines: 1,
+          softWrap: false,
           style: TextStyle(color: ConstantHelper.tomatoColor),
         ),
         elevation: 0,
