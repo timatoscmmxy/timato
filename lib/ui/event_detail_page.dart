@@ -55,7 +55,8 @@ class _EventListState extends State<EventList> {
               onPressed: () {
                 if (this.task.taskName == '') {
                   Fluttertoast.showToast(
-                      msg: "Task's name cannot be empty",
+                      msg: TimatoLocalization.instance
+                          .getTranslatedValue('task_name_empty'),
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.CENTER,
                       backgroundColor: Colors.white,
@@ -70,8 +71,10 @@ class _EventListState extends State<EventList> {
               icon: Icon(Icons.delete, color: ConstantHelper.tomatoColor),
               onPressed: () => {
                 WarningDialog.show(
-                    title: 'Delete this task?',
-                    text: 'Are you sure to delete this task?',
+                    title: TimatoLocalization.instance
+                        .getTranslatedValue('delete_task_title'),
+                    text: TimatoLocalization.instance
+                        .getTranslatedValue('delete_task'),
                     context: context,
                     action: (context) {
                       deleteEvent(task.id);
@@ -109,10 +112,12 @@ class _EventListState extends State<EventList> {
 
   FloatingRaisedButton _button(String page) {
     if (page == 'mainList') {
-      return FloatingRaisedButton('Done', () async {
+      return FloatingRaisedButton(
+          TimatoLocalization.instance.getTranslatedValue('done'), () async {
         if (this.task.taskName == '') {
           Fluttertoast.showToast(
-              msg: "Task's name cannot be empty",
+              msg: TimatoLocalization.instance
+                  .getTranslatedValue('task_name_empty'),
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.CENTER,
               backgroundColor: Colors.white,
@@ -124,7 +129,9 @@ class _EventListState extends State<EventList> {
         }
       });
     } else {
-      return FloatingRaisedButton('Start clock', () async {
+      return FloatingRaisedButton(
+          TimatoLocalization.instance.getTranslatedValue('start_clock'),
+          () async {
         List<int> timerData = await getTimerData();
         int timerLength = timerData[0];
         int relaxLength = timerData[1];
@@ -183,6 +190,7 @@ class _TextNameState extends State<TextName> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        // width:200,
         child: TextFormField(
       style: TextStyle(fontSize: 17),
       onChanged: (text) {
@@ -191,8 +199,8 @@ class _TextNameState extends State<TextName> {
         print('$this.task.taskName');
       },
       textInputAction: TextInputAction.done,
-      maxLength: 20,
-      maxLines: 2,
+      maxLength: 100,
+      maxLines: 3,
       initialValue: this.task.taskName,
       decoration: const InputDecoration(
         counterText: '',
@@ -223,7 +231,7 @@ class _TaskTagState extends State<TaskTag> {
       SizedBox(width: 12),
       Icon(Icons.label_outline, color: ConstantHelper.tomatoColor),
       Container(
-          width: 166,
+          width: MediaQuery.of(context).size.width - 50,
           child: TextFormField(
             onChanged: (text) {
               if (text != '') {
@@ -233,11 +241,12 @@ class _TaskTagState extends State<TaskTag> {
               }
             },
             textInputAction: TextInputAction.done,
-            maxLength: 10,
+            maxLength: 50,
             initialValue: this.task.tag,
             style: TextStyle(fontSize: 14),
-            decoration: const InputDecoration(
-              hintText: 'enter a tag',
+            decoration: InputDecoration(
+              hintText:
+                  TimatoLocalization.instance.getTranslatedValue('give_tag'),
               counterText: '',
               border: InputBorder.none,
               prefix: Text('   '),
@@ -261,6 +270,7 @@ class _TaskDateState extends State<TaskDate> {
 
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
+        locale: TimatoLocalization.instance.locale,
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime.now(),
@@ -283,7 +293,7 @@ class _TaskDateState extends State<TaskDate> {
         if (this.task.ddl != null) {
           return "${this.task.ddl.toLocal()}".split(' ')[0];
         } else {
-          return "select a date";
+          return TimatoLocalization.instance.getTranslatedValue('select_date');
         }
       })(), style: TextStyle(color: Colors.black54)),
     ]));
@@ -380,9 +390,11 @@ class _TaskDurationState extends State<TaskDuration> {
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             maxLength: 4,
             initialValue: _duration(task),
-            decoration: const InputDecoration(
-                hintText: 'It might take',
-                suffixText: 'minutes',
+            decoration: InputDecoration(
+                hintText: TimatoLocalization.instance
+                    .getTranslatedValue('it_might_take'),
+                suffixText:
+                    TimatoLocalization.instance.getTranslatedValue('minutes'),
                 counterText: '',
                 border: InputBorder.none),
             onChanged: (String text) {
@@ -423,13 +435,15 @@ class _RepeatTimeState extends State<RepeatTime> {
 
   Widget _repeatProperties(Event task) {
     if (task.repeatProperties == null) {
-      return Text("Choose a repeat property",
+      return Text(
+          TimatoLocalization.instance.getTranslatedValue('repeat_property'),
           style: TextStyle(color: Colors.black54));
     } else {
-      return Text("next occurrence: " +
-          ddlFormat.formatDate(
-              task.repeatProperties.nextOccurrence().toDateTimeLocal(),
-              [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]));
+      return Text(
+          TimatoLocalization.instance.getTranslatedValue('next_occurrence') +
+              ddlFormat.formatDate(
+                  task.repeatProperties.nextOccurrence().toDateTimeLocal(),
+                  [ddlFormat.yyyy, '-', ddlFormat.mm, '-', ddlFormat.dd]));
     }
   }
 
@@ -438,7 +452,6 @@ class _RepeatTimeState extends State<RepeatTime> {
     return Container(
         child: new Row(
       children: <Widget>[
-        // SizedBox(width: 12),
         IconButton(
             icon: Icon(Icons.repeat, color: ConstantHelper.tomatoColor),
             onPressed: () async {
@@ -495,7 +508,7 @@ class _SubtaskListState extends State<SubtaskList> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-        height: 35.0 * (_subLength(subtasksList) + 1) + 20 + 22,
+        height: 35.0 * (_subLength(subtasksList) + 2) + 20 + 22,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -508,7 +521,7 @@ class _SubtaskListState extends State<SubtaskList> {
             Container(
                 padding: EdgeInsets.all(10),
                 width: size.width - 49,
-                height: 35.0 * (_subLength(subtasksList) + 1) + 20 + 22,
+                height: 35.0 * (_subLength(subtasksList) + 2) + 20 + 22,
                 child: _sublist(task)),
           ],
         ));
@@ -519,7 +532,6 @@ class _SubtaskListState extends State<SubtaskList> {
       SizedBox(height: 22),
       Container(
           height: 35.0 * (_subLength(subtasksList)),
-          width: 326,
           child: ListView(
             physics: NeverScrollableScrollPhysics(),
             children: subtasksList.map((subtask) {
@@ -546,9 +558,9 @@ class _SubtaskListState extends State<SubtaskList> {
             }).toList(),
           )),
       Container(
-        height: 35,
-        width: 326,
+        height: 70,
         child: TextField(
+            maxLines: 3,
             controller: TextEditingController()..text = '',
             onChanged: (text) => {},
             onSubmitted: (text) {
@@ -564,12 +576,13 @@ class _SubtaskListState extends State<SubtaskList> {
               }
             },
             textInputAction: TextInputAction.done,
-            maxLength: 15,
-            decoration: const InputDecoration(
+            maxLength: 50,
+            decoration: InputDecoration(
                 counterText: '',
                 border: InputBorder.none,
                 prefix: Text('   '),
-                hintText: 'add a subtask...')),
+                hintText: TimatoLocalization.instance
+                    .getTranslatedValue('add_subtask'))),
       )
     ]);
   }
@@ -593,13 +606,11 @@ class _SublistDetailState extends State<SublistDetail> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 35,
-        width: 326,
+        width: MediaQuery.of(context).size.width,
         child: Row(
           children: <Widget>[
             Container(
-                width: 200,
-                height: 35,
+                width: MediaQuery.of(context).size.width - 75,
                 child: TextFormField(
                   onChanged: (text) {
                     subtask.taskName = text;
@@ -607,7 +618,8 @@ class _SublistDetailState extends State<SublistDetail> {
                     print('$subtask.taskName');
                   },
                   textInputAction: TextInputAction.done,
-                  maxLength: 25,
+                  maxLength: 50,
+                  maxLines: 1,
                   initialValue: subtask.taskName,
                   decoration: const InputDecoration(
                     counterText: '',
