@@ -25,6 +25,14 @@ enum Priority { HIGH, MIDDLE, LOW, NONE }
 class ConstantHelper {
   static List<String> twoLanguageList = ["English", "中文"];
 
+  static Widget repeat(Event task) {
+    if (task.repeatProperties == null) {
+      return SizedBox();
+    } else {
+      return Icon(Icons.repeat, color: ConstantHelper.tomatoColor);
+    }
+  }
+
   // static List<String> title = [
   //   TimatoLocalization.instance.getTranslatedValue('today'),
   //   TimatoLocalization.instance.getTranslatedValue('yesterday'),

@@ -50,19 +50,15 @@ void main() async {
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
-    localeResolutionCallback: (deviceLocale, supportedLocales){
-      for(var locale in supportedLocales) {
-        if(locale.languageCode == deviceLocale.languageCode){
-          return deviceLocale;
-        }
-      }
-      return supportedLocales.first;
-    },
     home: TodayList(),
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
+      focusColor: ConstantHelper.tomatoColor,
+      splashColor: ConstantHelper.tomatoColor,
+      cursorColor: ConstantHelper.tomatoColor,
       brightness: Brightness.light,
       primaryColor: Colors.white,
+      colorScheme: ColorScheme.light(primary: ConstantHelper.tomatoColor),
       scaffoldBackgroundColor: Colors.white,
       accentColor: ConstantHelper.tomatoColor,
     ),
