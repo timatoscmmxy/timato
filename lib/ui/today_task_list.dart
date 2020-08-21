@@ -10,11 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:timato/core/event.dart';
 import 'package:timato/core/event_repository.dart';
+import 'package:timato/core/tag_repository.dart';
 import 'package:timato/ui/add_event.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/main_list.dart';
 import 'package:timato/ui/event_detail_page.dart';
 import 'package:timato/ui/settings_widget.dart';
+import 'package:timato/ui/stats_page.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 
 class TodayList extends StatefulWidget {
@@ -92,7 +94,46 @@ class _TodayListState extends State<TodayList> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.schedule, color: Colors.black38),
+                  onPressed: () async{
+                    SharedPreferences _prefs = await SharedPreferences.getInstance();
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_){
+                        return TimatoTimerWidget(
+                          timerLength: _prefs.getInt('timerLength'),
+                          relaxLength: _prefs.getInt('relaxLength'),
+                          event: Event(
+                              taskName: TimatoLocalization.instance.getTranslatedValue('plain_pomodoro_timer'),
+                              usedTimerNum: 0
+                          ),
+                        );
+                      }
+                    ));
+                  },
+                ),
                 Expanded(child: Container()),
+                IconButton(
+                  icon: Icon(Icons.assessment, color: Colors.black38),
+                  onPressed: () async {
+                    var weekDayTimerNums = await getWeekTimerNum();
+                    var timerNumsToday = await getTodayTimerNum();
+                    var timerNumsWeek = weekDayTimerNums.fold(
+                        0, (previousValue, element) => previousValue + element);
+                    var tagTimerNumsToday = await getTodayTagTimerNum();
+                    var tagTimerNumsWeek = await getWeekTagTimerNum();
+
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return StatsPage(
+                        timerNumsWeek: timerNumsWeek,
+                        tagTimerNumsToday: tagTimerNumsToday,
+                        timerNumsToday: timerNumsToday,
+                        tagTimerNumsWeek: tagTimerNumsWeek,
+                        weekDayTimerNums: weekDayTimerNums,
+                      );
+                    }));
+                  },
+                ),
               ],
             )),
         elevation: 20,

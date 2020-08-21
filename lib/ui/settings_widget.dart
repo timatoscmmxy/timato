@@ -75,36 +75,52 @@ class _SettingsState extends State<Settings> {
 
   Widget _language() {
     return Container(
-        height: 60,
-        child: new Row(
+      child: ListTile(
+        title: Row(
           children: <Widget>[
-            SizedBox(width: 15),
-            Text(
-              TimatoLocalization.instance.getTranslatedValue('language'),
-              style: TextStyle(
-                fontSize: 17,
-                color: Colors.black87,
+            Expanded(
+              child: Container(
+                child: Text(
+                  TimatoLocalization.instance.getTranslatedValue('language'),
+                  style: TextStyle(
+                    fontSize: 17,
+                    color: Colors.black87,
+                  ),
+                ),
+                padding: EdgeInsets.all(10),
               ),
             ),
-            SizedBox(width: 90),
-            DropdownButton<String>(
-                value:
+            Expanded(
+              child: Container(
+                child: DropdownButton<String>(
+                    value:
                     Language.localeString[TimatoLocalization.instance.locale],
-                onChanged: (String language) {
-                  _changeLanguage(language);
-                },
-                items: ConstantHelper.twoLanguageList.map((lang) {
-                  return DropdownMenuItem<String>(
-                      value: lang,
-                      child: Row(children: <Widget>[
-                        Text(
-                          lang,
-                          style: TextStyle(fontSize: 14),
-                        )
-                      ]));
-                }).toList())
+                    onChanged: (String language) {
+                      _changeLanguage(language);
+                    },
+                    isExpanded: true,
+                    items: ConstantHelper.twoLanguageList.map((lang) {
+                      return DropdownMenuItem<String>(
+                          value: lang,
+                          child: Row(children: <Widget>[
+                            Text(
+                              lang,
+                              style: TextStyle(fontSize: 14),
+                            )
+                          ]));
+                    }).toList()),
+              ),
+            )
           ],
-        ));
+        ),
+        contentPadding: EdgeInsets.all(5),
+      ),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+          border: Border(
+              bottom: BorderSide(
+                  color: Colors.black12, style: BorderStyle.solid, width: 1))),
+    );
   }
 }
 

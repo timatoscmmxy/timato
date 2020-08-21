@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'dart:isolate';
 
+import 'package:dart_numerics/dart_numerics.dart';
 import 'package:flutter/material.dart';
+import 'package:timato/ui/basics.dart';
+import 'package:timato/ui/timato_timer_widget.dart';
+
+import 'notifications.dart';
 
 /// Used to count down a pomodora timer
 ///
@@ -16,9 +22,12 @@ import 'package:flutter/material.dart';
 /// Then, the [_timerCount] will count up from zero.
 class TimatoTimer {
   final ReceivePort receivePort = ReceivePort();
+
   /// The length of the timer.
   /// If it is changed, kill the current TimatoTimer and create a new one.
   final int timerLength;
+
+  final int relaxLength;
 
   /// It processes the periodically listened data (the [_timerCount] of each second)
   final void Function(int) _onData;
@@ -27,10 +36,12 @@ class TimatoTimer {
 
   /// It checks whether the timer times out.
   /// Though it is private, you can still get it by using <TimatoTimer>.isRelax ([isRelax])
-  var _isRelax = false;
+  bool _isRelax = false;
 
   /// The timer counter
-  var _timerCount = 0;
+  int _timerCount = 0;
+
+  DateTime _startTime;
 
   /// The timer
   Timer _t;
@@ -42,7 +53,7 @@ class TimatoTimer {
   bool get isActive => _t.isActive;
 
   /// Creates a new TimatoTimer that initialte an isolate and set the [_timerCount] to be the [timerLength]
-  TimatoTimer(this.timerLength, this._onData) {
+  TimatoTimer(this.timerLength, this.relaxLength, this._onData) {
     _timerCount = timerLength;
     _onData(_timerCount);
     receivePort.listen((message) {
@@ -70,7 +81,15 @@ class TimatoTimer {
 
   /// Start the timer
   void start() async {
-    Map map = {'timerCount': _timerCount, 'isRelax' : _isRelax, 'port' : receivePort.sendPort};
+    _startTime = DateTime.now();
+    Map map = {
+      'localization': TimatoLocalization.instance,
+      'relaxLength': relaxLength,
+      'timerCount': _timerCount,
+      'startTime': _startTime,
+      'isRelax': _isRelax,
+      'port': receivePort.sendPort
+    };
     _isolate = await Isolate.spawn(_startTimeout, map);
   }
 
@@ -86,11 +105,25 @@ class TimatoTimer {
   /// Start a timer with a minimum unit of one second.
   /// count down the timer
   static void _startTimeout(Map map) async {
+    var localization = map['localization'];
+    int relaxLength = map['relaxLength'];
     int timerCount = map['timerCount'];
+    int timerStart = map['timerCount'];
+    DateTime startTime = map['startTime'];
     bool isRelax = map['isRelax'];
     SendPort sendPort = map['port'];
-    Timer.periodic(Duration(seconds: 1), (_) {
-      sendPort.send([--timerCount, isRelax]);
+    int count = 0;
+    TimerStatus status = TimerStatus.normal;
+    Timer.periodic(Duration(seconds: 1), (_) async {
+      if (count++ == 5) {
+        count = 0;
+        int timeDiff =
+            DateTime.now().difference(startTime).abs().inSeconds.round();
+        timerCount = timerStart - timeDiff;
+      } else {
+        --timerCount;
+      }
+      sendPort.send([timerCount, isRelax]);
       if (timerCount <= 0) {
         isRelax = true;
       }

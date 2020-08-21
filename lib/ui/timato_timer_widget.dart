@@ -86,7 +86,7 @@ class TimatoTimerWidget extends StatelessWidget {
     @required int relaxLength,
     @required AbstractEvent event,
     int clockNum,
-  })  : this._timer = TimatoTimer(timerLength, _onData),
+  })  : this._timer = TimatoTimer(timerLength, relaxLength, _onData),
         this.event = event {
     _textColor.value = Colors.black;
     _buttonColor.value = Colors.white;

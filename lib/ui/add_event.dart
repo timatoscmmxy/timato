@@ -189,7 +189,8 @@ class AddEventState extends State<AddEvent> {
                   hintText: widget._textHint,
                 ),
                 autofocus: true,
-                maxLines: null,
+                maxLines: 3,
+                maxLength: 100,
                 onChanged: (string) {
                   newEvent.taskName = string;
                   if (string == "") {
@@ -450,6 +451,8 @@ class SetTag extends StatelessWidget {
       content: Container(
         child: TextField(
           autofocus: true,
+          maxLines: 1,
+          maxLength: 50,
           decoration: InputDecoration(
             hintText:
                 TimatoLocalization.instance.getTranslatedValue('give_tag'),
