@@ -50,14 +50,14 @@ void main() async {
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
-    localeResolutionCallback: (deviceLocale, supportedLocales){
-      for(var locale in supportedLocales) {
-        if(locale.languageCode == deviceLocale.languageCode){
-          return deviceLocale;
-        }
-      }
-      return supportedLocales.first;
-    },
+    // localeResolutionCallback: (deviceLocale, supportedLocales){
+    //   for(var locale in supportedLocales) {
+    //     if(locale.languageCode == deviceLocale.languageCode){
+    //       return deviceLocale;
+    //     }
+    //   }
+    //   return supportedLocales.first;
+    // },
     home: TodayList(),
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
