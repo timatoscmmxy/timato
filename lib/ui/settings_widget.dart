@@ -62,6 +62,7 @@ class _SettingsState extends State<Settings> {
         _pref.setInt('relaxLength', relaxLength);
         Navigator.pop(context, true);
       }),
+      resizeToAvoidBottomPadding: false,
     );
   }
 
@@ -134,6 +135,7 @@ class TextSetting extends StatelessWidget {
               child: Container(
                   child: TextField(
                 decoration: InputDecoration(
+                  border: InputBorder.none,
                     hintText: TimatoLocalization.instance
                             .getTranslatedValue('current') +
                         '${_value ~/ 60}' +

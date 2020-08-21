@@ -394,9 +394,16 @@ class TaskTileState extends State<TaskTile> {
                                                         color: Colors.black87,
                                                       )))
                                             ]),
+                                            new Row(
+                                              children: <Widget>[
+                                                // ConstantHelper.repeat(task),
 
-                                            ///Contains [tag] and [ddl]
-                                            ConstantHelper.tagDdl(task),
+                                                ///Contains [tag] and [ddl]
+                                                ConstantHelper.tagDdl(task),
+                                                SizedBox(width:2),
+                                                ConstantHelper.repeat(task),
+                                              ],
+                                            )
                                           ]),
                                     ]),
                                 _sublist(task),

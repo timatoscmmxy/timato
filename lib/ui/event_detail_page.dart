@@ -508,7 +508,7 @@ class _SubtaskListState extends State<SubtaskList> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
-        height: 35.0 * (_subLength(subtasksList) + 2) + 20 + 22,
+        height: 48.0 * (_subLength(subtasksList) + 2) + 20 + 22,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -521,7 +521,7 @@ class _SubtaskListState extends State<SubtaskList> {
             Container(
                 padding: EdgeInsets.all(10),
                 width: size.width - 49,
-                height: 35.0 * (_subLength(subtasksList) + 2) + 20 + 22,
+                height: 48.0 * (_subLength(subtasksList) + 2) + 20 + 22,
                 child: _sublist(task)),
           ],
         ));
@@ -531,7 +531,7 @@ class _SubtaskListState extends State<SubtaskList> {
     return Column(children: <Widget>[
       SizedBox(height: 22),
       Container(
-          height: 35.0 * (_subLength(subtasksList)),
+          height: 48.0 * (_subLength(subtasksList)),
           child: ListView(
             physics: NeverScrollableScrollPhysics(),
             children: subtasksList.map((subtask) {
