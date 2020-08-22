@@ -16,7 +16,8 @@ Future<String> testTimer1() async{
       timer.stop();
     }
   }
-  timer = TimatoTimer(5, onData);
+  //TODO:
+  // timer = TimatoTimer(5, onData);
   timer.start();
   await timer.untilRelax();
   return msg;
@@ -30,7 +31,7 @@ Future<String> testTimer2() async{
     count = data;
     msg += data.toString();
   }
-  timer = TimatoTimer(5, onData);
+  // timer = TimatoTimer(5, onData);
   timer.start();
   while(!(timer.isRelax && count == 5)){
     await Future.delayed(const Duration(milliseconds: 500));
@@ -47,7 +48,7 @@ Future<String> testTimer3() async{
     count = data;
     msg += data.toString();
   }
-  timer = TimatoTimer(5, onData);
+  // timer = TimatoTimer(5, onData);
   timer.start();
   while(count != 2){
     await Future.delayed(const Duration(milliseconds: 500));
@@ -64,7 +65,7 @@ Future<String> testTimer4() async{
     count = data;
     msg += data.toString();
   }
-  timer = TimatoTimer(5, onData);
+  // timer = TimatoTimer(5, onData);
   timer.start();
   while(count != 2){
     await Future.delayed(const Duration(milliseconds: 500));
@@ -85,7 +86,7 @@ Future<String> testTimer5() async{
     count = data;
     msg += data.toString();
   }
-  timer = TimatoTimer(5, onData);
+  // timer = TimatoTimer(5, onData);
   timer.start();
   while(count != 2){
     await Future.delayed(const Duration(milliseconds: 500));
