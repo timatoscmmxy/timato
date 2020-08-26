@@ -2,13 +2,49 @@ import 'dart:async';
 import 'dart:math';
 
 import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:dart_numerics/dart_numerics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:timato/ui/basics.dart';
 import 'package:timato/ui/timato_timer_widget.dart';
 
 import 'notifications.dart';
+
+class TimatoTimerPlugin{
+  static const MethodChannel _channel =
+  const MethodChannel('plugins.flutter.io/timato_timer_plugin');
+
+  static void callbackDispatcher() {
+    const MethodChannel _backgroundChannel =
+    MethodChannel('plugins.flutter.io/timato_timer_plugin_background');
+
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // 2. Listen for background events from the platform portion of the plugin.
+    _backgroundChannel.setMethodCallHandler((MethodCall call) async {
+      final args = call.arguments;
+
+      // 2.1. Retrieve callback instance for handle.
+      final Function callback = PluginUtilities.getCallbackFromHandle(
+          CallbackHandle.fromRawHandle(args[0]));
+      assert(callback != null);
+
+
+
+      callback();
+    });
+
+    _backgroundChannel.invokeMethod('TimatoTimerService.initialized');
+  }
+
+  static void initialize() async {
+    final callback = PluginUtilities.getCallbackHandle(callbackDispatcher);
+    await _channel.invokeMethod('TimatoTimerPlugin.initializeService',
+        <dynamic>[callback.toRawHandle()]);
+  }
+}
 
 /// Used to count down a pomodora timer
 ///
@@ -60,6 +96,7 @@ class TimatoTimer {
       _timerCount = message[0];
       _isRelax = message[1];
       _onData(_timerCount);
+      notifications.show(2, "TimatoEvent", secondToString(_timerCount), countdownNotificationDetails);
     });
   }
 
@@ -77,6 +114,7 @@ class TimatoTimer {
     _isRelax = false;
     _timerCount = timerLength;
     _onData(_timerCount);
+    notifications.cancelAll();
   }
 
   /// Start the timer
@@ -98,6 +136,7 @@ class TimatoTimer {
     _isolate?.kill();
 //    if (_t == null) return;
 //    _t.cancel();
+    notifications.cancel(2);
   }
 
   /// Start a timer
@@ -105,24 +144,15 @@ class TimatoTimer {
   /// Start a timer with a minimum unit of one second.
   /// count down the timer
   static void _startTimeout(Map map) async {
-    var localization = map['localization'];
-    int relaxLength = map['relaxLength'];
     int timerCount = map['timerCount'];
     int timerStart = map['timerCount'];
     DateTime startTime = map['startTime'];
     bool isRelax = map['isRelax'];
     SendPort sendPort = map['port'];
-    int count = 0;
-    TimerStatus status = TimerStatus.normal;
-    Timer.periodic(Duration(seconds: 1), (_) async {
-      if (count++ == 5) {
-        count = 0;
-        int timeDiff =
-            DateTime.now().difference(startTime).abs().inSeconds.round();
-        timerCount = timerStart - timeDiff;
-      } else {
-        --timerCount;
-      }
+    Timer.periodic(Duration(milliseconds: 500), (_) async {
+      int timeDiff =
+          DateTime.now().difference(startTime).abs().inSeconds.round();
+      timerCount = timerStart - timeDiff;
       sendPort.send([timerCount, isRelax]);
       if (timerCount <= 0) {
         isRelax = true;

@@ -534,3 +534,19 @@ class _TimatoLocalizationDelegate
   @override
   bool shouldReload(_TimatoLocalizationDelegate old) => false;
 }
+
+String secondToString(int timerCounter) {
+  if (timerCounter < 0) {
+    timerCounter = -timerCounter;
+  }
+  var result = "";
+  if (timerCounter < 0 || timerCounter >= 360000 - 1) {
+    result = "00:00:00";
+  } else {
+    var hour = (timerCounter ~/ 3600).toString().padLeft(2, '0');
+    var minute = ((timerCounter % 3600) ~/ 60).toString().padLeft(2, '0');
+    var second = ((timerCounter % 3600) % 60).toString().padLeft(2, '0');
+    result = "$hour:$minute:$second";
+  }
+  return result;
+}
