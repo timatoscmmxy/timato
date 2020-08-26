@@ -132,8 +132,8 @@ class TimatoTimer {
   }
 
   /// Stop the timer
-  void stop() {
-    _isolate?.kill();
+  void stop() async{
+    _isolate?.kill(priority: Isolate.immediate);
 //    if (_t == null) return;
 //    _t.cancel();
     notifications.cancel(2);
