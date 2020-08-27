@@ -81,7 +81,6 @@ Widget _completed() {
   return ListView.builder(
     itemCount: 3,
     itemBuilder: (BuildContext context, int i) {
-      print('here' + title[i]);
       return new DateTile(date: title[i]);
     },
   );
@@ -149,7 +148,6 @@ class _DateTileState extends State<DateTile> {
                 onPressed: () async {
                   if (date ==
                       TimatoLocalization.instance.getTranslatedValue('today')) {
-                    print("got here today");
                     WarningDialog.show(
                         title: TimatoLocalization.instance
                             .getTranslatedValue('empty_today_list_title'),

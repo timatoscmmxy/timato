@@ -29,7 +29,6 @@ class TodayList extends StatefulWidget {
   }
 
   void refreshState() {
-    print("got hererererererer");
     getTodayEventList().then((data) {
       print(_state);
       if (_state == null || !_state.mounted) return;

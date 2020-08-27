@@ -86,7 +86,6 @@ Future<Map<String, int>> getWeekTagTimerNum() async {
         where: "${TagEntity.colDate} = \"${today.toString()}\""));
         today = today.add(Duration(days:-1));
   }
-  print(tags);
   for (var tagRow in tags) {
     String key = tagRow[TagEntity.colTag];
     if(key!=null){
