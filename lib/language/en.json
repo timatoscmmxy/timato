@@ -125,6 +125,6 @@
   "remove_task_title": "Remove this task?",
   "remove_task": "Are you sure to remove this task from Today's Tasks?",
   "settings_title":"Settings",
-  "version": "Version: 0.0.2",
+  "version": "Version: 0.0.3",
   "plain_pomodoro_timer": "Plain Pomodoro Timer"
 }

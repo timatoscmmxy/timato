@@ -125,6 +125,6 @@
   "remove_task_title": "移出该事件？",
   "remove_task": "你确定要把该事件移出今日待办清单吗？",
   "settings_title":"设置",
-  "version": "版本号: 0.0.2",
+  "version": "版本号: 0.0.3",
   "plain_pomodoro_timer": "快速番茄钟"
 }
