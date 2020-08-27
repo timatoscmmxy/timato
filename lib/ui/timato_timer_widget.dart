@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timato/core/completed_repository.dart';
 import 'package:timato/core/event_repository.dart';
@@ -43,7 +44,7 @@ class TimatoTimerWidget extends StatelessWidget {
   static BuildContext get context => null;
 
   static void _onData(int count) async {
-    _time.value = _secondToString(count);
+    _time.value = secondToString(count);
     if (count <= 0) {
       if (-count > _relaxTime) {
         if (_status == TimerStatus.relax) {
@@ -205,22 +206,6 @@ class TimatoTimerWidget extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
-
-  static String _secondToString(int timerCounter) {
-    if (timerCounter < 0) {
-      timerCounter = -timerCounter;
-    }
-    var result = "";
-    if (timerCounter < 0 || timerCounter >= 360000 - 1) {
-      result = "00:00:00";
-    } else {
-      var hour = (timerCounter ~/ 3600).toString().padLeft(2, '0');
-      var minute = ((timerCounter % 3600) ~/ 60).toString().padLeft(2, '0');
-      var second = ((timerCounter % 3600) % 60).toString().padLeft(2, '0');
-      result = "$hour:$minute:$second";
-    }
-    return result;
-  }
 }
 
 class TimerText extends StatelessWidget {
@@ -299,7 +284,7 @@ class ButtonIcon extends StatelessWidget {
             color: ConstantHelper.tomatoColor,
           );
         }
-        return Icon(value);
+        return Icon(value, color: Colors.white,);
       },
     );
   }
