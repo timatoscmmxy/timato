@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'dart:isolate';
@@ -96,7 +97,9 @@ class TimatoTimer {
       _timerCount = message[0];
       _isRelax = message[1];
       _onData(_timerCount);
+      if(Platform.isAndroid){
       notifications.show(2, "TimatoEvent", secondToString(_timerCount), countdownNotificationDetails);
+      }
     });
   }
 
