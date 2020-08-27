@@ -53,7 +53,7 @@ class _SettingsState extends State<Settings> {
               relaxLength,
               (val) => relaxLength = val * 60),
           _language(),
-          Divider(color: Colors.grey[400]),
+          // Divider(color: Colors.grey[400]),
         ],
       ),
       floatingActionButton: FloatingRaisedButton(
